@@ -1,0 +1,11 @@
+{
+  "_health": {
+    "fails": 0,
+    "last_ok": "2026-07-29T15:19:01.448847-04:00"
+  },
+  "CS 305-9": {
+    "open": false,
+    "seats": 0,
+    "last_alert": null
+  }
+}
