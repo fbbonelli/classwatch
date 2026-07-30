@@ -41,7 +41,13 @@ jobs:
 
           END=$(( $(date +%s) + RUN_FOR_SECONDS ))
           n=0
-          last_push=0
+          # Seed the throttle from when the dashboard was last actually published.
+          # Runs get cancelled and restarted constantly, so a fresh run must not
+          # reset this to 0 — that made every new run publish immediately and blew
+          # straight through the 15-minute limit.
+          last_push=$(git log -1 --format=%ct -- docs/index.html 2>/dev/null || echo 0)
+          last_push=${last_push:-0}
+          echo "dashboard last published $(( ($(date +%s) - last_push) / 60 )) min ago"
           while [ "$(date +%s)" -lt "$END" ]; do
             n=$((n+1))
             echo "::group::check #$n  $(TZ=America/New_York date '+%F %H:%M:%S ET')"
