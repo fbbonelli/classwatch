@@ -31,7 +31,7 @@ jobs:
       - name: Watch for open seats
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-          CHECK_INTERVAL_SECONDS: "300"     # check every 5 minutes
+          CHECK_INTERVAL_SECONDS: "900"     # check every 15 minutes
           RUN_FOR_SECONDS: "19800"          # keep going for 5.5 hours
           DASHBOARD_PUSH_SECONDS: "900"     # refresh the public dashboard every 15 min
         run: |
