@@ -234,11 +234,17 @@ def main():
 
     save(STATE, state)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
+    # Report the interval the workflow is actually using, so "next check" on the
+    # dashboard doesn't quietly lie when the schedule changes.
+    try:
+        poll_min = max(1, round(int(os.environ.get("CHECK_INTERVAL_SECONDS", "900")) / 60))
+    except ValueError:
+        poll_min = 15
     with open(OUT, "w") as f:
         f.write(dashboard.render_page(
             wl=wl, found=found, checked_at=now,
             term_label=TERMS.get(wl["term"], wl["term"]),
-            poll_minutes=10, listing_url=LISTING_URL, live=True))
+            poll_minutes=poll_min, listing_url=LISTING_URL, live=True))
     log(f"dashboard written -> {OUT}")
     return 0
 
