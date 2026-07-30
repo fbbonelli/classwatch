@@ -31,8 +31,9 @@ jobs:
       - name: Watch for open seats
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-          CHECK_INTERVAL_SECONDS: "300"   # check every 5 minutes
-          RUN_FOR_SECONDS: "19800"        # keep going for 5.5 hours
+          CHECK_INTERVAL_SECONDS: "300"     # check every 5 minutes
+          RUN_FOR_SECONDS: "19800"          # keep going for 5.5 hours
+          DASHBOARD_PUSH_SECONDS: "900"     # refresh the public dashboard every 15 min
         run: |
           set -uo pipefail
           git config user.name  "classwatch-bot"
@@ -40,20 +41,37 @@ jobs:
 
           END=$(( $(date +%s) + RUN_FOR_SECONDS ))
           n=0
+          last_push=0
           while [ "$(date +%s)" -lt "$END" ]; do
             n=$((n+1))
             echo "::group::check #$n  $(TZ=America/New_York date '+%F %H:%M:%S ET')"
             # Never let one bad check kill the watcher — it retries next cycle.
             python3 check.py || echo "check returned non-zero; continuing"
 
-            if ! git diff --quiet -- state.json docs/index.html; then
+            # state.json changing means a class actually opened or closed — push at
+            # once. docs/index.html alone only means the timestamp moved, and GitHub
+            # Pages soft-caps builds at 10/hour, so throttle those to every 15 min.
+            reason=""
+            if ! git diff --quiet -- state.json; then
+              reason="seat status changed"
+            elif ! git diff --quiet -- docs/index.html \
+                 && [ $(( $(date +%s) - last_push )) -ge "$DASHBOARD_PUSH_SECONDS" ]; then
+              reason="dashboard heartbeat"
+            fi
+
+            if [ -n "$reason" ]; then
+              echo "pushing: $reason"
               git add state.json docs/index.html
-              git commit -q -m "status $(TZ=America/New_York date '+%F %H:%M ET')"
+              git commit -q -m "status $(TZ=America/New_York date '+%F %H:%M ET') — $reason"
               # Another run may have pushed while we were sleeping.
               git pull --rebase --autostash -q origin main || true
-              git push -q origin main || echo "push failed; will retry next cycle"
+              if git push -q origin main; then
+                last_push=$(date +%s)
+              else
+                echo "push failed; will retry next cycle"
+              fi
             else
-              echo "no change"
+              echo "no push this cycle"
             fi
             echo "::endgroup::"
 
