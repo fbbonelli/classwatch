@@ -26,6 +26,10 @@ import dashboard  # noqa: E402
 WATCHLIST = os.path.join(HERE, "watchlist.json")
 STATE     = os.path.join(HERE, "state.json")
 OUT       = os.path.join(HERE, "docs", "index.html")
+# Written only when a class actually flips to open. The workflow watches for this
+# to decide whether to publish immediately — it can't just diff state.json,
+# because _health.last_ok makes that file differ on every single check.
+SEAT_CHANGE_FLAG = os.path.join(HERE, "SEAT_CHANGE")
 
 URL = "https://bentleyapps.azurewebsites.net/course-listing/index.php"
 LISTING_URL = "https://bentleyapps.azurewebsites.net/course-listing/"
@@ -209,6 +213,8 @@ def main():
         ntfy(f"🎓 SEAT OPEN — {', '.join(r['code'] for r in fire)}",
              "Register NOW — first come, first served.\n\n" + "\n\n".join(lines)
              + "\n\nhttps://www.bentley.edu/mybentley")
+        with open(SEAT_CHANGE_FLAG, "w") as f:
+            f.write(", ".join(r["code"] for r in fire))
     else:
         log(f"checked {sum(len(v) for v in found.values())} section(s) — none newly open")
 

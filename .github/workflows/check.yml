@@ -48,14 +48,17 @@ jobs:
             # Never let one bad check kill the watcher — it retries next cycle.
             python3 check.py || echo "check returned non-zero; continuing"
 
-            # state.json changing means a class actually opened or closed — push at
-            # once. docs/index.html alone only means the timestamp moved, and GitHub
-            # Pages soft-caps builds at 10/hour, so throttle those to every 15 min.
+            # check.py drops a SEAT_CHANGE file only when a class actually opened,
+            # so publish at once. We can't diff state.json for this: _health.last_ok
+            # makes it differ every single check. Everything else is just the
+            # timestamp moving, and GitHub Pages soft-caps builds at 10/hour, so
+            # those get throttled to every 15 minutes.
             reason=""
-            if ! git diff --quiet -- state.json; then
-              reason="seat status changed"
-            elif ! git diff --quiet -- docs/index.html \
-                 && [ $(( $(date +%s) - last_push )) -ge "$DASHBOARD_PUSH_SECONDS" ]; then
+            if [ -f SEAT_CHANGE ]; then
+              reason="SEAT OPEN: $(cat SEAT_CHANGE)"
+              rm -f SEAT_CHANGE
+            elif [ $(( $(date +%s) - last_push )) -ge "$DASHBOARD_PUSH_SECONDS" ] \
+                 && ! git diff --quiet -- state.json docs/index.html; then
               reason="dashboard heartbeat"
             fi
 
