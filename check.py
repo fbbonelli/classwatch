@@ -143,6 +143,20 @@ def ntfy(title, message, urgent=True):
 # ------------------------------------------------------------------ main
 
 def main():
+    # One-shot proof that the cloud can reach your phone: verifies NTFY_TOPIC is
+    # set correctly in repo secrets and that GitHub's runners can publish to ntfy.
+    if os.environ.get("SELFTEST") == "1":
+        now = datetime.now(EASTERN)
+        ok = ntfy("✅ ClassWatch cloud test",
+                  "This alert came from GitHub's servers, not your laptop.\n\n"
+                  "The 24/7 watcher can reach your phone. No class actually opened.\n\n"
+                  f"Sent {now:%b %d, %-I:%M %p ET}", urgent=False)
+        if not ok:
+            log("SELFTEST FAILED — check the NTFY_TOPIC repository secret")
+            return 1
+        log("SELFTEST OK — the cloud reached your phone")
+        return 0
+
     wl = load(WATCHLIST, {"term": "202609", "courses": []})
     state = load(STATE, {})
     now = datetime.now(EASTERN)

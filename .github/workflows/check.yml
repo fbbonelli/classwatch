@@ -10,6 +10,11 @@ on:
   schedule:
     - cron: "*/10 * * * *"   # fires whenever GitHub feels like it; that's fine now
   workflow_dispatch:
+    inputs:
+      selftest:
+        description: "Send one test alert to the phone, then stop"
+        type: boolean
+        default: false
   push:
     branches: [main]         # editing the watchlist restarts the watcher immediately
 
@@ -28,7 +33,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Send test alert
+        if: inputs.selftest
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          SELFTEST: "1"
+        run: python3 check.py
+
       - name: Watch for open seats
+        if: ${{ !inputs.selftest }}
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           CHECK_INTERVAL_SECONDS: "900"     # check every 15 minutes
