@@ -105,6 +105,23 @@
 .cw-empty{background:var(--sunken);border:1px dashed var(--line);border-radius:5px;
   padding:26px;text-align:center;color:var(--muted);font-size:14px;}
 
+/* check-now control */
+.cw-bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;}
+.cw-btn{font:inherit;font-size:13.5px;font-weight:600;letter-spacing:.01em;
+  padding:10px 18px;border-radius:4px;cursor:pointer;
+  background:var(--ink);color:var(--paper);border:1px solid var(--ink);
+  display:inline-flex;align-items:center;gap:8px;}
+.cw-btn:hover:not(:disabled){opacity:.86;}
+.cw-btn:disabled{opacity:.55;cursor:progress;}
+.cw-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+.cw-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none;}
+.cw-btn.busy .cw-dot{animation:cwpulse 1s ease-in-out infinite;}
+@keyframes cwpulse{0%,100%{opacity:1}50%{opacity:.25}}
+.cw-age{font-family:var(--mono);font-size:12px;color:var(--muted);
+  font-variant-numeric:tabular-nums;}
+.cw-age.err{color:var(--full);}
+.cw-age.ok{color:var(--open);}
+
 /* footer */
 .cw-foot{border-top:1px solid var(--line);padding-top:18px;
   font-size:12.5px;color:var(--muted);line-height:1.65;
@@ -123,4 +140,72 @@
   .cw-stamp{margin-left:0;text-align:left;width:100%;}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
-</style><div class="cw"><div class="cw-wrap"><header class="cw-top"><h1 class="cw-mark">ClassWatch</h1><span class="cw-term">Fall 2026</span><span class="cw-stamp">Checked 1:54 PM ET<br>Next check ~2:09 PM ET</span></header><section class="cw-verdict is-quiet"><h2>Still full</h2><p>Your class is at zero seats. You'll get a text the moment that changes.</p></section><p class="cw-lab">Watching 1 class</p><ul class="cw-list"><li class="cw-card full"><p class="cw-code">CS 305-9</p><p class="cw-name">Business Processes and Systems</p><p class="cw-meta">John Zilch<br>M/Th | 12:30 PM - 1:50 PM 08/31/2026 - 12/15/2026<br>In-Person</p><div class="cw-right"><span class="cw-chip full">Full</span><p class="cw-seats"><b>0</b><span>seats</span></p></div></li></ul><footer class="cw-foot"><p>Checks every 15 minutes, 7am–11pm ET, and texts you the instant a seat opens. This page rewrites itself after every check.</p><p>Source: <a href="https://bentleyapps.azurewebsites.net/course-listing/">Bentley’s public course listing</a> — real-time seat counts, no login required.</p></footer></div></div></body></html>
+</style><div class="cw"><div class="cw-wrap"><header class="cw-top"><h1 class="cw-mark">ClassWatch</h1><span class="cw-term">Fall 2026</span><span class="cw-stamp" id="cwStamp">Checked 2:51 PM ET<br>Next check ~3:06 PM ET</span></header><section class="cw-verdict is-quiet" id="cwVerdict"><h2>Still full</h2><p>All 2 watched classes are at zero seats. You'll get a push the moment that changes.</p></section><div class="cw-bar"><button type="button" class="cw-btn" id="cwCheck"><span class="cw-dot"></span><span class="cw-label">Check now</span></button><span class="cw-age" id="cwAge"></span></div><p class="cw-lab">Watching 2 classes</p><ul class="cw-list"><li class="cw-card full" data-code="CS 305-9"><p class="cw-code">CS 305-9</p><p class="cw-name">Business Processes and Systems</p><p class="cw-meta">John Zilch<br>M/Th | 12:30 PM - 1:50 PM 08/31/2026 - 12/15/2026<br>In-Person</p><div class="cw-right"><span class="cw-chip full">Full</span><p class="cw-seats"><b>0</b><span>seats</span></p></div></li><li class="cw-card full" data-code="HI 381-1"><p class="cw-code">HI 381-1</p><p class="cw-name">The Civil War</p><p class="cw-meta">Charlie Riggs<br>T/Th | 3:30 PM - 4:50 PM 08/31/2026 - 12/15/2026<br>In-Person</p><div class="cw-right"><span class="cw-chip full">Full</span><p class="cw-seats"><b>0</b><span>seats</span></p></div></li></ul><footer class="cw-foot"><p>Checks every 15 minutes, 7am–11pm ET, and texts you the instant a seat opens. This page rewrites itself after every check.</p><p>Source: <a href="https://bentleyapps.azurewebsites.net/course-listing/">Bentley’s public course listing</a> — real-time seat counts, no login required.</p></footer></div></div><script>
+(function(){
+  var URL_="https://raw.githubusercontent.com/fbbonelli/classwatch/main/docs/status.json", btn=document.getElementById('cwCheck'),
+      age=document.getElementById('cwAge'), stamp=document.getElementById('cwStamp');
+  if(!btn) return;
+
+  function minsAgo(iso){
+    var d=(Date.now()-new Date(iso).getTime())/60000;
+    if(d<1) return 'just now';
+    if(d<2) return '1 min ago';
+    return Math.round(d)+' min ago';
+  }
+  function setCard(s){
+    var card=document.querySelector('.cw-card[data-code="'+CSS.escape(s.code)+'"]');
+    if(!card) return false;
+    var open=!!s.open, chip=card.querySelector('.cw-chip'),
+        num=card.querySelector('.cw-seats b'), unit=card.querySelector('.cw-seats span');
+    card.classList.toggle('open',open); card.classList.toggle('full',!open);
+    if(chip){ chip.classList.toggle('open',open); chip.classList.toggle('full',!open);
+              chip.textContent = s.status==='not_found' ? 'No match' : (open?'Open':'Full'); }
+    if(num) num.textContent = (s.seats===null||s.seats===undefined)?'?':s.seats;
+    if(unit) unit.textContent = s.seats===1?'seat':'seats';
+    return true;
+  }
+  function setVerdict(secs){
+    var v=document.getElementById('cwVerdict'); if(!v) return;
+    var open=secs.filter(function(s){return s.open;});
+    if(open.length){
+      var total=open.reduce(function(a,s){return a+(s.seats||0);},0);
+      v.className='cw-verdict is-open';
+      v.innerHTML='<h2>'+open.map(function(s){return s.code;}).join(', ')+
+        (open.length===1?' has ':' have ')+total+' open seat'+(total===1?'':'s')+'</h2>'+
+        '<p>Register now — seats are first come, first served.</p>'+
+        '<a class="cw-cta" href="https://www.bentley.edu/mybentley">Open Workday</a>';
+    } else {
+      v.className='cw-verdict is-quiet';
+      v.innerHTML='<h2>Still full</h2><p>'+(secs.length===1?'Your class is':'All '+secs.length+' watched classes are')+
+        ' at zero seats. You\'ll get a push the moment that changes.</p>';
+    }
+  }
+
+  btn.addEventListener('click', function(){
+    btn.disabled=true; btn.classList.add('busy');
+    btn.querySelector('.cw-label').textContent='Checking\u2026';
+    age.className='cw-age'; age.textContent='';
+    fetch(URL_+'?t='+Date.now(), {cache:'no-store'})
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(d){
+        var secs=d.sections||[], missed=0;
+        secs.forEach(function(s){ if(!setCard(s)) missed++; });
+        setVerdict(secs);
+        if(stamp) stamp.innerHTML='Checked '+d.checked_at_display+
+          '<br>Every '+d.poll_minutes+' min';
+        age.className='cw-age ok';
+        age.textContent = missed
+          ? 'Watchlist changed — reload the page'
+          : 'Updated \u00b7 data from '+minsAgo(d.checked_at);
+      })
+      .catch(function(e){
+        age.className='cw-age err';
+        age.textContent='Could not reach GitHub ('+e.message+')';
+      })
+      .finally(function(){
+        btn.disabled=false; btn.classList.remove('busy');
+        btn.querySelector('.cw-label').textContent='Check now';
+      });
+  });
+})();
+</script></body></html>
