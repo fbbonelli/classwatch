@@ -26,6 +26,9 @@ import dashboard  # noqa: E402
 WATCHLIST = os.path.join(HERE, "watchlist.json")
 STATE     = os.path.join(HERE, "state.json")
 OUT       = os.path.join(HERE, "docs", "index.html")
+# Machine-readable status the dashboard's "Check now" button fetches from
+# raw.githubusercontent.com (which sends CORS headers, unlike Bentley).
+STATUS    = os.path.join(HERE, "docs", "status.json")
 # Written only when a class actually flips to open. The workflow watches for this
 # to decide whether to publish immediately — it can't just diff state.json,
 # because _health.last_ok makes that file differ on every single check.
@@ -33,6 +36,10 @@ SEAT_CHANGE_FLAG = os.path.join(HERE, "SEAT_CHANGE")
 
 URL = "https://bentleyapps.azurewebsites.net/course-listing/index.php"
 LISTING_URL = "https://bentleyapps.azurewebsites.net/course-listing/"
+# Served with Access-Control-Allow-Origin: *, and NOT behind the Pages CDN cache,
+# so the button always sees the newest committed check.
+STATUS_URL = ("https://raw.githubusercontent.com/fbbonelli/classwatch/"
+              "main/docs/status.json")
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
 EASTERN = ZoneInfo("America/New_York")
@@ -244,8 +251,26 @@ def main():
         f.write(dashboard.render_page(
             wl=wl, found=found, checked_at=now,
             term_label=TERMS.get(wl["term"], wl["term"]),
-            poll_minutes=poll_min, listing_url=LISTING_URL, live=True))
-    log(f"dashboard written -> {OUT}")
+            poll_minutes=poll_min, listing_url=LISTING_URL, live=True,
+            status_url=STATUS_URL))
+
+    sections = []
+    for entry in wl["courses"]:
+        for r in sorted(found.get(entry["match"], []), key=lambda x: x["code"]):
+            sections.append({**{k: r[k] for k in
+                                ("code", "name", "instructor", "meeting", "mode",
+                                 "status", "seats")},
+                             "open": is_open(r)})
+        if not found.get(entry["match"]):
+            sections.append({"code": entry["match"], "name": "", "instructor": "",
+                             "meeting": "", "mode": "", "status": "not_found",
+                             "seats": None, "open": False})
+    save(STATUS, {"checked_at": now.isoformat(),
+                  "checked_at_display": now.strftime("%-I:%M %p ET"),
+                  "term": TERMS.get(wl["term"], wl["term"]),
+                  "poll_minutes": poll_min,
+                  "sections": sections})
+    log(f"dashboard + status.json written ({len(sections)} sections)")
     return 0
 
 

@@ -5,7 +5,7 @@ published artifact, so the two always look identical).
 render_page()  -> a full standalone HTML document for the local dashboard.
 """
 
-import html
+import html, json
 from datetime import datetime, timedelta
 
 CSS = """
@@ -115,6 +115,23 @@ CSS = """
 .cw-empty{background:var(--sunken);border:1px dashed var(--line);border-radius:5px;
   padding:26px;text-align:center;color:var(--muted);font-size:14px;}
 
+/* check-now control */
+.cw-bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;}
+.cw-btn{font:inherit;font-size:13.5px;font-weight:600;letter-spacing:.01em;
+  padding:10px 18px;border-radius:4px;cursor:pointer;
+  background:var(--ink);color:var(--paper);border:1px solid var(--ink);
+  display:inline-flex;align-items:center;gap:8px;}
+.cw-btn:hover:not(:disabled){opacity:.86;}
+.cw-btn:disabled{opacity:.55;cursor:progress;}
+.cw-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+.cw-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none;}
+.cw-btn.busy .cw-dot{animation:cwpulse 1s ease-in-out infinite;}
+@keyframes cwpulse{0%,100%{opacity:1}50%{opacity:.25}}
+.cw-age{font-family:var(--mono);font-size:12px;color:var(--muted);
+  font-variant-numeric:tabular-nums;}
+.cw-age.err{color:var(--full);}
+.cw-age.ok{color:var(--open);}
+
 /* footer */
 .cw-foot{border-top:1px solid var(--line);padding-top:18px;
   font-size:12.5px;color:var(--muted);line-height:1.65;
@@ -142,7 +159,7 @@ def _card(entry, row):
     """One watched section. `row` is None when the code matched nothing."""
     if row is None:
         return (
-            f'<li class="cw-card full">'
+            f'<li class="cw-card full" data-code="{E(entry["match"])}">'
             f'<p class="cw-code">{E(entry["match"])}</p>'
             f'<p class="cw-name">Not found in this term\'s listing</p>'
             f'<p class="cw-meta">Check the course code, or the class may not be offered.</p>'
@@ -162,7 +179,7 @@ def _card(entry, row):
     note = (f'<p class="cw-note">{E(entry.get("note"))}</p>'
             if entry.get("note") else "")
     return (
-        f'<li class="cw-card {cls}">'
+        f'<li class="cw-card {cls}" data-code="{E(row["code"])}">'
         f'<p class="cw-code">{E(row["code"])}</p>'
         f'<p class="cw-name">{E(row["name"])}</p>'
         f'<p class="cw-meta">{"<br>".join(bits)}</p>'
@@ -175,8 +192,79 @@ def _card(entry, row):
     )
 
 
+CHECK_JS = """
+(function(){
+  var URL_=%(url)s, btn=document.getElementById('cwCheck'),
+      age=document.getElementById('cwAge'), stamp=document.getElementById('cwStamp');
+  if(!btn) return;
+
+  function minsAgo(iso){
+    var d=(Date.now()-new Date(iso).getTime())/60000;
+    if(d<1) return 'just now';
+    if(d<2) return '1 min ago';
+    return Math.round(d)+' min ago';
+  }
+  function setCard(s){
+    var card=document.querySelector('.cw-card[data-code="'+CSS.escape(s.code)+'"]');
+    if(!card) return false;
+    var open=!!s.open, chip=card.querySelector('.cw-chip'),
+        num=card.querySelector('.cw-seats b'), unit=card.querySelector('.cw-seats span');
+    card.classList.toggle('open',open); card.classList.toggle('full',!open);
+    if(chip){ chip.classList.toggle('open',open); chip.classList.toggle('full',!open);
+              chip.textContent = s.status==='not_found' ? 'No match' : (open?'Open':'Full'); }
+    if(num) num.textContent = (s.seats===null||s.seats===undefined)?'?':s.seats;
+    if(unit) unit.textContent = s.seats===1?'seat':'seats';
+    return true;
+  }
+  function setVerdict(secs){
+    var v=document.getElementById('cwVerdict'); if(!v) return;
+    var open=secs.filter(function(s){return s.open;});
+    if(open.length){
+      var total=open.reduce(function(a,s){return a+(s.seats||0);},0);
+      v.className='cw-verdict is-open';
+      v.innerHTML='<h2>'+open.map(function(s){return s.code;}).join(', ')+
+        (open.length===1?' has ':' have ')+total+' open seat'+(total===1?'':'s')+'</h2>'+
+        '<p>Register now — seats are first come, first served.</p>'+
+        '<a class="cw-cta" href="https://www.bentley.edu/mybentley">Open Workday</a>';
+    } else {
+      v.className='cw-verdict is-quiet';
+      v.innerHTML='<h2>Still full</h2><p>'+(secs.length===1?'Your class is':'All '+secs.length+' watched classes are')+
+        ' at zero seats. You\\'ll get a push the moment that changes.</p>';
+    }
+  }
+
+  btn.addEventListener('click', function(){
+    btn.disabled=true; btn.classList.add('busy');
+    btn.querySelector('.cw-label').textContent='Checking\\u2026';
+    age.className='cw-age'; age.textContent='';
+    fetch(URL_+'?t='+Date.now(), {cache:'no-store'})
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(d){
+        var secs=d.sections||[], missed=0;
+        secs.forEach(function(s){ if(!setCard(s)) missed++; });
+        setVerdict(secs);
+        if(stamp) stamp.innerHTML='Checked '+d.checked_at_display+
+          '<br>Every '+d.poll_minutes+' min';
+        age.className='cw-age ok';
+        age.textContent = missed
+          ? 'Watchlist changed — reload the page'
+          : 'Updated \\u00b7 data from '+minsAgo(d.checked_at);
+      })
+      .catch(function(e){
+        age.className='cw-age err';
+        age.textContent='Could not reach GitHub ('+e.message+')';
+      })
+      .finally(function(){
+        btn.disabled=false; btn.classList.remove('busy');
+        btn.querySelector('.cw-label').textContent='Check now';
+      });
+  });
+})();
+"""
+
+
 def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
-                 snapshot_note=False, listing_url="", live=True):
+                 snapshot_note=False, listing_url="", live=True, status_url=""):
     """`found` maps watchlist match -> list of section dicts."""
     cards, open_rows = [], []
     for entry in wl["courses"]:
@@ -193,23 +281,20 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
     if open_rows:
         codes = ", ".join(r["code"] for r in open_rows)
         total = sum(r["seats"] or 0 for r in open_rows)
-        verdict = (
-            f'<section class="cw-verdict is-open">'
+        verdict_inner = (
             f'<h2>{E(codes)} {"has" if len(open_rows) == 1 else "have"} '
             f'{total} open seat{"" if total == 1 else "s"}</h2>'
             f'<p>Register now — seats are first come, first served.</p>'
             f'<a class="cw-cta" href="https://www.bentley.edu/mybentley">Open Workday</a>'
-            f'</section>'
         )
     elif n == 0:
-        verdict = ('<section class="cw-verdict is-quiet"><h2>Nothing on the watchlist yet</h2>'
-                   '<p>Tell Claude which class to watch and it will show up here.</p></section>')
+        verdict_inner = ('<h2>Nothing on the watchlist yet</h2>'
+                         '<p>Tell Claude which class to watch and it will show up here.</p>')
     else:
-        verdict = (
-            f'<section class="cw-verdict is-quiet">'
+        verdict_inner = (
             f'<h2>Still full</h2>'
             f'<p>{"Your class is" if n == 1 else f"All {n} watched classes are"} at zero seats. '
-            f'You\'ll get a text the moment that changes.</p></section>'
+            f'You\'ll get a push the moment that changes.</p>'
         )
 
     body = ('<ul class="cw-list">' + "".join(cards) + "</ul>") if cards else \
@@ -234,20 +319,31 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
     src = (f'<p>Source: <a href="{E(listing_url)}">Bentley’s public course listing</a> '
            f'— real-time seat counts, no login required.</p>') if listing_url else ""
 
+    if status_url:
+        bar = ('<div class="cw-bar">'
+               '<button type="button" class="cw-btn" id="cwCheck">'
+               '<span class="cw-dot"></span><span class="cw-label">Check now</span></button>'
+               '<span class="cw-age" id="cwAge"></span></div>')
+        script = "<script>" + (CHECK_JS % {"url": json.dumps(status_url)}) + "</script>"
+    else:
+        bar, script = "", ""
+
     return (
         f"<style>{CSS}</style>"
         f'<div class="cw"><div class="cw-wrap">'
         f'<header class="cw-top">'
         f'<h1 class="cw-mark">ClassWatch</h1>'
         f'<span class="cw-term">{E(term_label)}</span>'
-        f'<span class="cw-stamp">{stamp}</span>'
+        f'<span class="cw-stamp" id="cwStamp">{stamp}</span>'
         f'</header>'
         f'{snap}'
-        f'{verdict}'
+        f'<section class="cw-verdict {"is-open" if open_rows else "is-quiet"}" id="cwVerdict">'
+        f'{verdict_inner}</section>'
+        f'{bar}'
         f'<p class="cw-lab">Watching {n} class{"" if n == 1 else "es"}</p>'
         f'{body}'
         f'<footer class="cw-foot">{foot_live}{src}</footer>'
-        f'</div></div>'
+        f'</div></div>{script}'
     )
 
 

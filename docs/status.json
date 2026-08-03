@@ -1,0 +1,28 @@
+{
+  "checked_at": "2026-08-03T14:50:31.558575-04:00",
+  "checked_at_display": "2:50 PM ET",
+  "term": "Fall 2026",
+  "poll_minutes": 15,
+  "sections": [
+    {
+      "code": "CS 305-9",
+      "name": "Business Processes and Systems",
+      "instructor": "John Zilch",
+      "meeting": "M/Th | 12:30 PM - 1:50 PM 08/31/2026 - 12/15/2026",
+      "mode": "In-Person",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
+    },
+    {
+      "code": "HI 381-1",
+      "name": "The Civil War",
+      "instructor": "Charlie Riggs",
+      "meeting": "T/Th | 3:30 PM - 4:50 PM 08/31/2026 - 12/15/2026",
+      "mode": "In-Person",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
+    }
+  ]
+}
