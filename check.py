@@ -49,8 +49,34 @@ ACTIVE_HOURS = (7, 23)
 REALERT_MINUTES = 60
 
 
+HISTORY_DAYS = 7
+
+
 def log(m):
     print(f"[{datetime.now(EASTERN):%Y-%m-%d %H:%M ET}] {m}", flush=True)
+
+
+def append_history(entry):
+    """Record one check in status.json's history, trimmed to HISTORY_DAYS.
+
+    History lives inside status.json rather than its own file so the dashboard's
+    "Check now" button refreshes the log and the seat counts in one fetch —
+    otherwise tapping it would leave a visibly stale log.
+    """
+    doc = load(STATUS, {})
+    hist = doc.get("history", [])
+    hist.append(entry)
+    cutoff = datetime.now(EASTERN) - timedelta(days=HISTORY_DAYS)
+    kept = []
+    for h in hist:
+        try:
+            if datetime.fromisoformat(h["t"]) >= cutoff:
+                kept.append(h)
+        except (ValueError, KeyError, TypeError):
+            continue  # drop unparseable rows rather than letting them pile up
+    doc["history"] = kept
+    save(STATUS, doc)
+    return kept
 
 
 def load(p, d):
@@ -198,9 +224,12 @@ def main():
                  f"Your classes are NOT being watched right now.")
         state["_health"] = health
         save(STATE, state)
+        append_history({"t": now.isoformat(), "ok": False,
+                        "error": str(e)[:160], "fails": health["fails"]})
         return 1
 
-    if health.get("fails", 0) >= 3:
+    recovered = health.get("fails", 0) >= 3
+    if recovered:
         ntfy("✅ ClassWatch recovered", "ClassWatch is working again and watching your classes.")
     state["_health"] = {"fails": 0, "last_ok": now.isoformat()}
 
@@ -247,13 +276,6 @@ def main():
         poll_min = max(1, round(int(os.environ.get("CHECK_INTERVAL_SECONDS", "900")) / 60))
     except ValueError:
         poll_min = 15
-    with open(OUT, "w") as f:
-        f.write(dashboard.render_page(
-            wl=wl, found=found, checked_at=now,
-            term_label=TERMS.get(wl["term"], wl["term"]),
-            poll_minutes=poll_min, listing_url=LISTING_URL, live=True,
-            status_url=STATUS_URL))
-
     sections = []
     for entry in wl["courses"]:
         for r in sorted(found.get(entry["match"], []), key=lambda x: x["code"]):
@@ -265,12 +287,33 @@ def main():
             sections.append({"code": entry["match"], "name": "", "instructor": "",
                              "meeting": "", "mode": "", "status": "not_found",
                              "seats": None, "open": False})
-    save(STATUS, {"checked_at": now.isoformat(),
-                  "checked_at_display": now.strftime("%-I:%M %p ET"),
-                  "term": TERMS.get(wl["term"], wl["term"]),
-                  "poll_minutes": poll_min,
-                  "sections": sections})
-    log(f"dashboard + status.json written ({len(sections)} sections)")
+    open_now = [{"code": s["code"], "seats": s["seats"]} for s in sections if s["open"]]
+    history = append_history({
+        "t": now.isoformat(),
+        "ok": True,
+        "open": open_now,
+        "opened": [r["code"] for r in fire],   # newly opened -> the alert event
+        "recovered": recovered,
+        "n": len(sections),
+    })
+    doc = load(STATUS, {})
+    doc.update({"checked_at": now.isoformat(),
+                "checked_at_display": now.strftime("%-I:%M %p ET"),
+                "term": TERMS.get(wl["term"], wl["term"]),
+                "poll_minutes": poll_min,
+                "sections": sections,
+                "history": history})
+    save(STATUS, doc)
+
+    # Rendered last so the Log tab reflects this check, not the previous one.
+    with open(OUT, "w") as f:
+        f.write(dashboard.render_page(
+            wl=wl, found=found, checked_at=now,
+            term_label=TERMS.get(wl["term"], wl["term"]),
+            poll_minutes=poll_min, listing_url=LISTING_URL, live=True,
+            status_url=STATUS_URL, history=history))
+    log(f"dashboard + status.json written ({len(sections)} sections, "
+        f"{len(history)} log entries)")
     return 0
 
 
