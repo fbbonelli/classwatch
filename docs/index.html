@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="60"><title>ClassWatch</title></head><body style="margin:0"><style>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ClassWatch</title></head><body style="margin:0"><style>
 :root{
   --paper:#F4F6F9; --surface:#FFFFFF; --sunken:#EAEEF4;
   --line:#D7DDE6; --ink:#0B1622; --muted:#5B6879;
@@ -122,6 +122,40 @@
 .cw-age.err{color:var(--full);}
 .cw-age.ok{color:var(--open);}
 
+/* tabs */
+.cw-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:-8px;}
+.cw-tab{font:inherit;font-family:var(--mono);font-size:12px;letter-spacing:.12em;
+  text-transform:uppercase;padding:10px 16px;cursor:pointer;
+  background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--muted);}
+.cw-tab:hover{color:var(--ink);}
+.cw-tab[aria-selected="true"]{color:var(--gold);border-bottom-color:var(--gold);}
+.cw-tab:focus-visible{outline:2px solid var(--gold);outline-offset:-2px;}
+.cw-panel[hidden]{display:none;}
+.cw-panel{display:flex;flex-direction:column;gap:26px;}
+
+/* log */
+.cw-day{display:flex;flex-direction:column;gap:0;}
+.cw-dayhead{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 8px;
+  padding-bottom:6px;border-bottom:1px solid var(--line);}
+.cw-row{display:flex;align-items:baseline;gap:14px;padding:5px 2px;
+  font-family:var(--mono);font-size:12.5px;line-height:1.5;}
+.cw-row time{color:var(--muted);flex:none;width:74px;
+  font-variant-numeric:tabular-nums;text-align:right;}
+.cw-row .cw-what{color:var(--muted);}
+/* events break out of the quiet rhythm so they cannot be scrolled past */
+.cw-ev{border-radius:5px;padding:12px 14px;margin:10px 0;
+  display:flex;flex-direction:column;gap:3px;border:1px solid;}
+.cw-ev time{font-family:var(--mono);font-size:11.5px;opacity:.8;}
+.cw-ev b{font-family:var(--mono);font-size:12px;letter-spacing:.12em;
+  text-transform:uppercase;}
+.cw-ev span{font-size:13.5px;}
+.cw-ev.open{background:var(--open-field);border-color:var(--open-edge);color:var(--open);}
+.cw-ev.fail{background:var(--full-field);border-color:var(--full-edge);color:var(--full);}
+.cw-ev.rec{background:var(--stale-field);border-color:var(--stale);color:var(--stale);}
+.cw-logfoot{font-size:12.5px;color:var(--muted);line-height:1.6;}
+
 /* footer */
 .cw-foot{border-top:1px solid var(--line);padding-top:18px;
   font-size:12.5px;color:var(--muted);line-height:1.65;
@@ -140,7 +174,7 @@
   .cw-stamp{margin-left:0;text-align:left;width:100%;}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
-</style><div class="cw"><div class="cw-wrap"><header class="cw-top"><h1 class="cw-mark">ClassWatch</h1><span class="cw-term">Fall 2026</span><span class="cw-stamp" id="cwStamp">Checked 3:35 PM ET<br>Next check ~3:50 PM ET</span></header><section class="cw-verdict is-quiet" id="cwVerdict"><h2>Still full</h2><p>All 2 watched classes are at zero seats. You'll get a push the moment that changes.</p></section><div class="cw-bar"><button type="button" class="cw-btn" id="cwCheck"><span class="cw-dot"></span><span class="cw-label">Check now</span></button><span class="cw-age" id="cwAge"></span></div><p class="cw-lab">Watching 2 classes</p><ul class="cw-list"><li class="cw-card full" data-code="CS 305-9"><p class="cw-code">CS 305-9</p><p class="cw-name">Business Processes and Systems</p><p class="cw-meta">John Zilch<br>M/Th | 12:30 PM - 1:50 PM 08/31/2026 - 12/15/2026<br>In-Person</p><div class="cw-right"><span class="cw-chip full">Full</span><p class="cw-seats"><b>0</b><span>seats</span></p></div></li><li class="cw-card full" data-code="HI 381-1"><p class="cw-code">HI 381-1</p><p class="cw-name">The Civil War</p><p class="cw-meta">Charlie Riggs<br>T/Th | 3:30 PM - 4:50 PM 08/31/2026 - 12/15/2026<br>In-Person</p><div class="cw-right"><span class="cw-chip full">Full</span><p class="cw-seats"><b>0</b><span>seats</span></p></div></li></ul><footer class="cw-foot"><p>Checks every 15 minutes, 7am–11pm ET, and texts you the instant a seat opens. This page rewrites itself after every check.</p><p>Source: <a href="https://bentleyapps.azurewebsites.net/course-listing/">Bentley’s public course listing</a> — real-time seat counts, no login required.</p></footer></div></div><script>
+</style><div class="cw"><div class="cw-wrap"><header class="cw-top"><h1 class="cw-mark">ClassWatch</h1><span class="cw-term">Fall 2026</span><span class="cw-stamp" id="cwStamp">Checked 3:41 PM ET<br>Next check ~3:56 PM ET</span></header><section class="cw-verdict is-quiet" id="cwVerdict"><h2>Still full</h2><p>All 2 watched classes are at zero seats. You'll get a push the moment that changes.</p></section><div class="cw-bar"><button type="button" class="cw-btn" id="cwCheck"><span class="cw-dot"></span><span class="cw-label">Check now</span></button><span class="cw-age" id="cwAge"></span></div><p class="cw-lab">Watching 2 classes</p><ul class="cw-list"><li class="cw-card full" data-code="CS 305-9"><p class="cw-code">CS 305-9</p><p class="cw-name">Business Processes and Systems</p><p class="cw-meta">John Zilch<br>M/Th | 12:30 PM - 1:50 PM 08/31/2026 - 12/15/2026<br>In-Person</p><div class="cw-right"><span class="cw-chip full">Full</span><p class="cw-seats"><b>0</b><span>seats</span></p></div></li><li class="cw-card full" data-code="HI 381-1"><p class="cw-code">HI 381-1</p><p class="cw-name">The Civil War</p><p class="cw-meta">Charlie Riggs<br>T/Th | 3:30 PM - 4:50 PM 08/31/2026 - 12/15/2026<br>In-Person</p><div class="cw-right"><span class="cw-chip full">Full</span><p class="cw-seats"><b>0</b><span>seats</span></p></div></li></ul><footer class="cw-foot"><p>Checks every 15 minutes, 7am–11pm ET, and texts you the instant a seat opens. This page rewrites itself after every check.</p><p>Source: <a href="https://bentleyapps.azurewebsites.net/course-listing/">Bentley’s public course listing</a> — real-time seat counts, no login required.</p></footer></div></div><script>
 (function(){
   var URL_="https://raw.githubusercontent.com/fbbonelli/classwatch/main/docs/status.json", btn=document.getElementById('cwCheck'),
       age=document.getElementById('cwAge'), stamp=document.getElementById('cwStamp');
@@ -181,6 +215,47 @@
     }
   }
 
+  // Mirrors render_log() in dashboard.py — without this, tapping Check now
+  // while the Log tab is open would appear to do nothing.
+  function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':s; return d.innerHTML; }
+  function clock(d){ return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); }
+  function redrawLog(hist){
+    var panel=document.getElementById('panel-log'); if(!panel||!hist) return;
+    if(!hist.length){ panel.innerHTML='<p class="cw-empty">No checks logged yet.</p>'; return; }
+    var days={};
+    hist.forEach(function(h){
+      var d=new Date(h.t); if(isNaN(d)) return;
+      var k=d.toISOString().slice(0,10);
+      (days[k]=days[k]||[]).push([d,h]);
+    });
+    var html=Object.keys(days).sort().reverse().map(function(k){
+      var rows=days[k].sort(function(a,b){return b[0]-a[0];});
+      var head=rows[0][0].toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+      return '<section class="cw-day"><p class="cw-dayhead">'+esc(head)+'</p>'+
+        rows.map(function(p){
+          var d=p[0], h=p[1], c=clock(d);
+          if(h.ok===false) return '<div class="cw-ev fail"><b>Check failed</b><span>'+
+            esc(h.error||'unknown error')+'</span><time>'+c+' ET</time></div>';
+          if(h.opened && h.opened.length){
+            var seats={}; (h.open||[]).forEach(function(o){seats[o.code]=o.seats;});
+            var det=h.opened.map(function(x){
+              var s=seats[x]; return x+' — '+(s==null?'?':s)+' seat'+(s===1?'':'s'); }).join(', ');
+            return '<div class="cw-ev open"><b>Seat open</b><span>'+esc(det)+
+              '</span><time>'+c+' ET</time></div>';
+          }
+          if(h.recovered) return '<div class="cw-ev rec"><b>Recovered</b>'+
+            '<span>Checks are working again</span><time>'+c+' ET</time></div>';
+          var op=h.open||[];
+          var what = op.length ? op.map(function(o){return o.code+' open ('+o.seats+')';}).join(', ')
+                               : (h.n===1?'full':'all full');
+          return '<div class="cw-row"><time>'+c+'</time><span class="cw-what">'+
+            esc(what)+'</span></div>';
+        }).join('')+'</section>';
+    }).join('');
+    panel.innerHTML = html + '<p class="cw-logfoot">'+hist.length+' check'+
+      (hist.length===1?'':'s')+' logged, last 7 days. Older entries are dropped automatically.</p>';
+  }
+
   btn.addEventListener('click', function(){
     btn.disabled=true; btn.classList.add('busy');
     btn.querySelector('.cw-label').textContent='Checking\u2026';
@@ -191,6 +266,7 @@
         var secs=d.sections||[], missed=0;
         secs.forEach(function(s){ if(!setCard(s)) missed++; });
         setVerdict(secs);
+        redrawLog(d.history);
         if(stamp) stamp.innerHTML='Checked '+d.checked_at_display+
           '<br>Every '+d.poll_minutes+' min';
         age.className='cw-age ok';

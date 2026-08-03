@@ -132,6 +132,40 @@ CSS = """
 .cw-age.err{color:var(--full);}
 .cw-age.ok{color:var(--open);}
 
+/* tabs */
+.cw-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:-8px;}
+.cw-tab{font:inherit;font-family:var(--mono);font-size:12px;letter-spacing:.12em;
+  text-transform:uppercase;padding:10px 16px;cursor:pointer;
+  background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--muted);}
+.cw-tab:hover{color:var(--ink);}
+.cw-tab[aria-selected="true"]{color:var(--gold);border-bottom-color:var(--gold);}
+.cw-tab:focus-visible{outline:2px solid var(--gold);outline-offset:-2px;}
+.cw-panel[hidden]{display:none;}
+.cw-panel{display:flex;flex-direction:column;gap:26px;}
+
+/* log */
+.cw-day{display:flex;flex-direction:column;gap:0;}
+.cw-dayhead{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 8px;
+  padding-bottom:6px;border-bottom:1px solid var(--line);}
+.cw-row{display:flex;align-items:baseline;gap:14px;padding:5px 2px;
+  font-family:var(--mono);font-size:12.5px;line-height:1.5;}
+.cw-row time{color:var(--muted);flex:none;width:74px;
+  font-variant-numeric:tabular-nums;text-align:right;}
+.cw-row .cw-what{color:var(--muted);}
+/* events break out of the quiet rhythm so they cannot be scrolled past */
+.cw-ev{border-radius:5px;padding:12px 14px;margin:10px 0;
+  display:flex;flex-direction:column;gap:3px;border:1px solid;}
+.cw-ev time{font-family:var(--mono);font-size:11.5px;opacity:.8;}
+.cw-ev b{font-family:var(--mono);font-size:12px;letter-spacing:.12em;
+  text-transform:uppercase;}
+.cw-ev span{font-size:13.5px;}
+.cw-ev.open{background:var(--open-field);border-color:var(--open-edge);color:var(--open);}
+.cw-ev.fail{background:var(--full-field);border-color:var(--full-edge);color:var(--full);}
+.cw-ev.rec{background:var(--stale-field);border-color:var(--stale);color:var(--stale);}
+.cw-logfoot{font-size:12.5px;color:var(--muted);line-height:1.6;}
+
 /* footer */
 .cw-foot{border-top:1px solid var(--line);padding-top:18px;
   font-size:12.5px;color:var(--muted);line-height:1.65;
@@ -192,6 +226,95 @@ def _card(entry, row):
     )
 
 
+def render_log(history):
+    """Reverse-chronological log, grouped by day.
+
+    Routine checks stay visually quiet; openings, failures and recoveries are
+    pulled out as blocks so they can't be lost in a wall of 'both full'.
+    """
+    if not history:
+        return ('<p class="cw-empty">No checks logged yet. The first entries appear '
+                'after the next check runs.</p>')
+
+    rows, days = [], {}
+    for h in history:
+        try:
+            t = datetime.fromisoformat(h["t"])
+        except (ValueError, KeyError, TypeError):
+            continue
+        days.setdefault(t.strftime("%Y-%m-%d"), []).append((t, h))
+
+    out = []
+    for day in sorted(days, reverse=True):
+        entries = sorted(days[day], key=lambda x: x[0], reverse=True)
+        label = entries[0][0].strftime("%A, %B %-d")
+        parts = [f'<p class="cw-dayhead">{E(label)}</p>']
+        for t, h in entries:
+            clock = t.strftime("%-I:%M %p")
+            if not h.get("ok", True):
+                parts.append(
+                    f'<div class="cw-ev fail"><b>Check failed</b>'
+                    f'<span>{E(h.get("error", "unknown error"))}</span>'
+                    f'<time>{clock} ET</time></div>')
+                continue
+            if h.get("opened"):
+                seats = {o["code"]: o.get("seats") for o in h.get("open", [])}
+                detail = ", ".join(
+                    f'{c} — {seats.get(c, "?")} seat'
+                    f'{"" if seats.get(c) == 1 else "s"}' for c in h["opened"])
+                parts.append(
+                    f'<div class="cw-ev open"><b>Seat open</b>'
+                    f'<span>{E(detail)}</span><time>{clock} ET</time></div>')
+                continue
+            if h.get("recovered"):
+                parts.append(
+                    f'<div class="cw-ev rec"><b>Recovered</b>'
+                    f'<span>Checks are working again</span>'
+                    f'<time>{clock} ET</time></div>')
+                continue
+            openv = h.get("open") or []
+            if openv:
+                what = ", ".join(f'{o["code"]} open ({o.get("seats", "?")})' for o in openv)
+            else:
+                n = h.get("n", 0)
+                what = "all full" if n != 1 else "full"
+            parts.append(f'<div class="cw-row"><time>{clock}</time>'
+                         f'<span class="cw-what">{E(what)}</span></div>')
+        out.append('<section class="cw-day">' + "".join(parts) + "</section>")
+
+    total = len(history)
+    out.append(f'<p class="cw-logfoot">{total} check{"" if total == 1 else "s"} '
+               f'logged, last 7 days. Older entries are dropped automatically.</p>')
+    return "".join(out)
+
+
+TABS_JS = """
+(function(){
+  var tabs=[].slice.call(document.querySelectorAll('.cw-tab'));
+  if(!tabs.length) return;
+  function show(name){
+    tabs.forEach(function(t){
+      var on = t.dataset.tab===name;
+      t.setAttribute('aria-selected', on?'true':'false');
+      t.tabIndex = on?0:-1;
+      var p=document.getElementById('panel-'+t.dataset.tab);
+      if(p) p.hidden = !on;
+    });
+    try{ history.replaceState(null,'', on_hash(name)); }catch(e){}
+  }
+  function on_hash(name){ return name==='status' ? location.pathname+location.search : '#log'; }
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){ show(t.dataset.tab); });
+    t.addEventListener('keydown', function(e){
+      var i=tabs.indexOf(t), j = e.key==='ArrowRight' ? i+1 : e.key==='ArrowLeft' ? i-1 : -1;
+      if(j>=0 && j<tabs.length){ e.preventDefault(); tabs[j].focus(); show(tabs[j].dataset.tab); }
+    });
+  });
+  if(location.hash==='#log') show('log');
+})();
+"""
+
+
 CHECK_JS = """
 (function(){
   var URL_=%(url)s, btn=document.getElementById('cwCheck'),
@@ -233,6 +356,47 @@ CHECK_JS = """
     }
   }
 
+  // Mirrors render_log() in dashboard.py — without this, tapping Check now
+  // while the Log tab is open would appear to do nothing.
+  function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':s; return d.innerHTML; }
+  function clock(d){ return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); }
+  function redrawLog(hist){
+    var panel=document.getElementById('panel-log'); if(!panel||!hist) return;
+    if(!hist.length){ panel.innerHTML='<p class="cw-empty">No checks logged yet.</p>'; return; }
+    var days={};
+    hist.forEach(function(h){
+      var d=new Date(h.t); if(isNaN(d)) return;
+      var k=d.toISOString().slice(0,10);
+      (days[k]=days[k]||[]).push([d,h]);
+    });
+    var html=Object.keys(days).sort().reverse().map(function(k){
+      var rows=days[k].sort(function(a,b){return b[0]-a[0];});
+      var head=rows[0][0].toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+      return '<section class="cw-day"><p class="cw-dayhead">'+esc(head)+'</p>'+
+        rows.map(function(p){
+          var d=p[0], h=p[1], c=clock(d);
+          if(h.ok===false) return '<div class="cw-ev fail"><b>Check failed</b><span>'+
+            esc(h.error||'unknown error')+'</span><time>'+c+' ET</time></div>';
+          if(h.opened && h.opened.length){
+            var seats={}; (h.open||[]).forEach(function(o){seats[o.code]=o.seats;});
+            var det=h.opened.map(function(x){
+              var s=seats[x]; return x+' — '+(s==null?'?':s)+' seat'+(s===1?'':'s'); }).join(', ');
+            return '<div class="cw-ev open"><b>Seat open</b><span>'+esc(det)+
+              '</span><time>'+c+' ET</time></div>';
+          }
+          if(h.recovered) return '<div class="cw-ev rec"><b>Recovered</b>'+
+            '<span>Checks are working again</span><time>'+c+' ET</time></div>';
+          var op=h.open||[];
+          var what = op.length ? op.map(function(o){return o.code+' open ('+o.seats+')';}).join(', ')
+                               : (h.n===1?'full':'all full');
+          return '<div class="cw-row"><time>'+c+'</time><span class="cw-what">'+
+            esc(what)+'</span></div>';
+        }).join('')+'</section>';
+    }).join('');
+    panel.innerHTML = html + '<p class="cw-logfoot">'+hist.length+' check'+
+      (hist.length===1?'':'s')+' logged, last 7 days. Older entries are dropped automatically.</p>';
+  }
+
   btn.addEventListener('click', function(){
     btn.disabled=true; btn.classList.add('busy');
     btn.querySelector('.cw-label').textContent='Checking\\u2026';
@@ -243,6 +407,7 @@ CHECK_JS = """
         var secs=d.sections||[], missed=0;
         secs.forEach(function(s){ if(!setCard(s)) missed++; });
         setVerdict(secs);
+        redrawLog(d.history);
         if(stamp) stamp.innerHTML='Checked '+d.checked_at_display+
           '<br>Every '+d.poll_minutes+' min';
         age.className='cw-age ok';
@@ -264,7 +429,8 @@ CHECK_JS = """
 
 
 def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
-                 snapshot_note=False, listing_url="", live=True, status_url=""):
+                 snapshot_note=False, listing_url="", live=True, status_url="",
+                 history=None):
     """`found` maps watchlist match -> list of section dicts."""
     cards, open_rows = [], []
     for entry in wl["courses"]:
@@ -328,6 +494,34 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
     else:
         bar, script = "", ""
 
+    show_tabs = history is not None
+    if show_tabs:
+        tabs = ('<div class="cw-tabs" role="tablist">'
+                '<button class="cw-tab" role="tab" data-tab="status" '
+                'id="tab-status" aria-controls="panel-status" aria-selected="true">Status</button>'
+                '<button class="cw-tab" role="tab" data-tab="log" '
+                'id="tab-log" aria-controls="panel-log" aria-selected="false" '
+                'tabindex="-1">Log</button></div>')
+        log_panel = (f'<div class="cw-panel" role="tabpanel" id="panel-log" '
+                     f'aria-labelledby="tab-log" hidden>{render_log(history)}</div>')
+        script += "<script>" + TABS_JS + "</script>"
+    else:
+        tabs, log_panel = "", ""
+
+    status_panel = (
+        f'<section class="cw-verdict {"is-open" if open_rows else "is-quiet"}" id="cwVerdict">'
+        f'{verdict_inner}</section>'
+        f'{"" if show_tabs else bar}'
+        f'<p class="cw-lab">Watching {n} class{"" if n == 1 else "es"}</p>'
+        f'{body}'
+    )
+    # With tabs, the button lives outside the panels — otherwise it vanishes on
+    # the Log tab, which is exactly where you'd want to pull fresh entries.
+    global_bar = bar if show_tabs else ""
+    if show_tabs:
+        status_panel = (f'<div class="cw-panel" role="tabpanel" id="panel-status" '
+                        f'aria-labelledby="tab-status">{status_panel}</div>')
+
     return (
         f"<style>{CSS}</style>"
         f'<div class="cw"><div class="cw-wrap">'
@@ -337,11 +531,10 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
         f'<span class="cw-stamp" id="cwStamp">{stamp}</span>'
         f'</header>'
         f'{snap}'
-        f'<section class="cw-verdict {"is-open" if open_rows else "is-quiet"}" id="cwVerdict">'
-        f'{verdict_inner}</section>'
-        f'{bar}'
-        f'<p class="cw-lab">Watching {n} class{"" if n == 1 else "es"}</p>'
-        f'{body}'
+        f'{tabs}'
+        f'{global_bar}'
+        f'{status_panel}'
+        f'{log_panel}'
         f'<footer class="cw-foot">{foot_live}{src}</footer>'
         f'</div></div>{script}'
     )
@@ -349,7 +542,11 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
 
 def render_page(**kw):
     """Full standalone document for the local dashboard file."""
-    refresh = '<meta http-equiv="refresh" content="60">' if kw.get("live", True) else ""
+    # Auto-refresh only when there's no Check now button. With tabs on the page a
+    # 60-second reload would yank you out of the Log tab mid-read; where the
+    # button exists it's the better update path.
+    auto = kw.get("live", True) and not kw.get("status_url")
+    refresh = '<meta http-equiv="refresh" content="60">' if auto else ""
     return (
         "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">"
         "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
