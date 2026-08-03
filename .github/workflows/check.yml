@@ -77,13 +77,13 @@ jobs:
               reason="SEAT OPEN: $(cat SEAT_CHANGE)"
               rm -f SEAT_CHANGE
             elif [ $(( $(date +%s) - last_push )) -ge "$DASHBOARD_PUSH_SECONDS" ] \
-                 && ! git diff --quiet -- state.json docs/index.html; then
+                 && ! git diff --quiet -- state.json docs/index.html docs/status.json; then
               reason="dashboard heartbeat"
             fi
 
             if [ -n "$reason" ]; then
               echo "pushing: $reason"
-              git add state.json docs/index.html
+              git add state.json docs/index.html docs/status.json
               git commit -q -m "status $(TZ=America/New_York date '+%F %H:%M ET') — $reason"
               # Another run may have pushed while we were sleeping.
               git pull --rebase --autostash -q origin main || true
