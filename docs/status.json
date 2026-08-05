@@ -1015,10 +1015,18 @@
       "opened": [],
       "recovered": false,
       "n": 2
+    },
+    {
+      "t": "2026-08-05T19:05:21.146835-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 2
     }
   ],
-  "checked_at": "2026-08-05T18:50:18.521624-04:00",
-  "checked_at_display": "6:50 PM ET",
+  "checked_at": "2026-08-05T19:05:21.146835-04:00",
+  "checked_at_display": "7:05 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 15,
   "sections": [
