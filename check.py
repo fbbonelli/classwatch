@@ -15,7 +15,7 @@ Env:
   FORCE_CHECK  (optional)             "1" ignores active-hours gating
 """
 
-import json, os, re, html, sys, subprocess
+import json, os, re, html, sys, time, subprocess
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -45,7 +45,9 @@ UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
 EASTERN = ZoneInfo("America/New_York")
 TERMS = {"202609": "Fall 2026", "202601": "Spring 2026", "202605": "Summer Full 2026"}
 
-ACTIVE_HOURS = (7, 23)
+# Round the clock. Seats are first come, first served and can free up at any hour,
+# so the old 7am–11pm window was an 8-hour blind spot every night.
+ACTIVE_HOURS = (0, 24)
 REALERT_MINUTES = 60
 
 
@@ -95,17 +97,33 @@ def save(p, d):
 
 # ------------------------------------------------------------------ scraping
 
+FETCH_ATTEMPTS = 3
+
+
 def fetch(term, depts):
+    """POST the listing, retrying transient network failures.
+
+    A single DNS blip used to burn a whole cycle and write a CHECK FAILED row
+    (see the `curl 6: Could not resolve host` on 08-09). Retrying in-process
+    turns those into nothing at all; a genuine outage still fails all attempts
+    and reaches the 3-strike watchdog as before.
+    """
     args = ["curl", "-sS", "--fail", "--max-time", "60", "-A", UA,
             "--data-urlencode", "submit=Submit",
             "--data-urlencode", f"acad_period[]={term}"]
     for d in sorted(set(depts)):
         args += ["--data-urlencode", f"dept[]={d}"]
     args.append(URL)
-    r = subprocess.run(args, capture_output=True, text=True)
-    if r.returncode != 0:
-        raise RuntimeError(f"fetch failed (curl {r.returncode}): {r.stderr.strip()[:200]}")
-    return r.stdout
+    last = ""
+    for attempt in range(1, FETCH_ATTEMPTS + 1):
+        r = subprocess.run(args, capture_output=True, text=True)
+        if r.returncode == 0:
+            return r.stdout
+        last = f"curl {r.returncode}: {r.stderr.strip()[:200]}"
+        if attempt < FETCH_ATTEMPTS:
+            log(f"  fetch attempt {attempt}/{FETCH_ATTEMPTS} failed ({last}) — retrying")
+            time.sleep(5 * attempt)
+    raise RuntimeError(f"fetch failed after {FETCH_ATTEMPTS} attempts ({last})")
 
 
 def _strip(s):
@@ -257,7 +275,8 @@ def main():
                 state[r["code"]] = {"open": False, "seats": r["seats"], "last_alert": None}
 
     if fire:
-        lines = [f"{r['code']} — {r['name']}\n  {r['seats']} seat(s) | {r['instructor']}\n"
+        lines = [f"{r['code']} — {r['name']}\n"
+                 f"  {r['seats']} seat(s) | {r['mode'] or 'mode ?'} | {r['instructor']}\n"
                  f"  {r['meeting']}" for r in fire]
         log("*** OPEN: " + ", ".join(r["code"] for r in fire))
         ntfy(f"🎓 SEAT OPEN — {', '.join(r['code'] for r in fire)}",

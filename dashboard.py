@@ -17,9 +17,9 @@ WORKDAY_URL = "https://wd503.myworkday.com/bentley/login.htmld"
 # A check is "stale" past this many minutes. The watcher runs every 10, so this
 # is ~4 missed cycles — long enough not to trip on GitHub scheduling jitter.
 STALE_AFTER_MINUTES = 45
-# Checks deliberately pause overnight, so staleness is only alarming inside these
-# hours. Without this the page would cry wolf every single morning.
-ACTIVE_HOURS = (7, 23)
+# Checks now run round the clock, so staleness is alarming at any hour. Kept as a
+# window (rather than deleted) so re-introducing quiet hours stays a one-line change.
+ACTIVE_HOURS = (0, 24)
 
 CSS = """
 :root{
@@ -118,7 +118,16 @@ CSS = """
   padding:18px 20px;display:grid;grid-template-columns:1fr auto;gap:4px 20px;align-items:start;}
 .cw-card.open{background:var(--open-field);border-color:var(--open-edge);}
 .cw-code{grid-column:1;font-family:var(--mono);font-size:19px;font-weight:700;
-  letter-spacing:-.01em;margin:0;}
+  letter-spacing:-.01em;margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:9px;}
+
+/* delivery mode. Deliberately outside the green/crimson status axis and off the
+   gold brand mark — it's an attribute of the class, not a state to react to.
+   Fill vs outline carries the scan; the word carries the meaning. */
+.cw-mode{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.13em;
+  text-transform:uppercase;padding:4px 8px;border-radius:3px;white-space:nowrap;
+  border:1px solid var(--line);color:var(--muted);background:none;}
+.cw-mode.online{background:var(--sunken);color:var(--ink);border-color:var(--muted);}
+.cw-mode.hybrid{border-style:dashed;color:var(--ink);}
 .cw-name{grid-column:1;margin:0;font-size:15px;color:var(--ink);line-height:1.35;}
 .cw-meta{grid-column:1;margin:6px 0 0;font-family:var(--mono);font-size:12.5px;
   color:var(--muted);line-height:1.7;}
@@ -230,6 +239,15 @@ CSS = """
 E = lambda s: html.escape(str(s or ""), quote=True)
 
 
+def mode_chip(mode):
+    """Online / In-Person / Hybrid badge. Bentley writes these three exactly."""
+    if not mode:
+        return ""
+    key = mode.strip().lower()
+    cls = "online" if "online" in key else "hybrid" if "hybrid" in key else "person"
+    return f'<span class="cw-mode {cls}">{E(mode.strip())}</span>'
+
+
 def _card(entry, row):
     """One watched section. `row` is None when the code matched nothing."""
     if row is None:
@@ -249,13 +267,11 @@ def _card(entry, row):
         bits.append(E(row["instructor"]))
     if row.get("meeting"):
         bits.append(E(row["meeting"]))
-    if row.get("mode"):
-        bits.append(E(row["mode"]))
     note = (f'<p class="cw-note">{E(entry.get("note"))}</p>'
             if entry.get("note") else "")
     return (
         f'<li class="cw-card {cls}" data-code="{E(row["code"])}">'
-        f'<p class="cw-code">{E(row["code"])}</p>'
+        f'<p class="cw-code">{E(row["code"])}{mode_chip(row.get("mode"))}</p>'
         f'<p class="cw-name">{E(row["name"])}</p>'
         f'<p class="cw-meta">{"<br>".join(bits)}</p>'
         f'{note}'
@@ -617,9 +633,10 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
         nxt = (checked_at + timedelta(minutes=poll_minutes)).strftime("%-I:%M %p")
         stamp = (f'Checked {checked_at.strftime("%-I:%M %p")} ET'
                  f'<br>Next check ~{nxt} ET')
-        foot_live = (f'<p>Checks every {poll_minutes} minutes, 7am–11pm ET, '
-                     f'and texts you the instant a seat opens. '
-                     f'This page rewrites itself after every check.</p>')
+        foot_live = (f'<p>Checks every {poll_minutes} minutes, around the clock, and '
+                     f'pushes to your phone via ntfy the instant a seat opens. '
+                     f'This page rewrites itself after every check and refreshes '
+                     f'itself every minute while open.</p>')
         snap = ""
     else:
         stamp = f'Snapshot {checked_at.strftime("%b %-d, %-I:%M %p")} ET'

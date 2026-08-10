@@ -1,14 +1,28 @@
 name: ClassWatch
 
-# GitHub throttles scheduled workflows hard on free public repos — in practice we
-# saw 3 runs in 14 hours against a */10 cron, with gaps up to 8.5 hours. So we do
-# NOT rely on the scheduler firing often. Instead each run stays alive for ~5.5
-# hours and checks on its own clock, and any newly-started run cancels the old one.
-# Result: near-continuous coverage even when GitHub only starts a run twice a day.
+# COVERAGE IS THE WHOLE POINT. Seats are first come, first served, so a blind spot
+# is a lost seat. Two independent things were causing gaps:
+#
+#   1. GitHub throttles scheduled workflows hard on free public repos. Measured:
+#      3 runs in 13.8 hours against a */10 cron, with gaps of 8.5h and 5.3h.
+#   2. Even with long-lived runs, when one ENDED the scheduler often did not start
+#      a replacement promptly — that produced a real 180-minute hole on 08-04.
+#
+# Fix, in layers, so no single mechanism failing can stop the watcher:
+#
+#   - Each run stays alive ~5.5h and checks on its OWN clock, so within a run the
+#     cadence is exact and owes nothing to the scheduler.
+#   - Before exiting, a run DISPATCHES ITS OWN SUCCESSOR (see "Hand off"). The
+#     chain is self-sustaining and never waits on cron. This is the layer that
+#     closes the end-of-run gap.
+#   - cron stays, demoted to a safety net that re-seeds the chain if it ever breaks.
+#   - concurrency collapses any duplicates (cron + handoff firing together) to one.
+#
+# Checks now run 24/7 — the old 7am-11pm window was an 8-hour blind spot nightly.
 
 on:
   schedule:
-    - cron: "*/10 * * * *"   # fires whenever GitHub feels like it; that's fine now
+    - cron: "*/10 * * * *"   # safety net only; the handoff is the real driver
   workflow_dispatch:
     inputs:
       selftest:
@@ -16,10 +30,11 @@ on:
         type: boolean
         default: false
   push:
-    branches: [main]         # editing the watchlist restarts the watcher immediately
+    branches: [main]         # editing the watchlist restarts the watcher at once
 
 permissions:
   contents: write
+  actions: write             # required to dispatch the successor run
 
 concurrency:
   group: classwatch
@@ -45,22 +60,24 @@ jobs:
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           CHECK_INTERVAL_SECONDS: "600"     # check every 10 minutes
-          RUN_FOR_SECONDS: "19800"          # keep going for 5.5 hours
+          RUN_FOR_SECONDS: "180"            # TEMPORARY burn-in: proving the handoff chain
           DASHBOARD_PUSH_SECONDS: "600"     # refresh the public dashboard every 10 min
         run: |
           set -uo pipefail
           git config user.name  "classwatch-bot"
           git config user.email "classwatch-bot@users.noreply.github.com"
 
-          END=$(( $(date +%s) + RUN_FOR_SECONDS ))
+          START=$(date +%s)
+          END=$(( START + RUN_FOR_SECONDS ))
           n=0
           # Seed the throttle from when the dashboard was last actually published.
           # Runs get cancelled and restarted constantly, so a fresh run must not
           # reset this to 0 — that made every new run publish immediately and blew
-          # straight through the 15-minute limit.
+          # straight through the publish limit.
           last_push=$(git log -1 --format=%ct -- docs/index.html 2>/dev/null || echo 0)
           last_push=${last_push:-0}
           echo "dashboard last published $(( ($(date +%s) - last_push) / 60 )) min ago"
+
           while [ "$(date +%s)" -lt "$END" ]; do
             n=$((n+1))
             echo "::group::check #$n  $(TZ=America/New_York date '+%F %H:%M:%S ET')"
@@ -85,12 +102,19 @@ jobs:
               echo "pushing: $reason"
               git add state.json docs/index.html docs/status.json
               git commit -q -m "status $(TZ=America/New_York date '+%F %H:%M ET') — $reason"
-              # Another run may have pushed while we were sleeping.
-              git pull --rebase --autostash -q origin main || true
-              if git push -q origin main; then
+              # Another run may have pushed while we were sleeping. Retry once:
+              # a single transient reject used to cost a whole 10-minute cycle.
+              pushed=""
+              for attempt in 1 2; do
+                git pull --rebase --autostash -q origin main || true
+                if git push -q origin main; then pushed="yes"; break; fi
+                echo "push attempt $attempt failed"
+                sleep 5
+              done
+              if [ -n "$pushed" ]; then
                 last_push=$(date +%s)
               else
-                echo "push failed; will retry next cycle"
+                echo "push failed twice; will retry next cycle"
               fi
             else
               echo "no push this cycle"
@@ -103,4 +127,44 @@ jobs:
             [ "$remaining" -le 0 ] && break
             sleep "$(( remaining < CHECK_INTERVAL_SECONDS ? remaining : CHECK_INTERVAL_SECONDS ))"
           done
-          echo "watcher finished after $n checks — the next scheduled run takes over"
+
+          echo "watcher finished after $n checks"
+          echo "RAN_FOR=$(( $(date +%s) - START ))" >> "$GITHUB_ENV"
+          echo "CHECKS_DONE=$n" >> "$GITHUB_ENV"
+
+      # THE gap fix. Without this, the end of a run hands control back to GitHub's
+      # scheduler, which is exactly what left a 3-hour hole on 08-04.
+      #
+      # Deliberately NOT always(): on cancellation a newer run has already taken
+      # over, and dispatching here would just fight it. success()||failure() covers
+      # a clean finish and a crash, and skips cancellation.
+      - name: Hand off to the next run
+        if: ${{ (success() || failure()) && !inputs.selftest }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          set -uo pipefail
+          # Loop guard: if this run died almost immediately, chaining would spin.
+          # Bail out and let the cron safety net re-seed instead.
+          if [ "${RAN_FOR:-0}" -lt 60 ]; then
+            echo "run lasted only ${RAN_FOR:-0}s — NOT chaining (cron will recover)"
+            exit 0
+          fi
+          echo "ran ${RAN_FOR}s / ${CHECKS_DONE:-?} checks — dispatching successor"
+          for attempt in 1 2 3; do
+            if gh workflow run check.yml --ref main; then
+              echo "successor dispatched"
+              exit 0
+            fi
+            echo "dispatch attempt $attempt failed"
+            sleep 10
+          done
+          # Coverage is not lost (cron still fires) but it IS degraded, and a silent
+          # break here is the exact failure mode this design exists to prevent.
+          echo "::error::could not dispatch successor — falling back to cron"
+          curl -sS --max-time 25 \
+            -H "Title: ClassWatch handoff failed" \
+            -H "Priority: default" \
+            --data-binary "The watcher could not start its own next run, so it is back to relying on GitHub cron, which is throttled and leaves gaps. Checks are still happening, just less reliably. Worth a look at the Actions tab." \
+            "https://ntfy.sh/${NTFY_TOPIC}" || true

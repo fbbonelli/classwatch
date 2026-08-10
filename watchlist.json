@@ -2,11 +2,51 @@
   "term": "202609",
   "courses": [
     {
+      "match": "CS 305-2",
+      "note": ""
+    },
+    {
       "match": "CS 305-9",
       "note": ""
     },
     {
-      "match": "HI 381-1",
+      "match": "CS 305-11",
+      "note": ""
+    },
+    {
+      "match": "CS 305-12",
+      "note": ""
+    },
+    {
+      "match": "EMS 222-1",
+      "note": ""
+    },
+    {
+      "match": "EMS 312-1",
+      "note": ""
+    },
+    {
+      "match": "FI 306-3",
+      "note": ""
+    },
+    {
+      "match": "FI 306-4",
+      "note": ""
+    },
+    {
+      "match": "FI 307-2",
+      "note": ""
+    },
+    {
+      "match": "FI 307-3",
+      "note": ""
+    },
+    {
+      "match": "FI 351-4",
+      "note": ""
+    },
+    {
+      "match": "FI 351-5",
       "note": ""
     }
   ]
