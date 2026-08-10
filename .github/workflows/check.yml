@@ -60,7 +60,7 @@ jobs:
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           CHECK_INTERVAL_SECONDS: "600"     # check every 10 minutes
-          RUN_FOR_SECONDS: "180"            # TEMPORARY burn-in: proving the handoff chain
+          RUN_FOR_SECONDS: "19800"          # keep going for 5.5 hours
           DASHBOARD_PUSH_SECONDS: "600"     # refresh the public dashboard every 10 min
         run: |
           set -uo pipefail
