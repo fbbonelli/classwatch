@@ -3067,12 +3067,38 @@
       "opened": [],
       "recovered": false,
       "n": 2
+    },
+    {
+      "t": "2026-08-10T12:04:39.293975-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "HI 381-1",
+          "seats": 2
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 2
+    },
+    {
+      "t": "2026-08-10T12:14:40.307445-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "HI 381-1",
+          "seats": 2
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 2
     }
   ],
-  "checked_at": "2026-08-10T12:00:08.390044-04:00",
-  "checked_at_display": "12:00 PM ET",
+  "checked_at": "2026-08-10T12:14:40.307445-04:00",
+  "checked_at_display": "12:14 PM ET",
   "term": "Fall 2026",
-  "poll_minutes": 15,
+  "poll_minutes": 10,
   "sections": [
     {
       "code": "CS 305-9",
