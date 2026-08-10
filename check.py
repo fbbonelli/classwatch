@@ -262,7 +262,7 @@ def main():
         log("*** OPEN: " + ", ".join(r["code"] for r in fire))
         ntfy(f"🎓 SEAT OPEN — {', '.join(r['code'] for r in fire)}",
              "Register NOW — first come, first served.\n\n" + "\n\n".join(lines)
-             + "\n\nhttps://www.bentley.edu/mybentley")
+             + "\n\n" + dashboard.WORKDAY_URL)
         with open(SEAT_CHANGE_FLAG, "w") as f:
             f.write(", ".join(r["code"] for r in fire))
     else:
@@ -273,9 +273,9 @@ def main():
     # Report the interval the workflow is actually using, so "next check" on the
     # dashboard doesn't quietly lie when the schedule changes.
     try:
-        poll_min = max(1, round(int(os.environ.get("CHECK_INTERVAL_SECONDS", "900")) / 60))
+        poll_min = max(1, round(int(os.environ.get("CHECK_INTERVAL_SECONDS", "600")) / 60))
     except ValueError:
-        poll_min = 15
+        poll_min = 10
     sections = []
     for entry in wl["courses"]:
         for r in sorted(found.get(entry["match"], []), key=lambda x: x["code"]):

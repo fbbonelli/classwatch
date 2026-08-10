@@ -44,9 +44,9 @@ jobs:
         if: ${{ !inputs.selftest }}
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-          CHECK_INTERVAL_SECONDS: "900"     # check every 15 minutes
+          CHECK_INTERVAL_SECONDS: "600"     # check every 10 minutes
           RUN_FOR_SECONDS: "19800"          # keep going for 5.5 hours
-          DASHBOARD_PUSH_SECONDS: "900"     # refresh the public dashboard every 15 min
+          DASHBOARD_PUSH_SECONDS: "600"     # refresh the public dashboard every 10 min
         run: |
           set -uo pipefail
           git config user.name  "classwatch-bot"
@@ -71,7 +71,7 @@ jobs:
             # so publish at once. We can't diff state.json for this: _health.last_ok
             # makes it differ every single check. Everything else is just the
             # timestamp moving, and GitHub Pages soft-caps builds at 10/hour, so
-            # those get throttled to every 15 minutes.
+            # those get throttled to every 10 minutes (6 builds/hour, under the cap).
             reason=""
             if [ -f SEAT_CHANGE ]; then
               reason="SEAT OPEN: $(cat SEAT_CHANGE)"

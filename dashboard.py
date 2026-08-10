@@ -8,6 +8,19 @@ render_page()  -> a full standalone HTML document for the local dashboard.
 import html, json
 from datetime import datetime, timedelta
 
+# Where you actually register. bentley.edu/mybentley is only the portal landing
+# page — it costs an extra hop and a hunt for the Workday tile at the exact
+# moment speed is the whole point. Defined once and reused by the server-side
+# verdict, the client-side verdict and check.py's push alert.
+WORKDAY_URL = "https://wd503.myworkday.com/bentley/login.htmld"
+
+# A check is "stale" past this many minutes. The watcher runs every 10, so this
+# is ~4 missed cycles — long enough not to trip on GitHub scheduling jitter.
+STALE_AFTER_MINUTES = 45
+# Checks deliberately pause overnight, so staleness is only alarming inside these
+# hours. Without this the page would cry wolf every single morning.
+ACTIVE_HOURS = (7, 23)
+
 CSS = """
 :root{
   --paper:#F4F6F9; --surface:#FFFFFF; --sunken:#EAEEF4;
@@ -62,6 +75,21 @@ CSS = """
 .cw-term{font-family:var(--mono);font-size:13px;color:var(--muted);letter-spacing:.04em;}
 .cw-stamp{margin-left:auto;font-family:var(--mono);font-size:12px;
   color:var(--muted);font-variant-numeric:tabular-nums;text-align:right;}
+
+/* theme toggle — the [data-theme] overrides above existed but nothing ever set them */
+.cw-theme{font:inherit;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;cursor:pointer;padding:6px 10px;border-radius:3px;
+  background:none;color:var(--muted);border:1px solid var(--line);line-height:1;}
+.cw-theme:hover{color:var(--ink);border-color:var(--muted);}
+.cw-theme:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
+/* stale-watcher warning — a dead runner used to look identical to a healthy one */
+.cw-stale{background:var(--stale-field);border:1px solid var(--stale);color:var(--stale);
+  border-radius:5px;padding:14px 16px;font-size:13.5px;line-height:1.5;
+  display:flex;flex-direction:column;gap:4px;}
+.cw-stale b{font-family:var(--mono);font-size:12px;letter-spacing:.12em;
+  text-transform:uppercase;}
+.cw-stale[hidden]{display:none;}
 
 /* verdict */
 .cw-verdict{border:1px solid;border-radius:5px;padding:20px 22px;
@@ -165,6 +193,19 @@ CSS = """
 .cw-ev.fail{background:var(--full-field);border-color:var(--full-edge);color:var(--full);}
 .cw-ev.rec{background:var(--stale-field);border-color:var(--stale);color:var(--stale);}
 .cw-logfoot{font-size:12.5px;color:var(--muted);line-height:1.6;}
+
+/* events-only filter */
+.cw-logbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;}
+.cw-filter{font:inherit;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;cursor:pointer;padding:7px 12px;border-radius:3px;
+  background:none;color:var(--muted);border:1px solid var(--line);line-height:1;}
+.cw-filter:hover{color:var(--ink);border-color:var(--muted);}
+.cw-filter[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.cw-filter:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+/* hide routine rows, then hide any day that has nothing left in it */
+.cw-events-only .cw-row{display:none;}
+.cw-events-only .cw-day:not(:has(.cw-ev)){display:none;}
+.cw-nothing{color:var(--muted);font-size:13.5px;}
 
 /* footer */
 .cw-foot{border-top:1px solid var(--line);padding-top:18px;
@@ -317,7 +358,10 @@ TABS_JS = """
 
 CHECK_JS = """
 (function(){
-  var URL_=%(url)s, btn=document.getElementById('cwCheck'),
+  var URL_=%(url)s, WORKDAY_=%(workday)s,
+      STALE_=%(stale)d, ACTIVE_=%(active)s, POLL_MS_=%(poll_ms)d,
+      pollMin=%(poll_min)d,
+      btn=document.getElementById('cwCheck'),
       age=document.getElementById('cwAge'), stamp=document.getElementById('cwStamp');
   if(!btn) return;
 
@@ -326,6 +370,34 @@ CHECK_JS = """
     if(d<1) return 'just now';
     if(d<2) return '1 min ago';
     return Math.round(d)+' min ago';
+  }
+
+  // Everything Bentley reports is Eastern. Pin every client-side render to it —
+  // reading these in the browser's own zone silently relabelled each row (a
+  // 9:30 PM ET check displayed as "10:30 PM ET" from UTC-03) and grouped the
+  // evening's checks under the following day.
+  var ET={timeZone:'America/New_York'};
+  function etClock(d){ return d.toLocaleTimeString('en-US',
+    {hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}); }
+  function etDayKey(d){ return d.toLocaleDateString('en-CA',ET); }   // YYYY-MM-DD
+  function etDayLabel(d){ return d.toLocaleDateString('en-US',
+    {weekday:'long',month:'long',day:'numeric',timeZone:'America/New_York'}); }
+  function etHour(d){ return parseInt(d.toLocaleString('en-US',
+    {hour:'2-digit',hour12:false,timeZone:'America/New_York'}),10); }
+
+  // A stopped watcher used to be invisible: the page just kept showing an old
+  // timestamp. Overnight the pause is deliberate, so only warn inside active hours.
+  function setStale(iso){
+    var box=document.getElementById('cwStale'); if(!box) return;
+    var mins=(Date.now()-new Date(iso).getTime())/60000, h=etHour(new Date());
+    var inHours = h>=ACTIVE_[0] && h<ACTIVE_[1];
+    if(mins>STALE_ && inHours){
+      box.hidden=false;
+      box.innerHTML='<b>Watcher may be down</b><span>Last successful check was '+
+        esc(minsAgo(iso))+'. Checks should run every '+
+        pollMin+' minutes, so seat openings may be going unnoticed. '+
+        'Check the <a href="https://github.com/fbbonelli/classwatch/actions">Actions run history</a>.</span>';
+    } else { box.hidden=true; }
   }
   function setCard(s){
     var card=document.querySelector('.cw-card[data-code="'+CSS.escape(s.code)+'"]');
@@ -345,10 +417,10 @@ CHECK_JS = """
     if(open.length){
       var total=open.reduce(function(a,s){return a+(s.seats||0);},0);
       v.className='cw-verdict is-open';
-      v.innerHTML='<h2>'+open.map(function(s){return s.code;}).join(', ')+
+      v.innerHTML='<h2>'+open.map(function(s){return esc(s.code);}).join(', ')+
         (open.length===1?' has ':' have ')+total+' open seat'+(total===1?'':'s')+'</h2>'+
         '<p>Register now — seats are first come, first served.</p>'+
-        '<a class="cw-cta" href="https://www.bentley.edu/mybentley">Open Workday</a>';
+        '<a class="cw-cta" target="_blank" rel="noopener" href="'+WORKDAY_+'">Register in Workday</a>';
     } else {
       v.className='cw-verdict is-quiet';
       v.innerHTML='<h2>Still full</h2><p>'+(secs.length===1?'Your class is':'All '+secs.length+' watched classes are')+
@@ -359,22 +431,21 @@ CHECK_JS = """
   // Mirrors render_log() in dashboard.py — without this, tapping Check now
   // while the Log tab is open would appear to do nothing.
   function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':s; return d.innerHTML; }
-  function clock(d){ return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); }
   function redrawLog(hist){
-    var panel=document.getElementById('panel-log'); if(!panel||!hist) return;
+    var panel=document.getElementById('cwLogBody'); if(!panel||!hist) return;
     if(!hist.length){ panel.innerHTML='<p class="cw-empty">No checks logged yet.</p>'; return; }
     var days={};
     hist.forEach(function(h){
       var d=new Date(h.t); if(isNaN(d)) return;
-      var k=d.toISOString().slice(0,10);
+      var k=etDayKey(d);
       (days[k]=days[k]||[]).push([d,h]);
     });
     var html=Object.keys(days).sort().reverse().map(function(k){
       var rows=days[k].sort(function(a,b){return b[0]-a[0];});
-      var head=rows[0][0].toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+      var head=etDayLabel(rows[0][0]);
       return '<section class="cw-day"><p class="cw-dayhead">'+esc(head)+'</p>'+
         rows.map(function(p){
-          var d=p[0], h=p[1], c=clock(d);
+          var d=p[0], h=p[1], c=etClock(d);
           if(h.ok===false) return '<div class="cw-ev fail"><b>Check failed</b><span>'+
             esc(h.error||'unknown error')+'</span><time>'+c+' ET</time></div>';
           if(h.opened && h.opened.length){
@@ -395,26 +466,37 @@ CHECK_JS = """
     }).join('');
     panel.innerHTML = html + '<p class="cw-logfoot">'+hist.length+' check'+
       (hist.length===1?'':'s')+' logged, last 7 days. Older entries are dropped automatically.</p>';
+    // the events-only filter hides rows that were just replaced
+    if(window.cwApplyFilter) window.cwApplyFilter();
+  }
+
+  // Shared by the button and the background poller.
+  function apply(d, quiet){
+    var secs=d.sections||[], missed=0;
+    secs.forEach(function(s){ if(!setCard(s)) missed++; });
+    setVerdict(secs);
+    redrawLog(d.history);
+    setStale(d.checked_at);
+    if(d.poll_minutes) pollMin=d.poll_minutes;
+    if(stamp) stamp.innerHTML='Checked '+esc(d.checked_at_display)+
+      '<br>Every '+esc(String(d.poll_minutes))+' min';
+    age.className='cw-age'+(quiet?'':' ok');
+    age.textContent = missed
+      ? 'Watchlist changed — reload the page'
+      : (quiet?'Data from ':'Updated \\u00b7 data from ')+minsAgo(d.checked_at);
+  }
+
+  function pull(){
+    return fetch(URL_+'?t='+Date.now(), {cache:'no-store'})
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); });
   }
 
   btn.addEventListener('click', function(){
     btn.disabled=true; btn.classList.add('busy');
     btn.querySelector('.cw-label').textContent='Checking\\u2026';
     age.className='cw-age'; age.textContent='';
-    fetch(URL_+'?t='+Date.now(), {cache:'no-store'})
-      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-      .then(function(d){
-        var secs=d.sections||[], missed=0;
-        secs.forEach(function(s){ if(!setCard(s)) missed++; });
-        setVerdict(secs);
-        redrawLog(d.history);
-        if(stamp) stamp.innerHTML='Checked '+d.checked_at_display+
-          '<br>Every '+d.poll_minutes+' min';
-        age.className='cw-age ok';
-        age.textContent = missed
-          ? 'Watchlist changed — reload the page'
-          : 'Updated \\u00b7 data from '+minsAgo(d.checked_at);
-      })
+    pull()
+      .then(function(d){ apply(d, false); })
       .catch(function(e){
         age.className='cw-age err';
         age.textContent='Could not reach GitHub ('+e.message+')';
@@ -423,6 +505,70 @@ CHECK_JS = """
         btn.disabled=false; btn.classList.remove('busy');
         btn.querySelector('.cw-label').textContent='Check now';
       });
+  });
+
+  // Keep an open tab honest. The old page never updated itself once loaded —
+  // a full meta-refresh was ruled out because it throws you out of the Log tab
+  // mid-read, so update in place instead. Skipped while the tab is hidden, and
+  // fired immediately on return so a backgrounded phone isn't showing old seats.
+  var timer=null;
+  function tick(){
+    if(document.hidden) return;
+    pull().then(function(d){ apply(d, true); }).catch(function(){ /* keep the last good render */ });
+  }
+  function start(){ if(timer===null) timer=setInterval(tick, POLL_MS_); }
+  function stop(){ if(timer!==null){ clearInterval(timer); timer=null; } }
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){ stop(); } else { tick(); start(); }
+  });
+  start();
+  // The served HTML can be minutes old (Pages CDN), so correct it right away.
+  tick();
+})();
+"""
+
+
+LOGFILTER_JS = """
+(function(){
+  var btn=document.getElementById('cwFilter'), body=document.getElementById('cwLogBody');
+  if(!btn||!body) return;
+  var on=false;
+  window.cwApplyFilter=function(){
+    body.classList.toggle('cw-events-only', on);
+    btn.setAttribute('aria-pressed', on?'true':'false');
+    btn.textContent = on ? 'Showing events' : 'Events only';
+    var none=document.getElementById('cwNoEvents');
+    if(none) none.hidden = !(on && !body.querySelector('.cw-ev'));
+  };
+  btn.addEventListener('click', function(){ on=!on; window.cwApplyFilter(); });
+})();
+"""
+
+
+# Runs before the body paints so a dark-mode user doesn't get a white flash.
+THEME_JS = """
+(function(){
+  try{ var s=localStorage.getItem('cw-theme');
+       if(s) document.documentElement.setAttribute('data-theme', s); }catch(e){}
+  function current(){
+    return document.documentElement.getAttribute('data-theme') ||
+      (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+  }
+  function label(){
+    var b=document.getElementById('cwTheme'); if(!b) return;
+    var dark=current()==='dark';
+    b.textContent = dark ? 'Light' : 'Dark';
+    b.setAttribute('aria-label', 'Switch to '+(dark?'light':'dark')+' theme');
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    var b=document.getElementById('cwTheme'); if(!b) return;
+    label();
+    b.addEventListener('click', function(){
+      var next=current()==='dark'?'light':'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try{ localStorage.setItem('cw-theme', next); }catch(e){}
+      label();
+    });
   });
 })();
 """
@@ -451,7 +597,8 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
             f'<h2>{E(codes)} {"has" if len(open_rows) == 1 else "have"} '
             f'{total} open seat{"" if total == 1 else "s"}</h2>'
             f'<p>Register now — seats are first come, first served.</p>'
-            f'<a class="cw-cta" href="https://www.bentley.edu/mybentley">Open Workday</a>'
+            f'<a class="cw-cta" href="{WORKDAY_URL}" target="_blank" '
+            f'rel="noopener">Register in Workday</a>'
         )
     elif n == 0:
         verdict_inner = ('<h2>Nothing on the watchlist yet</h2>'
@@ -489,22 +636,42 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
         bar = ('<div class="cw-bar">'
                '<button type="button" class="cw-btn" id="cwCheck">'
                '<span class="cw-dot"></span><span class="cw-label">Check now</span></button>'
-               '<span class="cw-age" id="cwAge"></span></div>')
-        script = "<script>" + (CHECK_JS % {"url": json.dumps(status_url)}) + "</script>"
+               '<span class="cw-age" id="cwAge" role="status" aria-live="polite"></span></div>')
+        script = "<script>" + (CHECK_JS % {
+            "url": json.dumps(status_url),
+            "workday": json.dumps(WORKDAY_URL),
+            "stale": STALE_AFTER_MINUTES,
+            "active": json.dumps(list(ACTIVE_HOURS)),
+            "poll_ms": 60000,
+            "poll_min": poll_minutes,
+        }) + "</script>"
     else:
         bar, script = "", ""
 
     show_tabs = history is not None
     if show_tabs:
-        tabs = ('<div class="cw-tabs" role="tablist">'
+        tabs = ('<div class="cw-tabs" role="tablist" aria-label="Dashboard views">'
                 '<button class="cw-tab" role="tab" data-tab="status" '
                 'id="tab-status" aria-controls="panel-status" aria-selected="true">Status</button>'
                 '<button class="cw-tab" role="tab" data-tab="log" '
                 'id="tab-log" aria-controls="panel-log" aria-selected="false" '
                 'tabindex="-1">Log</button></div>')
-        log_panel = (f'<div class="cw-panel" role="tabpanel" id="panel-log" '
-                     f'aria-labelledby="tab-log" hidden>{render_log(history)}</div>')
+        n_ev = sum(1 for h in history
+                   if not h.get("ok", True) or h.get("opened") or h.get("recovered"))
+        log_panel = (
+            f'<div class="cw-panel" role="tabpanel" id="panel-log" '
+            f'aria-labelledby="tab-log" hidden>'
+            f'<div class="cw-logbar">'
+            f'<button type="button" class="cw-filter" id="cwFilter" '
+            f'aria-pressed="false">Events only</button>'
+            f'<span class="cw-age">{n_ev} event{"" if n_ev == 1 else "s"} '
+            f'in {len(history)} check{"" if len(history) == 1 else "s"}</span></div>'
+            f'<p class="cw-nothing" id="cwNoEvents" hidden>No openings, failures or '
+            f'recoveries in the last 7 days — every check found the classes full.</p>'
+            f'<div id="cwLogBody">{render_log(history)}</div>'
+            f'</div>')
         script += "<script>" + TABS_JS + "</script>"
+        script += "<script>" + LOGFILTER_JS + "</script>"
     else:
         tabs, log_panel = "", ""
 
@@ -522,15 +689,36 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
         status_panel = (f'<div class="cw-panel" role="tabpanel" id="panel-status" '
                         f'aria-labelledby="tab-status">{status_panel}</div>')
 
+    # Rendered server-side too, so a page loaded from a stale CDN copy admits it
+    # before any JavaScript runs.
+    stale_min = (datetime.now(checked_at.tzinfo) - checked_at).total_seconds() / 60
+    lo, hi = ACTIVE_HOURS
+    stale_now = (live and stale_min > STALE_AFTER_MINUTES
+                 and lo <= datetime.now(checked_at.tzinfo).hour < hi)
+    stale_box = (
+        f'<div class="cw-stale" id="cwStale"{"" if stale_now else " hidden"}>'
+        f'<b>Watcher may be down</b>'
+        f'<span>Last successful check was {round(stale_min)} min ago. Checks should run '
+        f'every {poll_minutes} minutes, so seat openings may be going unnoticed. '
+        f'Check the <a href="https://github.com/fbbonelli/classwatch/actions">Actions '
+        f'run history</a>.</span></div>'
+    ) if live else ""
+
+    theme_btn = ('<button type="button" class="cw-theme" id="cwTheme" '
+                 'aria-label="Switch theme">Dark</button>')
+
     return (
         f"<style>{CSS}</style>"
+        f"<script>{THEME_JS}</script>"
         f'<div class="cw"><div class="cw-wrap">'
         f'<header class="cw-top">'
         f'<h1 class="cw-mark">ClassWatch</h1>'
         f'<span class="cw-term">{E(term_label)}</span>'
         f'<span class="cw-stamp" id="cwStamp">{stamp}</span>'
+        f'{theme_btn}'
         f'</header>'
         f'{snap}'
+        f'{stale_box}'
         f'{tabs}'
         f'{global_bar}'
         f'{status_panel}'
