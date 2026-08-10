@@ -1,7 +1,7 @@
 {
   "_health": {
     "fails": 0,
-    "last_ok": "2026-08-10T11:36:32.432991-04:00"
+    "last_ok": "2026-08-10T11:45:04.197374-04:00"
   },
   "CS 305-9": {
     "open": false,
@@ -9,8 +9,8 @@
     "last_alert": null
   },
   "HI 381-1": {
-    "open": false,
-    "seats": 0,
-    "last_alert": null
+    "open": true,
+    "seats": 1,
+    "last_alert": "2026-08-10T11:45:04.197374-04:00"
   }
 }
