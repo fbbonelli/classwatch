@@ -1,7 +1,7 @@
 {
   "_health": {
     "fails": 0,
-    "last_ok": "2026-08-10T12:24:43.408905-04:00"
+    "last_ok": "2026-08-10T12:43:55.418196-04:00"
   },
   "CS 305-9": {
     "open": false,
@@ -12,5 +12,60 @@
     "open": true,
     "seats": 2,
     "last_alert": "2026-08-10T11:45:04.197374-04:00"
+  },
+  "CS 305-2": {
+    "open": false,
+    "seats": 0,
+    "last_alert": null
+  },
+  "CS 305-11": {
+    "open": false,
+    "seats": 0,
+    "last_alert": null
+  },
+  "CS 305-12": {
+    "open": false,
+    "seats": 0,
+    "last_alert": null
+  },
+  "EMS 222-1": {
+    "open": false,
+    "seats": 0,
+    "last_alert": null
+  },
+  "EMS 312-1": {
+    "open": false,
+    "seats": 0,
+    "last_alert": null
+  },
+  "FI 306-3": {
+    "open": false,
+    "seats": 0,
+    "last_alert": null
+  },
+  "FI 306-4": {
+    "open": false,
+    "seats": 0,
+    "last_alert": null
+  },
+  "FI 307-2": {
+    "open": false,
+    "seats": 0,
+    "last_alert": null
+  },
+  "FI 307-3": {
+    "open": false,
+    "seats": 0,
+    "last_alert": null
+  },
+  "FI 351-4": {
+    "open": false,
+    "seats": 0,
+    "last_alert": null
+  },
+  "FI 351-5": {
+    "open": false,
+    "seats": 0,
+    "last_alert": null
   }
 }

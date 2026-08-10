@@ -3106,13 +3106,39 @@
       "opened": [],
       "recovered": false,
       "n": 2
+    },
+    {
+      "t": "2026-08-10T12:33:53.547589-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 12
+    },
+    {
+      "t": "2026-08-10T12:43:55.418196-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 12
     }
   ],
-  "checked_at": "2026-08-10T12:24:43.408905-04:00",
-  "checked_at_display": "12:24 PM ET",
+  "checked_at": "2026-08-10T12:43:55.418196-04:00",
+  "checked_at_display": "12:43 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 10,
   "sections": [
+    {
+      "code": "CS 305-2",
+      "name": "Business Processes and Systems",
+      "instructor": "Esi Adeborna",
+      "meeting": "M/W | 3:30 PM - 4:50 PM 08/31/2026 - 12/15/2026",
+      "mode": "In-Person",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
+    },
     {
       "code": "CS 305-9",
       "name": "Business Processes and Systems",
@@ -3124,14 +3150,104 @@
       "open": false
     },
     {
-      "code": "HI 381-1",
-      "name": "The Civil War",
-      "instructor": "Charlie Riggs",
-      "meeting": "T/Th | 3:30 PM - 4:50 PM 08/31/2026 - 12/15/2026",
-      "mode": "In-Person",
-      "status": "Open",
-      "seats": 2,
-      "open": true
+      "code": "CS 305-11",
+      "name": "Business Processes and Systems",
+      "instructor": "Jeffrey Proudfoot",
+      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
+      "mode": "Online",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
+    },
+    {
+      "code": "CS 305-12",
+      "name": "Business Processes and Systems",
+      "instructor": "Jeffrey Proudfoot",
+      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
+      "mode": "Online",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
+    },
+    {
+      "code": "EMS 222-1",
+      "name": "Intro to Comm Studies",
+      "instructor": "Stephanie Medden",
+      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
+      "mode": "Online",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
+    },
+    {
+      "code": "EMS 312-1",
+      "name": "Horror/Sci-Fi in Film and TV",
+      "instructor": "Elizabeth LeDoux",
+      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
+      "mode": "Online",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
+    },
+    {
+      "code": "FI 306-3",
+      "name": "Financial Markets and Investment",
+      "instructor": "Claude Cicchetti",
+      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
+      "mode": "Online",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
+    },
+    {
+      "code": "FI 306-4",
+      "name": "Financial Markets and Investment",
+      "instructor": "Claude Cicchetti",
+      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
+      "mode": "Online",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
+    },
+    {
+      "code": "FI 307-2",
+      "name": "Advanced Managerial Finance",
+      "instructor": "Trevor Larkan",
+      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
+      "mode": "Online",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
+    },
+    {
+      "code": "FI 307-3",
+      "name": "Advanced Managerial Finance",
+      "instructor": "Trevor Larkan",
+      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
+      "mode": "Online",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
+    },
+    {
+      "code": "FI 351-4",
+      "name": "International Finance",
+      "instructor": "Claude Cicchetti",
+      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
+      "mode": "Online",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
+    },
+    {
+      "code": "FI 351-5",
+      "name": "International Finance",
+      "instructor": "Claude Cicchetti",
+      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
+      "mode": "Online",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
     }
   ]
 }
