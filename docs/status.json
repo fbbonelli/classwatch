@@ -4418,10 +4418,18 @@
       "opened": [],
       "recovered": false,
       "n": 12
+    },
+    {
+      "t": "2026-08-12T05:03:43.771599-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 12
     }
   ],
-  "checked_at": "2026-08-12T04:53:40.985426-04:00",
-  "checked_at_display": "4:53 AM ET",
+  "checked_at": "2026-08-12T05:03:43.771599-04:00",
+  "checked_at_display": "5:03 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 10,
   "sections": [
