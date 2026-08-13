@@ -5218,10 +5218,26 @@
       "opened": [],
       "recovered": false,
       "n": 12
+    },
+    {
+      "t": "2026-08-13T08:07:00.562253-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 12
+    },
+    {
+      "t": "2026-08-13T08:17:02.401041-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 12
     }
   ],
-  "checked_at": "2026-08-13T08:03:56.545902-04:00",
-  "checked_at_display": "8:03 AM ET",
+  "checked_at": "2026-08-13T08:17:02.401041-04:00",
+  "checked_at_display": "8:17 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 10,
   "sections": [
