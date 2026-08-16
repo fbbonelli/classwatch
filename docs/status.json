@@ -7362,10 +7362,26 @@
       "opened": [],
       "recovered": false,
       "n": 12
+    },
+    {
+      "t": "2026-08-16T03:45:43.323107-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 12
+    },
+    {
+      "t": "2026-08-16T03:55:44.707458-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 12
     }
   ],
-  "checked_at": "2026-08-16T03:40:36.133534-04:00",
-  "checked_at_display": "3:40 AM ET",
+  "checked_at": "2026-08-16T03:55:44.707458-04:00",
+  "checked_at_display": "3:55 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 10,
   "sections": [
