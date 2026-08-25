@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-18T14:42:08.773778-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-18T14:52:12.657262-04:00",
       "ok": true,
       "open": [],
@@ -8407,10 +8399,25 @@
       "opened": [],
       "recovered": false,
       "n": 12
+    },
+    {
+      "t": "2026-08-25T14:50:20.207570-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "FI 307-2",
+          "seats": 1
+        }
+      ],
+      "opened": [
+        "FI 307-2"
+      ],
+      "recovered": false,
+      "n": 12
     }
   ],
-  "checked_at": "2026-08-25T14:40:16.170129-04:00",
-  "checked_at_display": "2:40 PM ET",
+  "checked_at": "2026-08-25T14:50:20.207570-04:00",
+  "checked_at_display": "2:50 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 10,
   "sections": [
@@ -8500,9 +8507,9 @@
       "instructor": "Trevor Larkan",
       "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
       "mode": "Online",
-      "status": "Closed",
-      "seats": 0,
-      "open": false
+      "status": "Open",
+      "seats": 1,
+      "open": true
     },
     {
       "code": "FI 307-3",

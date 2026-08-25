@@ -1,7 +1,7 @@
 {
   "_health": {
     "fails": 0,
-    "last_ok": "2026-08-25T14:40:16.170129-04:00"
+    "last_ok": "2026-08-25T14:50:20.207570-04:00"
   },
   "CS 305-9": {
     "open": false,
@@ -49,9 +49,9 @@
     "last_alert": null
   },
   "FI 307-2": {
-    "open": false,
-    "seats": 0,
-    "last_alert": null
+    "open": true,
+    "seats": 1,
+    "last_alert": "2026-08-25T14:50:20.207570-04:00"
   },
   "FI 307-3": {
     "open": false,
