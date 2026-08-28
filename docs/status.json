@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-21T14:45:03.383499-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-21T14:55:06.407119-04:00",
       "ok": true,
       "open": [],
@@ -8380,10 +8372,18 @@
       "opened": [],
       "recovered": false,
       "n": 12
+    },
+    {
+      "t": "2026-08-28T14:52:51.614653-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 12
     }
   ],
-  "checked_at": "2026-08-28T14:42:48.410200-04:00",
-  "checked_at_display": "2:42 PM ET",
+  "checked_at": "2026-08-28T14:52:51.614653-04:00",
+  "checked_at_display": "2:52 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 10,
   "sections": [
