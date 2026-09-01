@@ -1,21 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-25T14:50:20.207570-04:00",
-      "ok": true,
-      "open": [
-        {
-          "code": "FI 307-2",
-          "seats": 1
-        }
-      ],
-      "opened": [
-        "FI 307-2"
-      ],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-25T15:00:23.492332-04:00",
       "ok": true,
       "open": [
@@ -8186,10 +8171,18 @@
       "opened": [],
       "recovered": false,
       "n": 12
+    },
+    {
+      "t": "2026-09-01T14:55:59.837142-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 12
     }
   ],
-  "checked_at": "2026-09-01T14:45:56.752723-04:00",
-  "checked_at_display": "2:45 PM ET",
+  "checked_at": "2026-09-01T14:55:59.837142-04:00",
+  "checked_at_display": "2:55 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 10,
   "sections": [
