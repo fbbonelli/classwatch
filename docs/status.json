@@ -1,94 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-26T17:56:09.285477-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
-      "t": "2026-08-26T18:06:11.652163-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
-      "t": "2026-08-26T18:16:24.882569-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
-      "t": "2026-08-26T18:26:27.332680-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
-      "t": "2026-08-26T18:36:30.030632-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
-      "t": "2026-08-26T18:46:32.397361-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
-      "t": "2026-08-26T18:56:34.781138-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
-      "t": "2026-08-26T19:06:37.178209-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
-      "t": "2026-08-26T19:16:39.666245-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
-      "t": "2026-08-26T19:26:42.275307-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
-      "t": "2026-08-26T19:36:45.229187-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-26T19:46:47.649533-04:00",
       "ok": true,
       "open": [],
@@ -8738,13 +8650,40 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-02T19:37:17.160917-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "PSY 230-2",
+          "seats": 1
+        }
+      ],
+      "opened": [
+        "PSY 230-2"
+      ],
+      "recovered": false,
+      "n": 16
     }
   ],
-  "checked_at": "2026-09-02T17:51:24.375206-04:00",
-  "checked_at_display": "5:51 PM ET",
+  "checked_at": "2026-09-02T19:37:17.160917-04:00",
+  "checked_at_display": "7:37 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
+    {
+      "code": "AC 115-3",
+      "name": "Introduction to Financial Reporting and Analysis",
+      "instructor": "Lynn Wolf",
+      "meeting": "M/Th | 2:00 PM - 3:20 PM 08/31/2026 - 12/15/2026",
+      "mode": "In-Person",
+      "status": "Closed",
+      "seats": 0,
+      "open": false,
+      "mute_until": null,
+      "muted": false
+    },
     {
       "code": "CS 305-2",
       "name": "Business Processes and Systems",
