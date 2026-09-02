@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-26T13:36:24.960999-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-26T13:46:32.547927-04:00",
       "ok": true,
       "open": [],
@@ -8284,10 +8276,23 @@
       "opened": [],
       "recovered": false,
       "n": 17
+    },
+    {
+      "t": "2026-09-02T13:40:19.061972-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "HI 334-1",
+          "seats": 2
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-02T13:35:24.979376-04:00",
-  "checked_at_display": "1:35 PM ET",
+  "checked_at": "2026-09-02T13:40:19.061972-04:00",
+  "checked_at_display": "1:40 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -8391,30 +8396,6 @@
       "code": "FI 306-4",
       "name": "Financial Markets and Investment",
       "instructor": "Claude Cicchetti",
-      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
-      "mode": "Online",
-      "status": "Closed",
-      "seats": 0,
-      "open": false,
-      "mute_until": null,
-      "muted": false
-    },
-    {
-      "code": "FI 307-2",
-      "name": "Advanced Managerial Finance",
-      "instructor": "Trevor Larkan",
-      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
-      "mode": "Online",
-      "status": "Closed",
-      "seats": 0,
-      "open": false,
-      "mute_until": null,
-      "muted": false
-    },
-    {
-      "code": "FI 307-3",
-      "name": "Advanced Managerial Finance",
-      "instructor": "Trevor Larkan",
       "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
       "mode": "Online",
       "status": "Closed",
