@@ -415,6 +415,62 @@ CHECK_JS = """
         'Check the <a href="https://github.com/fbbonelli/classwatch/actions">Actions run history</a>.</span>';
     } else { box.hidden=true; }
   }
+  // The server-rendered HTML is only as fresh as the last Pages build, but
+  // status.json is fresh every check. Without this the page could not show a
+  // class it had never rendered — adding one to the watchlist left the stale
+  // list sitting there until Pages rebuilt, which just looks like the edit
+  // failed. So the page builds missing cards itself and drops unwatched ones.
+  function modeChip(mode){
+    if(!mode) return '';
+    var k=String(mode).toLowerCase();
+    var c = k.indexOf('online')>=0 ? 'online' : (k.indexOf('hybrid')>=0 ? 'hybrid' : 'person');
+    return '<span class="cw-mode '+c+'">'+esc(mode)+'</span>';
+  }
+  function buildCard(s){
+    var li=document.createElement('li');
+    li.setAttribute('data-code', s.code);
+    if(s.status==='not_found'){
+      li.className='cw-card full';
+      li.innerHTML='<p class="cw-code">'+esc(s.code)+'</p>'+
+        '<p class="cw-name">Not found in this term\\'s listing</p>'+
+        '<p class="cw-meta">Check the course code, or the class may not be offered.</p>'+
+        '<div class="cw-right"><span class="cw-chip gone">No match</span></div>';
+      return li;
+    }
+    var open=!!s.open, cls=open?'open':'full', meta=[];
+    if(s.instructor) meta.push(esc(s.instructor));
+    if(s.meeting) meta.push(esc(s.meeting));
+    li.className='cw-card '+cls;
+    li.innerHTML='<p class="cw-code">'+esc(s.code)+modeChip(s.mode)+'</p>'+
+      '<p class="cw-name">'+esc(s.name)+'</p>'+
+      '<p class="cw-meta">'+meta.join('<br>')+'</p>'+
+      '<div class="cw-right"><span class="cw-chip '+cls+'">'+(open?'Open':'Full')+'</span>'+
+      '<p class="cw-seats"><b>'+((s.seats===null||s.seats===undefined)?'?':s.seats)+'</b>'+
+      '<span>seat'+(s.seats===1?'':'s')+'</span></p></div>';
+    return li;
+  }
+  // Number of cards added, or -1 when there is no list element (an empty
+  // watchlist renders a placeholder) so the caller can fall back to the hint.
+  function syncCards(secs){
+    var list=document.querySelector('.cw-list');
+    if(!list) return -1;
+    var want={}, added=0;
+    secs.forEach(function(s){
+      want[s.code]=1;
+      if(!list.querySelector('.cw-card[data-code="'+CSS.escape(s.code)+'"]')){
+        list.appendChild(buildCard(s)); added++;
+      }
+    });
+    Array.prototype.slice.call(list.querySelectorAll('.cw-card')).forEach(function(c){
+      if(!want[c.getAttribute('data-code')]) c.parentNode.removeChild(c);
+    });
+    // Re-append in feed order so the page matches the watchlist's ordering.
+    secs.forEach(function(s){
+      var c=list.querySelector('.cw-card[data-code="'+CSS.escape(s.code)+'"]');
+      if(c) list.appendChild(c);
+    });
+    return added;
+  }
   function setCard(s){
     var card=document.querySelector('.cw-card[data-code="'+CSS.escape(s.code)+'"]');
     if(!card) return false;
@@ -489,6 +545,7 @@ CHECK_JS = """
   // Shared by the button and the background poller.
   function apply(d, quiet){
     var secs=d.sections||[], missed=0;
+    var added=syncCards(secs);
     secs.forEach(function(s){ if(!setCard(s)) missed++; });
     setVerdict(secs);
     redrawLog(d.history);
@@ -499,7 +556,8 @@ CHECK_JS = """
     age.className='cw-age'+(quiet?'':' ok');
     age.textContent = missed
       ? 'Watchlist changed — reload the page'
-      : (quiet?'Data from ':'Updated \\u00b7 data from ')+minsAgo(d.checked_at);
+      : (added>0 ? 'Watchlist updated \\u00b7 data from '+minsAgo(d.checked_at)
+                 : (quiet?'Data from ':'Updated \\u00b7 data from ')+minsAgo(d.checked_at));
   }
 
   function pull(){
