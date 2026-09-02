@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-26T12:15:57.606681-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-26T12:26:00.043373-04:00",
       "ok": true,
       "open": [],
@@ -8149,10 +8141,25 @@
       "opened": [],
       "recovered": false,
       "n": 14
+    },
+    {
+      "t": "2026-09-02T12:16:33.602881-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "HI 334-1",
+          "seats": 2
+        }
+      ],
+      "opened": [
+        "HI 334-1"
+      ],
+      "recovered": false,
+      "n": 16
     }
   ],
-  "checked_at": "2026-09-02T12:13:12.873727-04:00",
-  "checked_at_display": "12:13 PM ET",
+  "checked_at": "2026-09-02T12:16:33.602881-04:00",
+  "checked_at_display": "12:16 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -8287,10 +8294,30 @@
       "open": false
     },
     {
+      "code": "HI 334-1",
+      "name": "The Soviet Union and After",
+      "instructor": "Leonid Trofimov",
+      "meeting": "W | 11:00 AM - 1:50 PM 08/31/2026 - 12/15/2026",
+      "mode": "In-Person",
+      "status": "Open",
+      "seats": 2,
+      "open": true
+    },
+    {
       "code": "NAS 308-1",
       "name": "Health of Nations",
       "instructor": "Tony Kiszewski",
       "meeting": "M/W | 3:30 PM - 4:50 PM 08/31/2026 - 12/15/2026",
+      "mode": "In-Person",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
+    },
+    {
+      "code": "PSY 230-2",
+      "name": "Positive Psychology",
+      "instructor": "Helen Meldrum",
+      "meeting": "W | 11:00 AM - 1:50 PM 08/31/2026 - 12/15/2026",
       "mode": "In-Person",
       "status": "Closed",
       "seats": 0,
