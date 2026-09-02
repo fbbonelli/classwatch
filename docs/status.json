@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-26T12:56:09.474542-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-26T13:06:13.158662-04:00",
       "ok": true,
       "open": [],
@@ -8210,10 +8202,23 @@
       "opened": [],
       "recovered": false,
       "n": 16
+    },
+    {
+      "t": "2026-09-02T12:58:03.059466-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "HI 334-1",
+          "seats": 2
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 16
     }
   ],
-  "checked_at": "2026-09-02T12:46:49.061023-04:00",
-  "checked_at_display": "12:46 PM ET",
+  "checked_at": "2026-09-02T12:58:03.059466-04:00",
+  "checked_at_display": "12:58 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -8225,7 +8230,9 @@
       "mode": "In-Person",
       "status": "Closed",
       "seats": 0,
-      "open": false
+      "open": false,
+      "mute_until": "forever",
+      "muted": true
     },
     {
       "code": "CS 305-9",
@@ -8235,7 +8242,9 @@
       "mode": "In-Person",
       "status": "Closed",
       "seats": 0,
-      "open": false
+      "open": false,
+      "mute_until": "2026-09-03T00:55:42+00:00",
+      "muted": true
     },
     {
       "code": "CS 305-11",
@@ -8245,7 +8254,9 @@
       "mode": "Online",
       "status": "Closed",
       "seats": 0,
-      "open": false
+      "open": false,
+      "mute_until": null,
+      "muted": false
     },
     {
       "code": "CS 305-12",
@@ -8255,7 +8266,9 @@
       "mode": "Online",
       "status": "Closed",
       "seats": 0,
-      "open": false
+      "open": false,
+      "mute_until": null,
+      "muted": false
     },
     {
       "code": "EMS 222-1",
@@ -8265,7 +8278,9 @@
       "mode": "Online",
       "status": "Closed",
       "seats": 0,
-      "open": false
+      "open": false,
+      "mute_until": null,
+      "muted": false
     },
     {
       "code": "EMS 312-1",
@@ -8275,7 +8290,9 @@
       "mode": "Online",
       "status": "Closed",
       "seats": 0,
-      "open": false
+      "open": false,
+      "mute_until": null,
+      "muted": false
     },
     {
       "code": "FI 306-3",
@@ -8285,7 +8302,9 @@
       "mode": "Online",
       "status": "Closed",
       "seats": 0,
-      "open": false
+      "open": false,
+      "mute_until": null,
+      "muted": false
     },
     {
       "code": "FI 306-4",
@@ -8295,7 +8314,9 @@
       "mode": "Online",
       "status": "Closed",
       "seats": 0,
-      "open": false
+      "open": false,
+      "mute_until": null,
+      "muted": false
     },
     {
       "code": "FI 307-2",
@@ -8305,7 +8326,9 @@
       "mode": "Online",
       "status": "Closed",
       "seats": 0,
-      "open": false
+      "open": false,
+      "mute_until": null,
+      "muted": false
     },
     {
       "code": "FI 307-3",
@@ -8315,7 +8338,9 @@
       "mode": "Online",
       "status": "Closed",
       "seats": 0,
-      "open": false
+      "open": false,
+      "mute_until": null,
+      "muted": false
     },
     {
       "code": "FI 351-4",
@@ -8325,7 +8350,9 @@
       "mode": "Online",
       "status": "Closed",
       "seats": 0,
-      "open": false
+      "open": false,
+      "mute_until": null,
+      "muted": false
     },
     {
       "code": "FI 351-5",
@@ -8335,7 +8362,9 @@
       "mode": "Online",
       "status": "Closed",
       "seats": 0,
-      "open": false
+      "open": false,
+      "mute_until": null,
+      "muted": false
     },
     {
       "code": "HI 323-2",
@@ -8345,7 +8374,9 @@
       "mode": "In-Person",
       "status": "Closed",
       "seats": 0,
-      "open": false
+      "open": false,
+      "mute_until": null,
+      "muted": false
     },
     {
       "code": "HI 334-1",
@@ -8355,7 +8386,9 @@
       "mode": "In-Person",
       "status": "Open",
       "seats": 2,
-      "open": true
+      "open": true,
+      "mute_until": null,
+      "muted": false
     },
     {
       "code": "NAS 308-1",
@@ -8365,7 +8398,9 @@
       "mode": "In-Person",
       "status": "Closed",
       "seats": 0,
-      "open": false
+      "open": false,
+      "mute_until": null,
+      "muted": false
     },
     {
       "code": "PSY 230-2",
@@ -8375,8 +8410,12 @@
       "mode": "In-Person",
       "status": "Closed",
       "seats": 0,
-      "open": false
+      "open": false,
+      "mute_until": null,
+      "muted": false
     }
   ],
-  "publish_minutes": 10
+  "publish_minutes": 10,
+  "paused_until": null,
+  "paused": false
 }
