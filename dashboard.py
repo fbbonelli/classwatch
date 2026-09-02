@@ -849,6 +849,23 @@ MANAGE_JS = '''
       if(x[0]!==y[0]) return x[0]<y[0]?-1:1; return (x[1]-y[1])||(x[2]-y[2]); });
     return wl;
   }
+  // Toggling the same class a few times inside the debounce window queued every
+  // intermediate step, so one commit read "HI 334-1 on, HI 334-1 off, HI 334-1 on".
+  // The file always ended up correct — applyOps replays in order — but the history
+  // was unreadable. Keep only the last op per target, newest wins, order preserved.
+  function collapse(list){
+    // First-appearance order, final value — so the message lists things in the
+    // order he touched them and states where each one ended up.
+    var order=[], val={};
+    list.forEach(function(o){
+      var key = o.k==='pause' ? 'pause'
+              : (o.k==='add'||o.k==='remove') ? 'member:'+o.c
+              : o.k+':'+o.c;
+      if(!(key in val)) order.push(key);
+      val[key]=o;
+    });
+    return order.map(function(k){ return val[k]; });
+  }
   function describe(list){
     var a=list.filter(function(o){return o.k==='add';}).map(function(o){return o.c;});
     var r=list.filter(function(o){return o.k==='remove';}).map(function(o){return o.c;});
@@ -872,7 +889,7 @@ MANAGE_JS = '''
     if(b){ b.textContent = on ? 'Connected' : 'Connect to edit';
            b.classList.toggle('done', on); }
     var h=document.getElementById('cwHint');
-    if(h && on) h.textContent='The dot to the right of each course code is that '+
+    if(h && on) h.textContent='The bell beside each course code is that '+
       'class\u2019s notification switch. Silencing one keeps it watched and its '+
       'seat count live here \u2014 it just stops the phone alert.';
     Array.prototype.forEach.call(document.querySelectorAll('.cw-bell'),
@@ -884,7 +901,7 @@ MANAGE_JS = '''
     if(inflight||!pending.length) return;
     if(!tok()){ status('Connect to save changes',true); return; }
     inflight=true;
-    var mine=pending.slice(); pending=[];
+    var mine=collapse(pending.slice()); pending=[];
     status('Saving\\u2026');
     var tries=0;
     function go(){
@@ -1318,10 +1335,10 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
             '</select>'
             '<span class="cw-conn" id="cwConn"></span>'
             '</div>'
-            '<p class="cw-hint" id="cwHint">The dot to the right of each course '
-            'code is that class\u2019s notification switch \u2014 silencing one '
-            'keeps it watched and its seat count live here, it just stops the '
-            'phone alert. Connect once to enable the switches.</p>'
+            '<p class="cw-hint" id="cwHint">The bell beside each course code is '
+            'that class\u2019s notification switch \u2014 silencing one keeps it '
+            'watched and its seat count live here, it just stops the phone alert. '
+            'Connect once to enable the bells.</p>'
             '<div class="cw-manage" id="cwManage" hidden>'
             '<input type="search" class="cw-search" id="cwSearch" autocomplete="off" '
             'placeholder="Search every class in the term \u2014 code, name or instructor">'
