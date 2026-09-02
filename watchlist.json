@@ -2,6 +2,11 @@
   "term": "202609",
   "courses": [
     {
+      "match": "AC 115-3",
+      "note": "",
+      "mute_until": null
+    },
+    {
       "match": "CS 305-2",
       "note": "",
       "mute_until": null
