@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-26T11:25:44.695206-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-26T11:35:47.319995-04:00",
       "ok": true,
       "open": [],
@@ -8117,10 +8109,26 @@
       "opened": [],
       "recovered": false,
       "n": 12
+    },
+    {
+      "t": "2026-09-02T11:25:09.263182-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 14
+    },
+    {
+      "t": "2026-09-02T11:35:10.365862-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 14
     }
   ],
-  "checked_at": "2026-09-02T11:21:33.919549-04:00",
-  "checked_at_display": "11:21 AM ET",
+  "checked_at": "2026-09-02T11:35:10.365862-04:00",
+  "checked_at_display": "11:35 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 10,
   "sections": [
@@ -8240,6 +8248,26 @@
       "instructor": "Claude Cicchetti",
       "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
       "mode": "Online",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
+    },
+    {
+      "code": "HI 323-2",
+      "name": "The Medieval West",
+      "instructor": "Steven Corvi",
+      "meeting": "M/W | 3:30 PM - 4:50 PM 08/31/2026 - 12/15/2026",
+      "mode": "In-Person",
+      "status": "Closed",
+      "seats": 0,
+      "open": false
+    },
+    {
+      "code": "NAS 308-1",
+      "name": "Health of Nations",
+      "instructor": "Tony Kiszewski",
+      "meeting": "M/W | 3:30 PM - 4:50 PM 08/31/2026 - 12/15/2026",
+      "mode": "In-Person",
       "status": "Closed",
       "seats": 0,
       "open": false

@@ -1,7 +1,7 @@
 {
   "_health": {
     "fails": 0,
-    "last_ok": "2026-09-02T11:21:33.919549-04:00"
+    "last_ok": "2026-09-02T11:35:10.365862-04:00"
   },
   "CS 305-9": {
     "open": false,
@@ -64,6 +64,16 @@
     "last_alert": null
   },
   "FI 351-5": {
+    "open": false,
+    "seats": 0,
+    "last_alert": null
+  },
+  "HI 323-2": {
+    "open": false,
+    "seats": 0,
+    "last_alert": null
+  },
+  "NAS 308-1": {
     "open": false,
     "seats": 0,
     "last_alert": null
