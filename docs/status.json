@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-26T14:26:44.113672-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-26T14:36:46.904983-04:00",
       "ok": true,
       "open": [],
@@ -8361,10 +8353,42 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-02T14:25:45.978623-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "HI 334-1",
+          "seats": 2
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
+    },
+    {
+      "t": "2026-09-02T14:30:47.544214-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "HI 334-1",
+          "seats": 1
+        },
+        {
+          "code": "PSY 230-2",
+          "seats": 1
+        }
+      ],
+      "opened": [
+        "PSY 230-2"
+      ],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-02T14:20:42.616474-04:00",
-  "checked_at_display": "2:20 PM ET",
+  "checked_at": "2026-09-02T14:30:47.544214-04:00",
+  "checked_at_display": "2:30 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -8519,7 +8543,7 @@
       "meeting": "W | 11:00 AM - 1:50 PM 08/31/2026 - 12/15/2026",
       "mode": "In-Person",
       "status": "Open",
-      "seats": 2,
+      "seats": 1,
       "open": true,
       "mute_until": null,
       "muted": false
@@ -8542,9 +8566,9 @@
       "instructor": "Helen Meldrum",
       "meeting": "W | 11:00 AM - 1:50 PM 08/31/2026 - 12/15/2026",
       "mode": "In-Person",
-      "status": "Closed",
-      "seats": 0,
-      "open": false,
+      "status": "Open",
+      "seats": 1,
+      "open": true,
       "mute_until": null,
       "muted": false
     }
