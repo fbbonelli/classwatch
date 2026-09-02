@@ -8385,10 +8385,29 @@
       ],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-02T14:35:53.805568-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "HI 334-1",
+          "seats": 1
+        },
+        {
+          "code": "PSY 230-2",
+          "seats": 1
+        }
+      ],
+      "opened": [
+        "HI 334-1"
+      ],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-02T14:30:47.544214-04:00",
-  "checked_at_display": "2:30 PM ET",
+  "checked_at": "2026-09-02T14:35:53.805568-04:00",
+  "checked_at_display": "2:35 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
