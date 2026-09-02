@@ -81,8 +81,13 @@ jobs:
           # KEEP THIS ON ONE LINE. A multi-line python -c here has to start at
           # column 0, which dedents out of this block scalar and makes the whole
           # workflow file unparseable — GitHub then cannot even read its `name`.
+          # Includes each class's silenced flag and the global pause, not just the
+          # code list: flipping a notification switch changes neither the set of
+          # watched classes nor the seat counts, so without this it would sit
+          # unpublished until the next heartbeat and his other devices would keep
+          # showing the old switch position.
           codes_of() {
-            python3 -c 'import json,sys;d=json.load(sys.stdin);print(",".join(sorted(x.get("code","") for x in d.get("sections",[]))))' 2>/dev/null || echo ""
+            python3 -c 'import json,sys;d=json.load(sys.stdin);print(("P" if d.get("paused") else "")+",".join(sorted(x.get("code","")+("!" if x.get("muted") else "") for x in d.get("sections",[]))))' 2>/dev/null || echo ""
           }
 
           START=$(date +%s)
@@ -122,7 +127,7 @@ jobs:
               # showing the OLD class list for up to a full DASHBOARD_PUSH_SECONDS, which
               # reads as "my change didn't work". A watchlist edit is a deliberate act,
               # it is rare, and it is exactly what he looks at the page to confirm.
-              reason="watchlist changed"
+              reason="watchlist or notification switch changed"
             elif [ $(( $(date +%s) - last_push )) -ge "$DASHBOARD_PUSH_SECONDS" ] \
                  && ! git diff --quiet -- state.json docs/index.html docs/status.json \
                                           docs/catalog.json; then
