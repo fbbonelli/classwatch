@@ -8684,10 +8684,23 @@
       ],
       "recovered": false,
       "n": 16
+    },
+    {
+      "t": "2026-09-02T17:25:43.123310-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "PSY 230-2",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 17
     }
   ],
-  "checked_at": "2026-09-02T17:20:47.372158-04:00",
-  "checked_at_display": "5:20 PM ET",
+  "checked_at": "2026-09-02T17:25:43.123310-04:00",
+  "checked_at_display": "5:25 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -8828,6 +8841,18 @@
       "name": "Cross-Cultural Understanding",
       "instructor": "Daniel Everett",
       "meeting": "W | 11:00 AM - 1:50 PM 08/31/2026 - 12/15/2026",
+      "mode": "In-Person",
+      "status": "Closed",
+      "seats": 0,
+      "open": false,
+      "mute_until": null,
+      "muted": false
+    },
+    {
+      "code": "GLS 116-4",
+      "name": "International Relations",
+      "instructor": "Joao Resende-Santos",
+      "meeting": "M/W | 3:30 PM - 4:50 PM 08/31/2026 - 12/15/2026",
       "mode": "In-Person",
       "status": "Closed",
       "seats": 0,
