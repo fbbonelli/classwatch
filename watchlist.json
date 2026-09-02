@@ -4,12 +4,12 @@
     {
       "match": "CS 305-2",
       "note": "",
-      "mute_until": "forever"
+      "mute_until": null
     },
     {
       "match": "CS 305-9",
       "note": "",
-      "mute_until": "2026-09-03T00:55:42+00:00"
+      "mute_until": null
     },
     {
       "match": "CS 305-11",
