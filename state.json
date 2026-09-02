@@ -1,7 +1,7 @@
 {
   "_health": {
     "fails": 0,
-    "last_ok": "2026-09-02T15:20:15.915564-04:00"
+    "last_ok": "2026-09-02T15:30:21.020286-04:00"
   },
   "CS 305-9": {
     "open": false,
@@ -84,9 +84,9 @@
     "last_alert": null
   },
   "PSY 230-2": {
-    "open": true,
-    "seats": 1,
-    "last_alert": "2026-09-02T14:30:47.544214-04:00"
+    "open": false,
+    "seats": 0,
+    "last_alert": null
   },
   "EMS 400-1": {
     "open": false,
