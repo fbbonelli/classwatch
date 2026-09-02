@@ -1044,8 +1044,24 @@ MANAGE_JS = '''
       t=t.trim();
       status('Checking the token\\u2026');
       fetch(API,{headers:hdr(t)}).then(function(r){
-        if(!r.ok) throw new Error('GitHub rejected it ('+r.status+')');
-        setTok(t); connLabel(); status('Connected'); renderResults();
+        if(r.status===401) throw new Error('GitHub rejected that token');
+        if(!r.ok) throw new Error('GitHub said '+r.status);
+        // A read of a PUBLIC repo succeeds even with a scopeless token, so a
+        // plain 200 proves nothing. Classic tokens report their scopes in a
+        // CORS-exposed header — check it here rather than letting the first
+        // save fail with an opaque 403 an hour from now.
+        var sc=r.headers.get('X-OAuth-Scopes');
+        if(sc!==null){
+          var have=sc.split(',').map(function(x){ return x.trim(); });
+          if(have.indexOf('repo')<0 && have.indexOf('public_repo')<0)
+            throw new Error('that token cannot write — it has '+
+              (sc?('only: '+sc):'no scopes')+'. Regenerate it with public_repo ticked.');
+        }
+        return r.json();
+      }).then(function(j){
+        if(j && j.permissions && j.permissions.push===false)
+          throw new Error('that token has no write access to this repo');
+        setTok(t); connLabel(); status('Connected — switches are live'); renderResults();
       }).catch(function(e){ status(String(e.message),true); });
     });
     connLabel();
