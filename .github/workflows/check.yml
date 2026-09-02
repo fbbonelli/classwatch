@@ -78,15 +78,11 @@ jobs:
           # Sorted section codes from a status.json on stdin; empty string if the file
           # is missing or unparseable, which makes every comparison below fail safe
           # (an unreadable old file just means "changed", i.e. publish).
+          # KEEP THIS ON ONE LINE. A multi-line python -c here has to start at
+          # column 0, which dedents out of this block scalar and makes the whole
+          # workflow file unparseable — GitHub then cannot even read its `name`.
           codes_of() {
-            python3 -c "
-import json,sys
-try:
-    d = json.load(sys.stdin)
-except Exception:
-    print(''); raise SystemExit
-print(','.join(sorted(s.get('code','') for s in d.get('sections', []))))
-" 2>/dev/null || echo ""
+            python3 -c 'import json,sys;d=json.load(sys.stdin);print(",".join(sorted(x.get("code","") for x in d.get("sections",[]))))' 2>/dev/null || echo ""
           }
 
           START=$(date +%s)
