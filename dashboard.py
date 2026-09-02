@@ -13,10 +13,38 @@ from datetime import datetime, timedelta
 # moment speed is the whole point. Defined once and reused by the server-side
 # verdict, the client-side verdict and check.py's push alert.
 WORKDAY_URL = "https://wd503.myworkday.com/bentley/login.htmld"
+# Where the page writes watchlist changes back to. The browser talks to the
+# GitHub API directly with a token the user pastes in themselves; nothing
+# secret is ever baked into this page, which is public.
+GH_OWNER, GH_REPO, GH_FILE = "fbbonelli", "classwatch", "watchlist.json"
+CATALOG_URL = ("https://raw.githubusercontent.com/fbbonelli/classwatch/"
+               "main/docs/catalog.json")
 
 # A check is "stale" past this many minutes. The watcher runs every 10, so this
 # is ~4 missed cycles — long enough not to trip on GitHub scheduling jitter.
 STALE_AFTER_MINUTES = 45
+
+# A mute is stored as one field, `mute_until`, on a watchlist entry:
+#   absent / None -> notifications on
+#   "forever"     -> silenced until he turns it back on
+#   ISO-8601      -> silenced until that instant, then it turns itself back on
+# Evaluated lazily rather than written back when it expires: nothing has to run
+# for a mute to lapse, and the browser and the watcher can't disagree about it.
+# `paused_until` on the watchlist root is the same field for "all classes".
+def mute_active(until, now=None):
+    """True if `until` represents a mute that is still in force."""
+    if not until:
+        return False
+    if until == "forever":
+        return True
+    try:
+        from datetime import datetime as _dt
+        when = _dt.fromisoformat(until)
+        now = now or _dt.now(when.tzinfo)
+        return now < when
+    except (ValueError, TypeError):
+        # An unparseable value must not silently silence a class forever.
+        return False
 # Checks now run round the clock, so staleness is alarming at any hour. Kept as a
 # window (rather than deleted) so re-introducing quiet hours stays a one-line change.
 ACTIVE_HOURS = (0, 24)
@@ -128,6 +156,69 @@ CSS = """
   border:1px solid var(--line);color:var(--muted);background:none;}
 .cw-mode.online{background:var(--sunken);color:var(--ink);border-color:var(--muted);}
 .cw-mode.hybrid{border-style:dashed;color:var(--ink);}
+
+/* --- per-class notification switch ------------------------------------ */
+.cw-bell{margin-left:8px;width:22px;height:22px;padding:0;flex:none;cursor:pointer;
+  border:1px solid var(--line);border-radius:50%;background:none;color:var(--muted);
+  font-size:9px;line-height:1;display:inline-flex;align-items:center;
+  justify-content:center;vertical-align:middle;transition:none;}
+.cw-bell[disabled]{cursor:default;opacity:.45;}
+.cw-bell:not([disabled]):hover{color:var(--ink);border-color:var(--muted);}
+.cw-bell:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+/* Silenced is a deliberately quiet state: it must not compete with the
+   green/crimson that mean "seats" and "no seats". */
+.cw-bell.off{background:var(--sunken);color:var(--ink);border-color:var(--muted);}
+.cw-card.muted{opacity:.62;}
+.cw-card.muted .cw-code{text-decoration:line-through;
+  text-decoration-color:var(--muted);text-decoration-thickness:1px;}
+.cw-card.muted .cw-bell{opacity:1;}
+
+/* --- control strip ---------------------------------------------------- */
+.cw-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 18px;}
+.cw-btn{font:inherit;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;padding:7px 12px;border:1px solid var(--line);
+  border-radius:3px;background:none;color:var(--muted);cursor:pointer;}
+.cw-btn:not([disabled]):hover{color:var(--ink);border-color:var(--muted);}
+.cw-btn[disabled]{opacity:.45;cursor:default;}
+.cw-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+.cw-btn.on{background:var(--sunken);color:var(--ink);border-color:var(--muted);}
+.cw-conn{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:auto;}
+.cw-conn b{color:var(--ink);font-weight:600;}
+
+/* --- add/remove panel -------------------------------------------------- */
+.cw-manage{border:1px solid var(--line);border-radius:4px;padding:14px;
+  margin:0 0 18px;background:var(--sunken);}
+.cw-manage[hidden]{display:none;}
+.cw-search{width:100%;box-sizing:border-box;font:inherit;font-size:15px;padding:9px 11px;
+  border:1px solid var(--line);border-radius:3px;background:var(--paper);
+  color:var(--ink);margin-bottom:10px;}
+.cw-search:focus-visible{outline:2px solid var(--gold);outline-offset:1px;}
+.cw-results{max-height:340px;overflow-y:auto;overflow-x:hidden;
+  border-top:1px solid var(--line);}
+.cw-res{display:flex;align-items:baseline;gap:10px;width:100%;text-align:left;
+  font:inherit;padding:8px 4px;background:none;border:0;
+  border-bottom:1px solid var(--line);cursor:pointer;color:var(--ink);}
+.cw-res:hover{background:var(--paper);}
+.cw-res:focus-visible{outline:2px solid var(--gold);outline-offset:-2px;}
+.cw-res[disabled]{cursor:default;}
+.cw-rescode{font-family:var(--mono);font-size:12px;font-weight:700;
+  min-width:88px;flex:none;}
+.cw-resname{flex:1;font-size:13px;color:var(--muted);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;}
+.cw-resopen{font-family:var(--mono);font-size:10px;font-weight:700;flex:none;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--open);}
+.cw-restick{font-family:var(--mono);font-size:12px;flex:none;width:14px;
+  text-align:right;color:var(--gold);}
+.cw-mhead{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);padding:10px 4px 4px;}
+.cw-mhint{font-size:12px;color:var(--muted);margin:10px 0 0;line-height:1.5;}
+.cw-tok{width:100%;box-sizing:border-box;font-family:var(--mono);font-size:12px;
+  padding:8px 10px;border:1px solid var(--line);border-radius:3px;
+  background:var(--paper);color:var(--ink);margin:8px 0;}
+@media (max-width:560px){
+  .cw-resname{display:none;}
+  .cw-conn{margin-left:0;width:100%;}
+}
 .cw-name{grid-column:1;margin:0;font-size:15px;color:var(--ink);line-height:1.35;}
 .cw-meta{grid-column:1;margin:6px 0 0;font-family:var(--mono);font-size:12.5px;
   color:var(--muted);line-height:1.7;}
@@ -248,12 +339,29 @@ def mode_chip(mode):
     return f'<span class="cw-mode {cls}">{E(mode.strip())}</span>'
 
 
+def bell(code, muted, until):
+    """Per-class notification switch. Rendered for everyone, but only wired up
+    once a token is present — a visitor to the public page sees the state and
+    cannot change it."""
+    lbl = "Notifications off" if muted else "Notifications on"
+    ttl = ("Silenced" + (" until " + until if until and until != "forever" else "")
+           + " \u2014 click to turn notifications back on") if muted else \
+          "Notifications on \u2014 click to silence this class"
+    return (f'<button type="button" class="cw-bell{" off" if muted else ""}" '
+            f'data-bell="{E(code)}" aria-pressed="{"true" if muted else "false"}" '
+            f'aria-label="{lbl}" title="{E(ttl)}">'
+            f'<span aria-hidden="true">{"\u2715" if muted else "\u25cf"}</span></button>')
+
+
 def _card(entry, row):
     """One watched section. `row` is None when the code matched nothing."""
+    mu = entry.get("mute_until")
+    is_muted = mute_active(mu)
+    mcls = " muted" if is_muted else ""
     if row is None:
         return (
-            f'<li class="cw-card full" data-code="{E(entry["match"])}">'
-            f'<p class="cw-code">{E(entry["match"])}</p>'
+            f'<li class="cw-card full{mcls}" data-code="{E(entry["match"])}">'
+            f'<p class="cw-code">{E(entry["match"])}{bell(entry["match"], is_muted, mu)}</p>'
             f'<p class="cw-name">Not found in this term\'s listing</p>'
             f'<p class="cw-meta">Check the course code, or the class may not be offered.</p>'
             f'<div class="cw-right"><span class="cw-chip gone">No match</span></div>'
@@ -270,8 +378,9 @@ def _card(entry, row):
     note = (f'<p class="cw-note">{E(entry.get("note"))}</p>'
             if entry.get("note") else "")
     return (
-        f'<li class="cw-card {cls}" data-code="{E(row["code"])}">'
-        f'<p class="cw-code">{E(row["code"])}{mode_chip(row.get("mode"))}</p>'
+        f'<li class="cw-card {cls}{mcls}" data-code="{E(row["code"])}">'
+        f'<p class="cw-code">{E(row["code"])}{mode_chip(row.get("mode"))}'
+        f'{bell(row["code"], is_muted, mu)}</p>'
         f'<p class="cw-name">{E(row["name"])}</p>'
         f'<p class="cw-meta">{"<br>".join(bits)}</p>'
         f'{note}'
@@ -426,12 +535,19 @@ CHECK_JS = """
     var c = k.indexOf('online')>=0 ? 'online' : (k.indexOf('hybrid')>=0 ? 'hybrid' : 'person');
     return '<span class="cw-mode '+c+'">'+esc(mode)+'</span>';
   }
+  function bellHTML(s){
+    var off=!!s.muted;
+    return '<button type="button" class="cw-bell'+(off?' off':'')+'" data-bell="'+
+      esc(s.code)+'" aria-pressed="'+(off?'true':'false')+'" aria-label="'+
+      (off?'Notifications off':'Notifications on')+'"><span aria-hidden="true">'+
+      (off?'✕':'●')+'</span></button>';
+  }
   function buildCard(s){
     var li=document.createElement('li');
     li.setAttribute('data-code', s.code);
     if(s.status==='not_found'){
-      li.className='cw-card full';
-      li.innerHTML='<p class="cw-code">'+esc(s.code)+'</p>'+
+      li.className='cw-card full'+(s.muted?' muted':'');
+      li.innerHTML='<p class="cw-code">'+esc(s.code)+bellHTML(s)+'</p>'+
         '<p class="cw-name">Not found in this term\\'s listing</p>'+
         '<p class="cw-meta">Check the course code, or the class may not be offered.</p>'+
         '<div class="cw-right"><span class="cw-chip gone">No match</span></div>';
@@ -440,8 +556,8 @@ CHECK_JS = """
     var open=!!s.open, cls=open?'open':'full', meta=[];
     if(s.instructor) meta.push(esc(s.instructor));
     if(s.meeting) meta.push(esc(s.meeting));
-    li.className='cw-card '+cls;
-    li.innerHTML='<p class="cw-code">'+esc(s.code)+modeChip(s.mode)+'</p>'+
+    li.className='cw-card '+cls+(s.muted?' muted':'');
+    li.innerHTML='<p class="cw-code">'+esc(s.code)+modeChip(s.mode)+bellHTML(s)+'</p>'+
       '<p class="cw-name">'+esc(s.name)+'</p>'+
       '<p class="cw-meta">'+meta.join('<br>')+'</p>'+
       '<div class="cw-right"><span class="cw-chip '+cls+'">'+(open?'Open':'Full')+'</span>'+
@@ -477,6 +593,14 @@ CHECK_JS = """
     var open=!!s.open, chip=card.querySelector('.cw-chip'),
         num=card.querySelector('.cw-seats b'), unit=card.querySelector('.cw-seats span');
     card.classList.toggle('open',open); card.classList.toggle('full',!open);
+    card.classList.toggle('muted', !!s.muted);
+    var bl=card.querySelector('.cw-bell');
+    if(bl){
+      bl.classList.toggle('off', !!s.muted);
+      bl.setAttribute('aria-pressed', s.muted?'true':'false');
+      bl.setAttribute('aria-label', s.muted?'Notifications off':'Notifications on');
+      var sp=bl.querySelector('span'); if(sp) sp.textContent = s.muted?'✕':'●';
+    }
     if(chip){ chip.classList.toggle('open',open); chip.classList.toggle('full',!open);
               chip.textContent = s.status==='not_found' ? 'No match' : (open?'Open':'Full'); }
     if(num) num.textContent = (s.seats===null||s.seats===undefined)?'?':s.seats;
@@ -545,6 +669,8 @@ CHECK_JS = """
   // Shared by the button and the background poller.
   function apply(d, quiet){
     var secs=d.sections||[], missed=0;
+    window.cwFeed = d;
+    if(window.cwOnFeed){ try{ window.cwOnFeed(d); }catch(e){} }
     var added=syncCards(secs);
     secs.forEach(function(s){ if(!setCard(s)) missed++; });
     setVerdict(secs);
@@ -585,6 +711,8 @@ CHECK_JS = """
   // a full meta-refresh was ruled out because it throws you out of the Log tab
   // mid-read, so update in place instead. Skipped while the tab is hidden, and
   // fired immediately on return so a backgrounded phone isn't showing old seats.
+  window.cwRerender=function(){ if(window.cwFeed) apply(window.cwFeed,true); };
+
   var timer=null;
   function tick(){
     if(document.hidden) return;
@@ -620,6 +748,316 @@ LOGFILTER_JS = """
 
 
 # Runs before the body paints so a dark-mode user doesn't get a white flash.
+MANAGE_JS = '''
+(function(){
+  var OWNER=%(owner)s, REPO=%(repo)s, FILE=%(file)s, CATURL=%(caturl)s;
+  var API='https://api.github.com/repos/'+OWNER+'/'+REPO, KEY='cw_gh_token';
+
+  // ---------------------------------------------------------------- token
+  // Lives ONLY in this browser. It is never written into the page, the repo,
+  // or any request other than api.github.com.
+  function tok(){ try{ return localStorage.getItem(KEY)||''; }catch(e){ return ''; } }
+  function setTok(t){ try{ t?localStorage.setItem(KEY,t):localStorage.removeItem(KEY); }catch(e){} }
+  function hdr(t){ return {'Authorization':'Bearer '+(t||tok()),
+    'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}; }
+
+  // base64 that survives accented instructor names
+  function b64e(str){ var b=new TextEncoder().encode(str), s='';
+    b.forEach(function(c){ s+=String.fromCharCode(c); }); return btoa(s); }
+  function b64d(b){ var bin=atob(String(b).replace(/\\s/g,''));
+    return new TextDecoder().decode(Uint8Array.from(bin,function(c){return c.charCodeAt(0);})); }
+
+  function readWL(){
+    return fetch(API+'/contents/'+FILE+'?ref=main&t='+Date.now(),
+                 {headers:hdr(),cache:'no-store'})
+      .then(function(r){ if(!r.ok) throw new Error('read '+r.status); return r.json(); })
+      .then(function(j){ return {sha:j.sha, wl:JSON.parse(b64d(j.content))}; });
+  }
+  function writeWL(wl,sha,msg){
+    return fetch(API+'/contents/'+FILE,{method:'PUT',headers:hdr(),
+      body:JSON.stringify({message:msg,sha:sha,
+        content:b64e(JSON.stringify(wl,null,2)+'\\n')})});
+  }
+
+  // Same three-state rule the watcher uses, so page and watcher never disagree.
+  function isMuted(u){
+    if(!u) return false;
+    if(u==='forever') return true;
+    var t=Date.parse(u);
+    return isFinite(t) && Date.now() < t;
+  }
+  // Written with an explicit +00:00 offset, never a bare "Z": Python's
+  // fromisoformat only learned to parse "Z" in 3.11 and the runner may be older.
+  function isoIn(hours){
+    var d=new Date(Date.now()+hours*3600000), p=function(n){return (n<10?'0':'')+n;};
+    return d.getUTCFullYear()+'-'+p(d.getUTCMonth()+1)+'-'+p(d.getUTCDate())+'T'+
+           p(d.getUTCHours())+':'+p(d.getUTCMinutes())+':'+p(d.getUTCSeconds())+'+00:00';
+  }
+  function muteVal(){
+    var s=document.getElementById('cwDur'), v=s?s.value:'forever';
+    return v==='forever' ? 'forever' : isoIn(parseInt(v,10));
+  }
+
+  // ------------------------------------------------- optimistic local state
+  // The published feed lags by up to one publish cycle. Without an overlay the
+  // 60-second poll would keep reverting a toggle the user just made.
+  var oMute={}, oAdd={}, oRem={}, oPause;
+  var pending=[], timer=null, inflight=false;
+
+  function sortKey(m){ var p=String(m).split(' '), r=String(p[1]||'').split('-');
+    return [p[0]||'', parseInt(r[0],10)||0, parseInt(r[1],10)||0]; }
+  function applyOps(wl,list){
+    if(!wl.courses) wl.courses=[];
+    list.forEach(function(o){
+      if(o.k==='pause'){ wl.paused_until=o.v; return; }
+      var idx=-1,i;
+      for(i=0;i<wl.courses.length;i++){ if(wl.courses[i].match===o.c){ idx=i; break; } }
+      if(o.k==='mute'){ if(idx>=0) wl.courses[idx].mute_until=o.v; }
+      else if(o.k==='add'){ if(idx<0) wl.courses.push({match:o.c,note:'',mute_until:null}); }
+      else if(o.k==='remove'){ if(idx>=0) wl.courses.splice(idx,1); }
+    });
+    wl.courses.sort(function(a,b){ var x=sortKey(a.match), y=sortKey(b.match);
+      if(x[0]!==y[0]) return x[0]<y[0]?-1:1; return (x[1]-y[1])||(x[2]-y[2]); });
+    return wl;
+  }
+  function describe(list){
+    var a=list.filter(function(o){return o.k==='add';}).map(function(o){return o.c;});
+    var r=list.filter(function(o){return o.k==='remove';}).map(function(o){return o.c;});
+    var m=list.filter(function(o){return o.k==='mute';});
+    var bits=[];
+    if(a.length) bits.push('watch '+a.join(', '));
+    if(r.length) bits.push('stop watching '+r.join(', '));
+    if(m.length) bits.push('notifications '+m.map(function(o){
+      return o.c+(o.v?' off':' on'); }).join(', '));
+    if(list.some(function(o){return o.k==='pause';})) bits.push('global pause changed');
+    return 'watchlist: '+(bits.join('; ')||'update')+' (from the dashboard)';
+  }
+
+  function status(msg,warn){
+    var el=document.getElementById('cwConn'); if(!el) return;
+    el.textContent=msg||''; el.style.color = warn ? 'var(--full)' : '';
+  }
+  function connLabel(){
+    var b=document.getElementById('cwConnect');
+    if(b) b.textContent = tok() ? 'Connected' : 'Connect to edit';
+    var on=!!tok();
+    Array.prototype.forEach.call(document.querySelectorAll('.cw-bell'),
+      function(x){ x.disabled=!on; });
+    var pb=document.getElementById('cwPause'); if(pb) pb.disabled=!on;
+  }
+
+  function flush(){
+    if(inflight||!pending.length) return;
+    if(!tok()){ status('Connect to save changes',true); return; }
+    inflight=true;
+    var mine=pending.slice(); pending=[];
+    status('Saving\\u2026');
+    var tries=0;
+    function go(){
+      tries++;
+      return readWL().then(function(r){
+        return writeWL(applyOps(r.wl,mine), r.sha, describe(mine));
+      }).then(function(res){
+        // 409 = the bot (or another tab) committed between our read and write.
+        // Re-read and replay rather than force: nothing of theirs is lost.
+        if((res.status===409||res.status===422) && tries<4) return go();
+        if(!res.ok) return res.text().then(function(t){
+          throw new Error(res.status+' '+String(t).slice(0,120)); });
+        status('Saved \\u00b7 watcher picks it up within a minute');
+      });
+    }
+    go().catch(function(e){
+      pending=mine.concat(pending);       // put them back; nothing is dropped
+      status('Save failed \\u2014 '+e.message,true);
+    }).then(function(){ inflight=false; if(pending.length) schedule(); });
+  }
+  function schedule(){ if(timer) clearTimeout(timer);
+    // Debounced: a burst of toggles becomes ONE commit, so flipping five
+    // switches does not fire five workflow runs and five Pages builds.
+    timer=setTimeout(flush,2200); }
+  function queue(op){ pending.push(op); schedule(); }
+
+  // ------------------------------------------------------------- rendering
+  var catalog=null, catIdx={};
+  function loadCatalog(){
+    if(catalog) return Promise.resolve(catalog);
+    return fetch(CATURL+'?t='+Date.now(),{cache:'no-store'})
+      .then(function(r){ if(!r.ok) throw new Error('catalog '+r.status); return r.json(); })
+      .then(function(j){ catalog=j;
+        (j.sections||[]).forEach(function(x){ catIdx[x.c]=x; }); return j; });
+  }
+
+  window.cwOnFeed = function(d){
+    var secs=d.sections||[];
+    secs.forEach(function(s){
+      if(Object.prototype.hasOwnProperty.call(oMute,s.code)){
+        if(s.mute_until===oMute[s.code]) delete oMute[s.code];
+        else { s.mute_until=oMute[s.code]; s.muted=isMuted(oMute[s.code]); }
+      }
+    });
+    if(oPause!==undefined){
+      if(d.paused_until===oPause) oPause=undefined;
+      else { d.paused_until=oPause; d.paused=isMuted(oPause); }
+    }
+    // classes added here but not yet in a published check
+    Object.keys(oAdd).forEach(function(c){
+      var there=secs.some(function(s){ return s.code===c; });
+      if(there){ delete oAdd[c]; return; }
+      var x=catIdx[c]||{};
+      secs.push({code:c,name:x.n||'',instructor:x.i||'',meeting:x.t||'',
+                 mode:x.m||'',status:'pending',seats:x.s==null?null:x.s,
+                 open:false,muted:false,mute_until:null});
+    });
+    Object.keys(oRem).forEach(function(c){
+      if(!secs.some(function(s){ return s.code===c; })) delete oRem[c];
+    });
+    d.sections = secs.filter(function(s){ return !oRem[s.code]; });
+    d.sections.sort(function(a,b){ var x=sortKey(a.code), y=sortKey(b.code);
+      if(x[0]!==y[0]) return x[0]<y[0]?-1:1; return (x[1]-y[1])||(x[2]-y[2]); });
+    syncPause(d);
+    if(document.getElementById('cwManage') &&
+       !document.getElementById('cwManage').hidden) renderResults();
+  };
+
+  function syncPause(d){
+    var b=document.getElementById('cwPause'); if(!b) return;
+    var on=!!(d&&d.paused);
+    b.classList.toggle('on',on);
+    b.setAttribute('aria-pressed',on?'true':'false');
+    b.textContent = on ? 'All notifications: OFF' : 'All notifications: on';
+  }
+  function watched(){
+    var d=window.cwFeed||{};
+    return (d.sections||[]).map(function(s){ return s.code; });
+  }
+  function head(t){ var e=document.createElement('p'); e.className='cw-mhead';
+    e.textContent=t; return e; }
+  function row(x,isWatched){
+    var b=document.createElement('button');
+    b.type='button'; b.className='cw-res'+(isWatched?' watched':'');
+    b.setAttribute('data-code',x.c);
+    b.disabled=!tok();
+    var c=document.createElement('span'); c.className='cw-rescode'; c.textContent=x.c;
+    var n=document.createElement('span'); n.className='cw-resname'; n.textContent=x.n||'';
+    var o=document.createElement('span'); o.className='cw-resopen';
+    o.textContent = x.o ? ((x.s||0)+' open') : '';
+    var t=document.createElement('span'); t.className='cw-restick';
+    t.textContent = isWatched ? '\\u2713' : '';
+    b.appendChild(c); b.appendChild(n); b.appendChild(o); b.appendChild(t);
+    b.title = isWatched ? 'Watching \\u2014 click to stop' : 'Click to start watching';
+    return b;
+  }
+  function renderResults(){
+    var box=document.getElementById('cwResults'); if(!box) return;
+    var qEl=document.getElementById('cwSearch');
+    var q=(qEl&&qEl.value||'').trim().toLowerCase();
+    box.textContent='';
+    var w=watched(), wset={}; w.forEach(function(c){ wset[c]=1; });
+    if(w.length){
+      box.appendChild(head('Watching \\u2014 click to remove ('+w.length+')'));
+      w.forEach(function(c){ box.appendChild(row(catIdx[c]||{c:c,n:'',o:0},true)); });
+    }
+    if(!catalog){ box.appendChild(head('Loading the course catalog\\u2026')); return; }
+    if(!q){
+      box.appendChild(head('Type to search '+(catalog.sections||[]).length+' classes'));
+      return;
+    }
+    var terms=q.split(/\\s+/).filter(Boolean), hits=[], pool=catalog.sections||[];
+    for(var i=0;i<pool.length;i++){
+      var x=pool[i];
+      if(wset[x.c]) continue;
+      var hay=(x.c+' '+x.n+' '+x.i+' '+x.dn).toLowerCase(), all=true;
+      for(var j=0;j<terms.length;j++){ if(hay.indexOf(terms[j])<0){ all=false; break; } }
+      if(all){ hits.push(x); if(hits.length>=60) break; }
+    }
+    box.appendChild(head(hits.length
+      ? 'Matches ('+hits.length+(hits.length>=60?'+, refine to narrow':'')+')'
+      : 'Nothing matches \\u201c'+q+'\\u201d'));
+    hits.forEach(function(x){ box.appendChild(row(x,false)); });
+  }
+
+  // ---------------------------------------------------------------- events
+  document.addEventListener('click', function(ev){
+    var bell=ev.target.closest && ev.target.closest('.cw-bell');
+    if(bell && !bell.disabled){
+      var code=bell.getAttribute('data-bell');
+      var nowOff=bell.classList.contains('off');
+      var val = nowOff ? null : muteVal();
+      oMute[code]=val;
+      var card=document.querySelector('.cw-card[data-code="'+CSS.escape(code)+'"]');
+      if(card) card.classList.toggle('muted', !nowOff);
+      bell.classList.toggle('off', !nowOff);
+      bell.setAttribute('aria-pressed', nowOff?'false':'true');
+      var sp=bell.querySelector('span'); if(sp) sp.textContent = nowOff?'\\u25cf':'\\u2715';
+      queue({k:'mute',c:code,v:val});
+      return;
+    }
+    var res=ev.target.closest && ev.target.closest('.cw-res');
+    if(res && !res.disabled){
+      var c=res.getAttribute('data-code');
+      if(res.classList.contains('watched')){ oRem[c]=1; delete oAdd[c]; queue({k:'remove',c:c}); }
+      else { oAdd[c]=1; delete oRem[c]; queue({k:'add',c:c}); }
+      if(window.cwRerender) window.cwRerender();
+      renderResults();
+      return;
+    }
+  });
+
+  function boot(){
+    var mb=document.getElementById('cwManageBtn'),
+        panel=document.getElementById('cwManage'),
+        search=document.getElementById('cwSearch'),
+        pause=document.getElementById('cwPause'),
+        conn=document.getElementById('cwConnect');
+    if(mb) mb.addEventListener('click', function(){
+      panel.hidden=!panel.hidden;
+      mb.classList.toggle('on', !panel.hidden);
+      if(!panel.hidden){
+        renderResults();
+        loadCatalog().then(renderResults).catch(function(e){ status('Catalog: '+e.message,true); });
+        if(search) search.focus();
+      }
+    });
+    if(search){
+      var st=null;
+      search.addEventListener('input', function(){
+        if(st) clearTimeout(st); st=setTimeout(renderResults,120);
+      });
+    }
+    if(pause) pause.addEventListener('click', function(){
+      var on=pause.classList.contains('on');
+      var v = on ? null : muteVal();
+      oPause=v;
+      pause.classList.toggle('on',!on);
+      pause.setAttribute('aria-pressed',on?'false':'true');
+      pause.textContent = on ? 'All notifications: on' : 'All notifications: OFF';
+      queue({k:'pause',v:v});
+    });
+    if(conn) conn.addEventListener('click', function(){
+      if(tok()){
+        if(confirm('Forget the saved token on this device?')){ setTok(''); connLabel(); status(''); }
+        return;
+      }
+      var t=prompt('Paste a GitHub fine-grained token with Contents: read and write on '
+                   +OWNER+'/'+REPO+'.\\n\\nIt is stored only in this browser.');
+      if(!t) return;
+      t=t.trim();
+      status('Checking the token\\u2026');
+      fetch(API,{headers:hdr(t)}).then(function(r){
+        if(!r.ok) throw new Error('GitHub rejected it ('+r.status+')');
+        setTok(t); connLabel(); status('Connected'); renderResults();
+      }).catch(function(e){ status(String(e.message),true); });
+    });
+    connLabel();
+    if(window.cwFeed) syncPause(window.cwFeed);
+  }
+  if(document.readyState==='loading')
+    document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+'''
+
+
 THEME_JS = """
 (function(){
   try{ var s=localStorage.getItem('cw-theme');
@@ -732,6 +1170,11 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
             "active": json.dumps(list(ACTIVE_HOURS)),
             "poll_ms": 60000,
             "poll_min": poll_minutes,
+        }) + "</script>" + "<script>" + (MANAGE_JS % {
+            "owner": json.dumps(GH_OWNER),
+            "repo": json.dumps(GH_REPO),
+            "file": json.dumps(GH_FILE),
+            "caturl": json.dumps(CATALOG_URL),
         }) + "</script>"
     else:
         bar, script = "", ""
@@ -795,6 +1238,40 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
     theme_btn = ('<button type="button" class="cw-theme" id="cwTheme" '
                  'aria-label="Switch theme">Dark</button>')
 
+    # Controls only make sense where there is a feed to write back to. On the
+    # local snapshot render they would be dead buttons, so they are omitted.
+    if live and status_url:
+        paused_now = mute_active(wl.get("paused_until"))
+        controls = (
+            '<div class="cw-controls">'
+            '<button type="button" class="cw-btn" id="cwManageBtn">'
+            '\u002b Add or remove classes</button>'
+            f'<button type="button" class="cw-btn{" on" if paused_now else ""}" '
+            f'id="cwPause" aria-pressed="{"true" if paused_now else "false"}">'
+            f'{"All notifications: OFF" if paused_now else "All notifications: on"}'
+            '</button>'
+            '<select class="cw-btn" id="cwDur" aria-label="How long to silence for">'
+            '<option value="forever">silence until I switch it back</option>'
+            '<option value="1">silence for 1 hour</option>'
+            '<option value="8">silence for 8 hours</option>'
+            '<option value="24">silence for 24 hours</option>'
+            '</select>'
+            '<button type="button" class="cw-btn" id="cwConnect">Connect to edit</button>'
+            '<span class="cw-conn" id="cwConn"></span>'
+            '</div>'
+            '<div class="cw-manage" id="cwManage" hidden>'
+            '<input type="search" class="cw-search" id="cwSearch" autocomplete="off" '
+            'placeholder="Search every class in the term \u2014 code, name or instructor">'
+            '<div class="cw-results" id="cwResults"></div>'
+            '<p class="cw-mhint">Changes commit to your watchlist on GitHub and the '
+            'watcher picks them up within a minute. The dot beside each class is its '
+            'notification switch \u2014 silencing keeps the class watched and its seat '
+            'count live here, it just stops the phone alert.</p>'
+            '</div>'
+        )
+    else:
+        controls = ""
+
     return (
         f"<style>{CSS}</style>"
         f"<script>{THEME_JS}</script>"
@@ -808,6 +1285,7 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
         f'{snap}'
         f'{stale_box}'
         f'{tabs}'
+        f'{controls}'
         f'{global_bar}'
         f'{status_panel}'
         f'{log_panel}'

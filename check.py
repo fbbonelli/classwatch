@@ -50,8 +50,62 @@ TERMS = {"202609": "Fall 2026", "202601": "Spring 2026", "202605": "Summer Full 
 ACTIVE_HOURS = (0, 24)
 REALERT_MINUTES = 60
 
+# Full-catalog snapshot powering the "add a class" search box. The browser cannot
+# query Bentley itself (POST-only, and it sends no Access-Control-Allow-Origin),
+# so the whole term is published here instead and searched client-side.
+CATALOG = os.path.join(HERE, "docs", "catalog.json")
+# Every department at once is a ~820 KB fetch, so it is refreshed on its own slow
+# clock rather than every check. Offerings barely move; only seat counts do, and
+# those ride along in the same refresh.
+CATALOG_REFRESH_MINUTES = 30
+
 
 HISTORY_DAYS = 7
+
+
+def all_departments():
+    """Every dept code the listing form offers. They are checkboxes, not a
+    <select>, so this reads the inputs and their labels."""
+    args = ["curl", "-sS", "--fail", "--max-time", "45", "-A", UA, LISTING_URL]
+    r = subprocess.run(args, capture_output=True, text=True, timeout=60)
+    if r.returncode != 0:
+        raise RuntimeError(f"could not load the listing form: curl {r.returncode}")
+    pairs = re.findall(r'name="dept\[\]" value="([^"]+)"[^>]*/?>\s*<label[^>]*>([^<]*)',
+                       r.stdout)
+    if not pairs:
+        raise RuntimeError("no dept checkboxes found — the form markup changed")
+    return [(v, t.strip()) for v, t in pairs]
+
+
+def build_catalog(term):
+    """Every section in the term: what the search box searches."""
+    depts = all_departments()
+    rows = parse(fetch(term, [d for d, _ in depts]))
+    if not rows:
+        raise RuntimeError("catalog fetch parsed 0 sections")
+    names = dict(depts)
+    return {
+        "built_at": datetime.now(EASTERN).isoformat(),
+        "term": term,
+        "departments": [{"code": c, "name": n} for c, n in depts],
+        # Short keys: this ships to the browser and there are ~1000 of them.
+        "sections": [{"c": r["code"], "n": r["name"], "m": r["mode"],
+                      "i": r["instructor"], "t": r["meeting"],
+                      "d": r["code"].split()[0],
+                      "dn": names.get(r["code"].split()[0], ""),
+                      "o": 1 if is_open(r) else 0,
+                      "s": r["seats"]}
+                     for r in sorted(rows, key=lambda x: x["code"])],
+    }
+
+
+def catalog_is_stale(now):
+    try:
+        with open(CATALOG) as f:
+            built = datetime.fromisoformat(json.load(f)["built_at"])
+        return (now - built) >= timedelta(minutes=CATALOG_REFRESH_MINUTES)
+    except Exception:
+        return True   # missing or unreadable -> rebuild
 
 
 def log(m):
@@ -251,11 +305,27 @@ def main():
         ntfy("✅ ClassWatch recovered", "ClassWatch is working again and watching your classes.")
     state["_health"] = {"fails": 0, "last_ok": now.isoformat()}
 
+    # A silenced class is still checked, still rendered, still logged and still
+    # listed in the daily summary — it just never pushes. The point is the hourly
+    # REALERT: a class he has seen and decided against should stop nagging him,
+    # without him having to stop watching it.
+    paused = dashboard.mute_active(wl.get("paused_until"), now)
+    if paused:
+        log(f"ALL notifications paused (until {wl.get('paused_until')})")
+
     fire = []
     for entry in wl["courses"]:
+        muted = paused or dashboard.mute_active(entry.get("mute_until"), now)
         for r in found.get(entry["match"], []):
             prev = state.get(r["code"], {})
             was, last = prev.get("open", False), prev.get("last_alert")
+            if muted and is_open(r):
+                # Keep last_alert moving while silenced. Otherwise un-muting an
+                # already-open class fires instantly, which is noise: he just
+                # un-muted it, so he is already looking at it.
+                state[r["code"]] = {"open": True, "seats": r["seats"],
+                                    "last_alert": now.isoformat(), "muted": True}
+                continue
             if is_open(r):
                 due = True
                 if was and last:
@@ -285,7 +355,10 @@ def main():
         with open(SEAT_CHANGE_FLAG, "w") as f:
             f.write(", ".join(r["code"] for r in fire))
     else:
-        log(f"checked {sum(len(v) for v in found.values())} section(s) — none newly open")
+        nmuted = sum(1 for c in wl["courses"]
+                     if paused or dashboard.mute_active(c.get("mute_until"), now))
+        log(f"checked {sum(len(v) for v in found.values())} section(s) — none newly open"
+            + (f" ({nmuted} silenced)" if nmuted else ""))
 
     save(STATE, state)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
@@ -301,15 +374,17 @@ def main():
         pub_min = 10
     sections = []
     for entry in wl["courses"]:
+        mu = entry.get("mute_until")
+        flags = {"mute_until": mu, "muted": dashboard.mute_active(mu, now)}
         for r in sorted(found.get(entry["match"], []), key=lambda x: x["code"]):
             sections.append({**{k: r[k] for k in
                                 ("code", "name", "instructor", "meeting", "mode",
                                  "status", "seats")},
-                             "open": is_open(r)})
+                             "open": is_open(r), **flags})
         if not found.get(entry["match"]):
             sections.append({"code": entry["match"], "name": "", "instructor": "",
                              "meeting": "", "mode": "", "status": "not_found",
-                             "seats": None, "open": False})
+                             "seats": None, "open": False, **flags})
     open_now = [{"code": s["code"], "seats": s["seats"]} for s in sections if s["open"]]
     history = append_history({
         "t": now.isoformat(),
@@ -319,8 +394,23 @@ def main():
         "recovered": recovered,
         "n": len(sections),
     })
+    # Refreshed on its own slow clock. A failure here must never take the watcher
+    # down with it — the search box going stale is a far smaller problem than
+    # missing a seat, so this is best-effort and always non-fatal.
+    if catalog_is_stale(now):
+        try:
+            cat = build_catalog(wl["term"])
+            os.makedirs(os.path.dirname(CATALOG), exist_ok=True)
+            save(CATALOG, cat)
+            log(f"catalog refreshed — {len(cat['sections'])} sections across "
+                f"{len(cat['departments'])} departments")
+        except Exception as e:
+            log(f"catalog refresh failed (non-fatal, will retry): {e}")
+
     doc = load(STATUS, {})
     doc.update({"checked_at": now.isoformat(),
+                "paused_until": wl.get("paused_until"),
+                "paused": dashboard.mute_active(wl.get("paused_until"), now),
                 "checked_at_display": now.strftime("%-I:%M %p ET"),
                 "term": TERMS.get(wl["term"], wl["term"]),
                 "poll_minutes": poll_min,
