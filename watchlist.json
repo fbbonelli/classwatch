@@ -63,7 +63,7 @@
     {
       "match": "HI 334-1",
       "note": "",
-      "mute_until": null
+      "mute_until": "forever"
     },
     {
       "match": "NAS 308-1",
