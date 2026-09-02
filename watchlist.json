@@ -3,11 +3,13 @@
   "courses": [
     {
       "match": "CS 305-2",
-      "note": ""
+      "note": "",
+      "mute_until": "forever"
     },
     {
       "match": "CS 305-9",
-      "note": ""
+      "note": "",
+      "mute_until": "2026-09-03T00:55:42+00:00"
     },
     {
       "match": "CS 305-11",
