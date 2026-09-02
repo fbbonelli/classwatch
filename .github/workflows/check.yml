@@ -59,13 +59,35 @@ jobs:
         if: ${{ !inputs.selftest }}
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-          CHECK_INTERVAL_SECONDS: "600"     # check every 10 minutes
+          CHECK_INTERVAL_SECONDS: "300"     # check every 5 minutes
           RUN_FOR_SECONDS: "19800"          # keep going for 5.5 hours
-          DASHBOARD_PUSH_SECONDS: "600"     # refresh the public dashboard every 10 min
+          # DELIBERATELY NOT 300. GitHub Pages soft-caps builds at ~10/hour, and every
+          # push here triggers one. Checking every 5 min costs nothing (it is one HTTP
+          # request inside a loop we are already paying for), but PUBLISHING every 5 min
+          # would be 12 builds/hour and would start getting refused — which would make
+          # the dashboard *less* fresh, not more. So: detect fast, publish steadily.
+          # Neither of the two things that actually matter is throttled by this:
+          # a seat opening alerts via ntfy instantly and publishes instantly, and a
+          # watchlist change publishes instantly (see "watchlist changed" below).
+          DASHBOARD_PUSH_SECONDS: "600"     # heartbeat republish every 10 min
         run: |
           set -uo pipefail
           git config user.name  "classwatch-bot"
           git config user.email "classwatch-bot@users.noreply.github.com"
+
+          # Sorted section codes from a status.json on stdin; empty string if the file
+          # is missing or unparseable, which makes every comparison below fail safe
+          # (an unreadable old file just means "changed", i.e. publish).
+          codes_of() {
+            python3 -c "
+import json,sys
+try:
+    d = json.load(sys.stdin)
+except Exception:
+    print(''); raise SystemExit
+print(','.join(sorted(s.get('code','') for s in d.get('sections', []))))
+" 2>/dev/null || echo ""
+          }
 
           START=$(date +%s)
           END=$(( START + RUN_FOR_SECONDS ))
@@ -89,10 +111,22 @@ jobs:
             # makes it differ every single check. Everything else is just the
             # timestamp moving, and GitHub Pages soft-caps builds at 10/hour, so
             # those get throttled to every 10 minutes (6 builds/hour, under the cap).
+            # What is actually on the published page right now, vs what we just
+            # rendered. Compared as a set of section codes, so this fires on an
+            # add, a removal or a retyped code — and on nothing else.
+            new_codes=$(codes_of < docs/status.json)
+            old_codes=$(git show HEAD:docs/status.json 2>/dev/null | codes_of)
+
             reason=""
             if [ -f SEAT_CHANGE ]; then
               reason="SEAT OPEN: $(cat SEAT_CHANGE)"
               rm -f SEAT_CHANGE
+            elif [ -n "$new_codes" ] && [ "$new_codes" != "$old_codes" ]; then
+              # The heartbeat used to swallow this: editing the watchlist left the site
+              # showing the OLD class list for up to a full DASHBOARD_PUSH_SECONDS, which
+              # reads as "my change didn't work". A watchlist edit is a deliberate act,
+              # it is rare, and it is exactly what he looks at the page to confirm.
+              reason="watchlist changed"
             elif [ $(( $(date +%s) - last_push )) -ge "$DASHBOARD_PUSH_SECONDS" ] \
                  && ! git diff --quiet -- state.json docs/index.html docs/status.json; then
               reason="dashboard heartbeat"

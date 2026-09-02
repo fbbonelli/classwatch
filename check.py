@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ClassWatch — cloud checker.
 
-Runs on GitHub Actions every 10 minutes. Needs no laptop and no login:
+Runs on GitHub Actions every 5 minutes. Needs no laptop and no login:
 Bentley's course listing is public.
 
   - fetches the sections on watchlist.json
@@ -292,9 +292,13 @@ def main():
     # Report the interval the workflow is actually using, so "next check" on the
     # dashboard doesn't quietly lie when the schedule changes.
     try:
-        poll_min = max(1, round(int(os.environ.get("CHECK_INTERVAL_SECONDS", "600")) / 60))
+        poll_min = max(1, round(int(os.environ.get("CHECK_INTERVAL_SECONDS", "300")) / 60))
     except ValueError:
-        poll_min = 10
+        poll_min = 5
+    try:
+        pub_min = max(1, round(int(os.environ.get("DASHBOARD_PUSH_SECONDS", "600")) / 60))
+    except ValueError:
+        pub_min = 10
     sections = []
     for entry in wl["courses"]:
         for r in sorted(found.get(entry["match"], []), key=lambda x: x["code"]):
@@ -320,6 +324,7 @@ def main():
                 "checked_at_display": now.strftime("%-I:%M %p ET"),
                 "term": TERMS.get(wl["term"], wl["term"]),
                 "poll_minutes": poll_min,
+                "publish_minutes": pub_min,
                 "sections": sections,
                 "history": history})
     save(STATUS, doc)
@@ -329,7 +334,8 @@ def main():
         f.write(dashboard.render_page(
             wl=wl, found=found, checked_at=now,
             term_label=TERMS.get(wl["term"], wl["term"]),
-            poll_minutes=poll_min, listing_url=LISTING_URL, live=True,
+            poll_minutes=poll_min, publish_minutes=pub_min,
+            listing_url=LISTING_URL, live=True,
             status_url=STATUS_URL, history=history))
     log(f"dashboard + status.json written ({len(sections)} sections, "
         f"{len(history)} log entries)")

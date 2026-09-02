@@ -592,7 +592,7 @@ THEME_JS = """
 
 def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
                  snapshot_note=False, listing_url="", live=True, status_url="",
-                 history=None):
+                 history=None, publish_minutes=None):
     """`found` maps watchlist match -> list of section dicts."""
     cards, open_rows = [], []
     for entry in wl["courses"]:
@@ -633,10 +633,21 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
         nxt = (checked_at + timedelta(minutes=poll_minutes)).strftime("%-I:%M %p")
         stamp = (f'Checked {checked_at.strftime("%-I:%M %p")} ET'
                  f'<br>Next check ~{nxt} ET')
-        foot_live = (f'<p>Checks every {poll_minutes} minutes, around the clock, and '
-                     f'pushes to your phone via ntfy the instant a seat opens. '
-                     f'This page rewrites itself after every check and refreshes '
-                     f'itself every minute while open.</p>')
+        # Don't claim the page updates as often as the checker runs — where the two
+        # differ (the cloud publishes on a slower heartbeat than it checks, to stay
+        # under the Pages build cap) saying so would be a quiet lie, and this footer
+        # is what he'd reason from when the page looks behind.
+        pub = publish_minutes or poll_minutes
+        if pub > poll_minutes:
+            cadence = (f'Checks every {poll_minutes} minutes, around the clock. '
+                       f'A seat opening pushes to your phone via ntfy and appears '
+                       f'here immediately; routine updates land within {pub} minutes.')
+        else:
+            cadence = (f'Checks every {poll_minutes} minutes, around the clock, and '
+                       f'pushes to your phone via ntfy the instant a seat opens. '
+                       f'This page rewrites itself after every check.')
+        foot_live = (f'<p>{cadence} It also refreshes itself every minute '
+                     f'while open.</p>')
         snap = ""
     else:
         stamp = f'Snapshot {checked_at.strftime("%b %-d, %-I:%M %p")} ET'
