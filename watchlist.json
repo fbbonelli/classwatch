@@ -4,7 +4,7 @@
     {
       "match": "CS 305-2",
       "note": "",
-      "mute_until": "forever"
+      "mute_until": null
     },
     {
       "match": "CS 305-9",
