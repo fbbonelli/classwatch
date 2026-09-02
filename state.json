@@ -1,7 +1,7 @@
 {
   "_health": {
     "fails": 0,
-    "last_ok": "2026-09-02T13:24:56.617959-04:00"
+    "last_ok": "2026-09-02T13:28:30.319799-04:00"
   },
   "CS 305-9": {
     "open": false,
@@ -81,8 +81,7 @@
   "HI 334-1": {
     "open": true,
     "seats": 2,
-    "last_alert": "2026-09-02T13:24:56.617959-04:00",
-    "muted": true
+    "last_alert": "2026-09-02T13:24:56.617959-04:00"
   },
   "PSY 230-2": {
     "open": false,
@@ -93,5 +92,25 @@
     "open": false,
     "seats": 0,
     "last_alert": null
-  }
+  },
+  "_mutes": {
+    "CS 305-2": false,
+    "CS 305-9": false,
+    "CS 305-11": false,
+    "CS 305-12": false,
+    "EMS 222-1": false,
+    "EMS 312-1": false,
+    "EMS 400-1": false,
+    "FI 306-3": false,
+    "FI 306-4": false,
+    "FI 307-2": false,
+    "FI 307-3": false,
+    "FI 351-4": false,
+    "FI 351-5": false,
+    "HI 323-2": false,
+    "HI 334-1": false,
+    "NAS 308-1": false,
+    "PSY 230-2": false
+  },
+  "_paused": false
 }

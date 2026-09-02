@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-26T13:26:21.067010-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-26T13:36:24.960999-04:00",
       "ok": true,
       "open": [],
@@ -8253,10 +8245,23 @@
       "opened": [],
       "recovered": false,
       "n": 17
+    },
+    {
+      "t": "2026-09-02T13:28:30.319799-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "HI 334-1",
+          "seats": 2
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 17
     }
   ],
-  "checked_at": "2026-09-02T13:24:56.617959-04:00",
-  "checked_at_display": "1:24 PM ET",
+  "checked_at": "2026-09-02T13:28:30.319799-04:00",
+  "checked_at_display": "1:28 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -8437,8 +8442,8 @@
       "status": "Open",
       "seats": 2,
       "open": true,
-      "mute_until": "forever",
-      "muted": true
+      "mute_until": null,
+      "muted": false
     },
     {
       "code": "NAS 308-1",
