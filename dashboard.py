@@ -158,10 +158,10 @@ CSS = """
 .cw-mode.hybrid{border-style:dashed;color:var(--ink);}
 
 /* --- per-class notification switch ------------------------------------ */
-.cw-bell{margin-left:8px;width:22px;height:22px;padding:0;flex:none;cursor:pointer;
-  border:1px solid var(--line);border-radius:50%;background:none;color:var(--muted);
-  font-size:9px;line-height:1;display:inline-flex;align-items:center;
-  justify-content:center;vertical-align:middle;transition:none;}
+.cw-bell{margin-left:10px;width:26px;height:26px;padding:0;flex:none;cursor:pointer;
+  border:1.5px solid var(--muted);border-radius:50%;background:var(--surface);
+  color:var(--ink);font-size:13px;line-height:1;display:inline-flex;
+  align-items:center;justify-content:center;vertical-align:middle;transition:none;}
 .cw-bell[disabled]{cursor:default;opacity:.45;}
 .cw-bell:not([disabled]):hover{color:var(--ink);border-color:var(--muted);}
 .cw-bell:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
@@ -182,6 +182,13 @@ CSS = """
 .cw-btn[disabled]{opacity:.45;cursor:default;}
 .cw-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 .cw-btn.on{background:var(--sunken);color:var(--ink);border-color:var(--muted);}
+/* The one control that must not be missed while it is still needed. */
+.cw-btn.cw-primary{color:var(--ink);border-color:var(--gold);border-width:1.5px;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 22%,transparent);}
+.cw-btn.cw-primary.done{color:var(--muted);border-color:var(--line);
+  border-width:1px;box-shadow:none;}
+.cw-hint{font-size:12.5px;line-height:1.55;color:var(--muted);
+  margin:-6px 0 18px;max-width:70ch;}
 .cw-conn{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:auto;}
 .cw-conn b{color:var(--ink);font-weight:600;}
 
@@ -838,9 +845,14 @@ MANAGE_JS = '''
     el.textContent=msg||''; el.style.color = warn ? 'var(--full)' : '';
   }
   function connLabel(){
-    var b=document.getElementById('cwConnect');
-    if(b) b.textContent = tok() ? 'Connected' : 'Connect to edit';
     var on=!!tok();
+    var b=document.getElementById('cwConnect');
+    if(b){ b.textContent = on ? 'Connected' : 'Connect to edit';
+           b.classList.toggle('done', on); }
+    var h=document.getElementById('cwHint');
+    if(h && on) h.textContent='The dot to the right of each course code is that '+
+      'class\u2019s notification switch. Silencing one keeps it watched and its '+
+      'seat count live here \u2014 it just stops the phone alert.';
     Array.prototype.forEach.call(document.querySelectorAll('.cw-bell'),
       function(x){ x.disabled=!on; });
     var pb=document.getElementById('cwPause'); if(pb) pb.disabled=!on;
@@ -1260,6 +1272,12 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
         paused_now = mute_active(wl.get("paused_until"))
         controls = (
             '<div class="cw-controls">'
+            # First and accented on purpose: nothing else in this row does
+            # anything until it is done, and it was getting lost as the fourth
+            # identical grey button — it wrapped onto its own row and read as
+            # decoration.
+            '<button type="button" class="cw-btn cw-primary" id="cwConnect">'
+            'Connect to edit</button>'
             '<button type="button" class="cw-btn" id="cwManageBtn">'
             '\u002b Add or remove classes</button>'
             f'<button type="button" class="cw-btn{" on" if paused_now else ""}" '
@@ -1272,9 +1290,12 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
             '<option value="8">silence for 8 hours</option>'
             '<option value="24">silence for 24 hours</option>'
             '</select>'
-            '<button type="button" class="cw-btn" id="cwConnect">Connect to edit</button>'
             '<span class="cw-conn" id="cwConn"></span>'
             '</div>'
+            '<p class="cw-hint" id="cwHint">The dot to the right of each course '
+            'code is that class\u2019s notification switch \u2014 silencing one '
+            'keeps it watched and its seat count live here, it just stops the '
+            'phone alert. Connect once to enable the switches.</p>'
             '<div class="cw-manage" id="cwManage" hidden>'
             '<input type="search" class="cw-search" id="cwSearch" autocomplete="off" '
             'placeholder="Search every class in the term \u2014 code, name or instructor">'
