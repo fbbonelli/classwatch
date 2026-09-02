@@ -8579,10 +8579,23 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-02T16:29:55.814054-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "PSY 230-2",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 16
     }
   ],
-  "checked_at": "2026-09-02T16:25:59.000975-04:00",
-  "checked_at_display": "4:25 PM ET",
+  "checked_at": "2026-09-02T16:29:55.814054-04:00",
+  "checked_at_display": "4:29 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -8712,6 +8725,18 @@
       "instructor": "Claude Cicchetti",
       "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
       "mode": "Online",
+      "status": "Closed",
+      "seats": 0,
+      "open": false,
+      "mute_until": null,
+      "muted": false
+    },
+    {
+      "code": "GLS 114-3",
+      "name": "Cross-Cultural Understanding",
+      "instructor": "Daniel Everett",
+      "meeting": "W | 11:00 AM - 1:50 PM 08/31/2026 - 12/15/2026",
+      "mode": "In-Person",
       "status": "Closed",
       "seats": 0,
       "open": false,
