@@ -696,15 +696,17 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
         # under the Pages build cap) saying so would be a quiet lie, and this footer
         # is what he'd reason from when the page looks behind.
         pub = publish_minutes or poll_minutes
+        base = (f'<b>Checks every {poll_minutes} minutes, around the clock</b>, '
+                f'and runs in the cloud \u2014 so it keeps checking with your '
+                f'laptop closed. The moment a seat opens you get a push via ntfy '
+                f'and it shows up here.')
         if pub > poll_minutes:
-            cadence = (f'Checks every {poll_minutes} minutes, around the clock. '
-                       f'A seat opening pushes to your phone via ntfy and appears '
-                       f'here immediately; routine updates land within {pub} minutes.')
-        else:
-            cadence = (f'Checks every {poll_minutes} minutes, around the clock, and '
-                       f'pushes to your phone via ntfy the instant a seat opens. '
-                       f'This page rewrites itself after every check.')
-        foot_live = (f'<p>{cadence} It also refreshes itself every minute '
+            # Spelling this out because the two numbers get confused: seeing "10"
+            # anywhere on the page reads as "it is only checking every 10 minutes".
+            base += (f' The page itself republishes on a slower {pub}-minute cycle '
+                     f'to stay inside GitHub\u2019s publishing limit \u2014 that '
+                     f'throttles the timestamp below, not the checking.')
+        foot_live = (f'<p>{base} This page also re-reads itself every minute '
                      f'while open.</p>')
         snap = ""
     else:
