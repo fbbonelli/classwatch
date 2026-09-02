@@ -31,6 +31,20 @@ STALE_AFTER_MINUTES = 45
 # Evaluated lazily rather than written back when it expires: nothing has to run
 # for a mute to lapse, and the browser and the watcher can't disagree about it.
 # `paused_until` on the watchlist root is the same field for "all classes".
+_SVG = ('<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" '
+        'fill="none" stroke="currentColor" stroke-width="1.4" '
+        'stroke-linecap="round" stroke-linejoin="round">')
+_BELL = ('<path d="M8 1.9a3.5 3.5 0 0 0-3.5 3.5c0 2.9-1.1 3.9-1.6 4.4-.25.3-.03.7.35.7'
+         'h9.5c.38 0 .6-.4.35-.7-.5-.5-1.6-1.5-1.6-4.4A3.5 3.5 0 0 0 8 1.9Z"/>'
+         '<path d="M6.6 12.7a1.5 1.5 0 0 0 2.8 0"/>')
+# A bell and a struck-through bell. He could not tell what a bare dot did, and a
+# slashed bell is the one glyph everyone already reads as "notifications off" —
+# no label needed, and it survives being 15px better than an emoji, whose
+# rendering varies wildly across platforms.
+BELL_ON  = _SVG + _BELL + "</svg>"
+BELL_OFF = _SVG + _BELL + '<path d="M2.7 2.7l10.6 10.6"/></svg>'
+
+
 def mute_active(until, now=None):
     """True if `until` represents a mute that is still in force."""
     if not until:
@@ -160,8 +174,9 @@ CSS = """
 /* --- per-class notification switch ------------------------------------ */
 .cw-bell{margin-left:10px;width:26px;height:26px;padding:0;flex:none;cursor:pointer;
   border:1.5px solid var(--muted);border-radius:50%;background:var(--surface);
-  color:var(--ink);font-size:13px;line-height:1;display:inline-flex;
+  color:var(--ink);line-height:0;display:inline-flex;
   align-items:center;justify-content:center;vertical-align:middle;transition:none;}
+.cw-bell svg{display:block;}
 .cw-bell[disabled]{cursor:default;opacity:.45;}
 .cw-bell:not([disabled]):hover{color:var(--ink);border-color:var(--muted);}
 .cw-bell:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
@@ -357,7 +372,7 @@ def bell(code, muted, until):
     return (f'<button type="button" class="cw-bell{" off" if muted else ""}" '
             f'data-bell="{E(code)}" aria-pressed="{"true" if muted else "false"}" '
             f'aria-label="{lbl}" title="{E(ttl)}">'
-            f'<span aria-hidden="true">{"\u2715" if muted else "\u25cf"}</span></button>')
+            f'{BELL_OFF if muted else BELL_ON}</button>')
 
 
 def _card(entry, row):
@@ -490,6 +505,7 @@ TABS_JS = """
 
 CHECK_JS = """
 (function(){
+  var BELL_ON_=%(bell_on)s, BELL_OFF_=%(bell_off)s;
   var URL_=%(url)s, WORKDAY_=%(workday)s,
       STALE_=%(stale)d, ACTIVE_=%(active)s, POLL_MS_=%(poll_ms)d,
       pollMin=%(poll_min)d,
@@ -546,8 +562,10 @@ CHECK_JS = """
     var off=!!s.muted;
     return '<button type="button" class="cw-bell'+(off?' off':'')+'" data-bell="'+
       esc(s.code)+'" aria-pressed="'+(off?'true':'false')+'" aria-label="'+
-      (off?'Notifications off':'Notifications on')+'"><span aria-hidden="true">'+
-      (off?'✕':'●')+'</span></button>';
+      (off?'Notifications off':'Notifications on')+'" title="'+
+      (off?'Silenced \u2014 click to turn notifications back on'
+          :'Notifications on \u2014 click to silence this class')+'">'+
+      (off?BELL_OFF_:BELL_ON_)+'</button>';
   }
   function buildCard(s){
     var li=document.createElement('li');
@@ -606,7 +624,10 @@ CHECK_JS = """
       bl.classList.toggle('off', !!s.muted);
       bl.setAttribute('aria-pressed', s.muted?'true':'false');
       bl.setAttribute('aria-label', s.muted?'Notifications off':'Notifications on');
-      var sp=bl.querySelector('span'); if(sp) sp.textContent = s.muted?'✕':'●';
+      bl.innerHTML = s.muted ? BELL_OFF_ : BELL_ON_;
+      bl.setAttribute('title', s.muted
+        ? 'Silenced \u2014 click to turn notifications back on'
+        : 'Notifications on \u2014 click to silence this class');
     }
     if(chip){ chip.classList.toggle('open',open); chip.classList.toggle('full',!open);
               chip.textContent = s.status==='not_found' ? 'No match' : (open?'Open':'Full'); }
@@ -758,6 +779,7 @@ LOGFILTER_JS = """
 MANAGE_JS = '''
 (function(){
   var OWNER=%(owner)s, REPO=%(repo)s, FILE=%(file)s, CATURL=%(caturl)s;
+  var BELL_ON_=%(bell_on)s, BELL_OFF_=%(bell_off)s;
   var API='https://api.github.com/repos/'+OWNER+'/'+REPO, KEY='cw_gh_token';
 
   // ---------------------------------------------------------------- token
@@ -1000,7 +1022,7 @@ MANAGE_JS = '''
       if(card) card.classList.toggle('muted', !nowOff);
       bell.classList.toggle('off', !nowOff);
       bell.setAttribute('aria-pressed', nowOff?'false':'true');
-      var sp=bell.querySelector('span'); if(sp) sp.textContent = nowOff?'\\u25cf':'\\u2715';
+      bell.innerHTML = nowOff ? BELL_ON_ : BELL_OFF_;
       queue({k:'mute',c:code,v:val});
       return;
     }
@@ -1198,11 +1220,15 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
             "active": json.dumps(list(ACTIVE_HOURS)),
             "poll_ms": 60000,
             "poll_min": poll_minutes,
+            "bell_on": json.dumps(BELL_ON),
+            "bell_off": json.dumps(BELL_OFF),
         }) + "</script>" + "<script>" + (MANAGE_JS % {
             "owner": json.dumps(GH_OWNER),
             "repo": json.dumps(GH_REPO),
             "file": json.dumps(GH_FILE),
             "caturl": json.dumps(CATALOG_URL),
+            "bell_on": json.dumps(BELL_ON),
+            "bell_off": json.dumps(BELL_OFF),
         }) + "</script>"
     else:
         bar, script = "", ""

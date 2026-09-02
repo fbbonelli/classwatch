@@ -99,6 +99,13 @@ def build_catalog(term):
     }
 
 
+def poll_min_hint():
+    try:
+        return max(1, round(int(os.environ.get("CHECK_INTERVAL_SECONDS", "300")) / 60))
+    except ValueError:
+        return 5
+
+
 def catalog_is_stale(now):
     try:
         with open(CATALOG) as f:
@@ -359,6 +366,45 @@ def main():
                      if paused or dashboard.mute_active(c.get("mute_until"), now))
         log(f"checked {sum(len(v) for v in found.values())} section(s) — none newly open"
             + (f" ({nmuted} silenced)" if nmuted else ""))
+
+    # --- confirm switch flips on the phone ---------------------------------
+    # Sent from HERE, not from the browser. The page is public, so publishing the
+    # ntfy topic into it would let any visitor push fake "SEAT OPEN" alerts to his
+    # phone — a much worse hole than the one this feature is worth. The cost is
+    # that confirmation arrives on the next check rather than instantly.
+    #
+    # Compares the DERIVED muted state, not the raw field, so a timed silence
+    # expiring on its own also announces itself — that is the moment worth
+    # knowing about, since nothing else would tell him a class went live again.
+    cur_m = {c["match"]: dashboard.mute_active(c.get("mute_until"), now)
+             for c in wl["courses"]}
+    prev_m = state.get("_mutes")
+    if prev_m is None:
+        state["_mutes"] = cur_m          # first run after deploy: seed, stay quiet
+    else:
+        off = sorted(k for k, v in cur_m.items() if v and not prev_m.get(k, False))
+        on  = sorted(k for k, v in cur_m.items() if not v and prev_m.get(k, False))
+        if off or on:
+            bits = []
+            if off: bits.append("Silenced: " + ", ".join(off))
+            if on:  bits.append("Notifications back on: " + ", ".join(on))
+            log("switch changed — " + " | ".join(bits))
+            ntfy("ClassWatch — notification switch changed",
+                 "\n".join(bits) + "\n\nThey are all still being checked every "
+                 f"{poll_min_hint()} minutes.", urgent=False)
+        state["_mutes"] = cur_m
+
+    prev_p = state.get("_paused")
+    if prev_p is None:
+        state["_paused"] = paused
+    elif prev_p != paused:
+        log(f"global pause changed -> {paused}")
+        ntfy("ClassWatch — all notifications " + ("paused" if paused else "resumed"),
+             ("Every class is silenced until you switch it back on. They are all "
+              "still being checked.") if paused else
+             "Notifications are back on for every class that is not individually "
+             "silenced.", urgent=False)
+        state["_paused"] = paused
 
     save(STATE, state)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
