@@ -8240,10 +8240,23 @@
       "opened": [],
       "recovered": false,
       "n": 16
+    },
+    {
+      "t": "2026-09-02T13:24:56.617959-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "HI 334-1",
+          "seats": 2
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 17
     }
   ],
-  "checked_at": "2026-09-02T13:18:21.473932-04:00",
-  "checked_at_display": "1:18 PM ET",
+  "checked_at": "2026-09-02T13:24:56.617959-04:00",
+  "checked_at_display": "1:24 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -8313,6 +8326,18 @@
       "instructor": "Elizabeth LeDoux",
       "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
       "mode": "Online",
+      "status": "Closed",
+      "seats": 0,
+      "open": false,
+      "mute_until": null,
+      "muted": false
+    },
+    {
+      "code": "EMS 400-1",
+      "name": "The Television Industry",
+      "instructor": "Jennifer Gillan",
+      "meeting": "W | 11:00 AM - 1:50 PM 08/31/2026 - 12/15/2026",
+      "mode": "In-Person",
       "status": "Closed",
       "seats": 0,
       "open": false,
