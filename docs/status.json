@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-26T17:26:00.704919-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-26T17:36:04.540583-04:00",
       "ok": true,
       "open": [],
@@ -8697,10 +8689,23 @@
       "opened": [],
       "recovered": false,
       "n": 17
+    },
+    {
+      "t": "2026-09-02T17:31:02.930197-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "PSY 230-2",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-02T17:25:43.123310-04:00",
-  "checked_at_display": "5:25 PM ET",
+  "checked_at": "2026-09-02T17:31:02.930197-04:00",
+  "checked_at_display": "5:31 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -8782,30 +8787,6 @@
       "instructor": "Jennifer Gillan",
       "meeting": "W | 11:00 AM - 1:50 PM 08/31/2026 - 12/15/2026",
       "mode": "In-Person",
-      "status": "Closed",
-      "seats": 0,
-      "open": false,
-      "mute_until": null,
-      "muted": false
-    },
-    {
-      "code": "FI 306-3",
-      "name": "Financial Markets and Investment",
-      "instructor": "Claude Cicchetti",
-      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
-      "mode": "Online",
-      "status": "Closed",
-      "seats": 0,
-      "open": false,
-      "mute_until": null,
-      "muted": false
-    },
-    {
-      "code": "FI 306-4",
-      "name": "Financial Markets and Investment",
-      "instructor": "Claude Cicchetti",
-      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
-      "mode": "Online",
       "status": "Closed",
       "seats": 0,
       "open": false,
