@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-09-02T20:07:35.342536-04:00",
+  "built_at": "2026-09-02T20:37:50.492974-04:00",
   "term": "202609",
   "departments": [
     {
@@ -1398,8 +1398,8 @@
       "t": "T/Th | 5:00 PM - 6:20 PM 08/31/2026 - 12/15/2026",
       "d": "CS",
       "dn": "Computer Information Systems",
-      "o": 0,
-      "s": 0
+      "o": 1,
+      "s": 1
     },
     {
       "c": "CS 100-3",
@@ -1465,7 +1465,7 @@
       "d": "CS",
       "dn": "Computer Information Systems",
       "o": 1,
-      "s": 2
+      "s": 1
     },
     {
       "c": "CS 100-9",
@@ -2004,7 +2004,7 @@
       "d": "CS",
       "dn": "Computer Information Systems",
       "o": 1,
-      "s": 9
+      "s": 8
     },
     {
       "c": "CS 370-1",
@@ -6469,8 +6469,8 @@
       "t": "T/F | 12:30 PM - 1:50 PM 08/31/2026 - 12/15/2026",
       "d": "HI",
       "dn": "History",
-      "o": 1,
-      "s": 1
+      "o": 0,
+      "s": 0
     },
     {
       "c": "HI 363-1",
@@ -6877,7 +6877,7 @@
       "d": "ID",
       "dn": "Interdisciplinary Studies",
       "o": 1,
-      "s": 8
+      "s": 9
     },
     {
       "c": "ID 260-1",
@@ -6888,7 +6888,7 @@
       "d": "ID",
       "dn": "Interdisciplinary Studies",
       "o": 1,
-      "s": 2
+      "s": 3
     },
     {
       "c": "ID 320-1",
@@ -7812,7 +7812,7 @@
       "d": "MA",
       "dn": "Mathematical Sciences",
       "o": 1,
-      "s": 19
+      "s": 20
     },
     {
       "c": "MA 707-1",
@@ -9495,7 +9495,7 @@
       "d": "NAS",
       "dn": "Natural & Applied Science",
       "o": 1,
-      "s": 10
+      "s": 9
     },
     {
       "c": "PH 102-1",
@@ -10770,8 +10770,8 @@
       "t": "Th | 6:30 PM - 9:10 PM 08/31/2026 - 12/15/2026",
       "d": "XD",
       "dn": "Experience Design",
-      "o": 0,
-      "s": 0
+      "o": 1,
+      "s": 1
     },
     {
       "c": "XD 385-1",
