@@ -68,7 +68,7 @@ CSS = """
   --paper:#F4F6F9; --surface:#FFFFFF; --sunken:#EAEEF4;
   --line:#D7DDE6; --ink:#0B1622; --muted:#5B6879;
   --gold:#9C7C2E;
-  --open:#12704A; --open-field:#E3F5EC; --open-edge:#8FD3B4;
+  --open:#12704A; --open-field:#E3F5EC; --open-edge:#8FD3B4; --on-open:#FFFFFF;
   --full:#8E3149; --full-field:#F6EBEE; --full-edge:#DFBCC5;
   --stale:#8A6D1F; --stale-field:#FBF3DE;
 }
@@ -77,7 +77,7 @@ CSS = """
     --paper:#0A1017; --surface:#141C26; --sunken:#0F1721;
     --line:#243040; --ink:#E7EDF5; --muted:#8595A8;
     --gold:#C9A659;
-    --open:#3FCB8F; --open-field:#0E2A20; --open-edge:#1F6B4C;
+    --open:#3FCB8F; --open-field:#0E2A20; --open-edge:#1F6B4C; --on-open:#07120D;
     --full:#E8879C; --full-field:#2A151B; --full-edge:#6B2E3F;
     --stale:#E0BE6A; --stale-field:#2A2312;
   }
@@ -85,14 +85,14 @@ CSS = """
 :root[data-theme="light"]{
   --paper:#F4F6F9; --surface:#FFFFFF; --sunken:#EAEEF4;
   --line:#D7DDE6; --ink:#0B1622; --muted:#5B6879; --gold:#9C7C2E;
-  --open:#12704A; --open-field:#E3F5EC; --open-edge:#8FD3B4;
+  --open:#12704A; --open-field:#E3F5EC; --open-edge:#8FD3B4; --on-open:#FFFFFF;
   --full:#8E3149; --full-field:#F6EBEE; --full-edge:#DFBCC5;
   --stale:#8A6D1F; --stale-field:#FBF3DE;
 }
 :root[data-theme="dark"]{
   --paper:#0A1017; --surface:#141C26; --sunken:#0F1721;
   --line:#243040; --ink:#E7EDF5; --muted:#8595A8; --gold:#C9A659;
-  --open:#3FCB8F; --open-field:#0E2A20; --open-edge:#1F6B4C;
+  --open:#3FCB8F; --open-field:#0E2A20; --open-edge:#1F6B4C; --on-open:#07120D;
   --full:#E8879C; --full-field:#2A151B; --full-edge:#6B2E3F;
   --stale:#E0BE6A; --stale-field:#2A2312;
 }
@@ -144,7 +144,7 @@ CSS = """
 .cw-verdict p{margin:0;font-size:14px;color:var(--muted);line-height:1.5;}
 .cw-verdict.is-open p{color:var(--open);opacity:.9;}
 .cw-cta{align-self:flex-start;margin-top:8px;display:inline-block;
-  background:var(--open);color:#fff;text-decoration:none;
+  background:var(--open);color:var(--on-open);text-decoration:none;
   font-size:13px;font-weight:650;letter-spacing:.02em;
   padding:9px 16px;border-radius:4px;}
 .cw-cta:hover{filter:brightness(1.08);}
@@ -190,17 +190,29 @@ CSS = """
 
 /* --- control strip ---------------------------------------------------- */
 .cw-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 18px;}
-.cw-btn{font:inherit;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
-  text-transform:uppercase;padding:7px 12px;border:1px solid var(--line);
-  border-radius:3px;background:none;color:var(--muted);cursor:pointer;}
-.cw-btn:not([disabled]):hover{color:var(--ink);border-color:var(--muted);}
-.cw-btn[disabled]{opacity:.45;cursor:default;}
-.cw-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
-.cw-btn.on{background:var(--sunken);color:var(--ink);border-color:var(--muted);}
+.cw-ctl{font:inherit;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;padding:9px 13px;border:1px solid var(--line);
+  border-radius:2px;background:none;color:var(--muted);cursor:pointer;
+  min-height:38px;display:inline-flex;align-items:center;}
+.cw-ctl:not([disabled]):hover{color:var(--ink);border-color:var(--muted);}
+.cw-ctl[disabled]{opacity:.45;cursor:default;}
+.cw-ctl:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+.cw-ctl.on{background:var(--sunken);color:var(--ink);border-color:var(--muted);}
+/* The silence-duration control is a real <select>; give it its own quiet
+   outline instead of pretending it is a button. */
+.cw-sel{font:inherit;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);background:var(--surface);
+  border:1px solid var(--line);border-radius:2px;padding:9px 30px 9px 12px;
+  min-height:38px;cursor:pointer;appearance:none;-webkit-appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),
+                   linear-gradient(135deg,currentColor 50%,transparent 50%);
+  background-position:calc(100% - 16px) 52%,calc(100% - 11px) 52%;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;}
+.cw-sel:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 /* The one control that must not be missed while it is still needed. */
-.cw-btn.cw-primary{color:var(--ink);border-color:var(--gold);border-width:1.5px;
+.cw-ctl.cw-primary{color:var(--ink);border-color:var(--gold);border-width:1.5px;
   box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 22%,transparent);}
-.cw-btn.cw-primary.done{color:var(--muted);border-color:var(--line);
+.cw-ctl.cw-primary.done{color:var(--muted);border-color:var(--line);
   border-width:1px;box-shadow:none;}
 .cw-hint{font-size:12.5px;line-height:1.55;color:var(--muted);
   margin:-6px 0 18px;max-width:70ch;}
@@ -251,7 +263,7 @@ CSS = """
 .cw-chip{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.13em;
   text-transform:uppercase;padding:5px 10px;border-radius:3px;white-space:nowrap;
   border:1px solid;}
-.cw-chip.open{background:var(--open);color:#fff;border-color:var(--open);}
+.cw-chip.open{background:var(--open);color:var(--on-open);border-color:var(--open);}
 .cw-chip.full{background:var(--full-field);color:var(--full);border-color:var(--full-edge);}
 .cw-chip.gone{background:var(--stale-field);color:var(--stale);border-color:var(--stale);}
 .cw-seats{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;
@@ -1319,15 +1331,15 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
             # anything until it is done, and it was getting lost as the fourth
             # identical grey button — it wrapped onto its own row and read as
             # decoration.
-            '<button type="button" class="cw-btn cw-primary" id="cwConnect">'
+            '<button type="button" class="cw-ctl cw-primary" id="cwConnect">'
             'Connect to edit</button>'
-            '<button type="button" class="cw-btn" id="cwManageBtn">'
+            '<button type="button" class="cw-ctl" id="cwManageBtn">'
             '\u002b Add or remove classes</button>'
-            f'<button type="button" class="cw-btn{" on" if paused_now else ""}" '
+            f'<button type="button" class="cw-ctl{" on" if paused_now else ""}" '
             f'id="cwPause" aria-pressed="{"true" if paused_now else "false"}">'
             f'{"All notifications: OFF" if paused_now else "All notifications: on"}'
             '</button>'
-            '<select class="cw-btn" id="cwDur" aria-label="How long to silence for">'
+            '<select class="cw-sel" id="cwDur" aria-label="How long to silence for">'
             '<option value="forever">silence until I switch it back</option>'
             '<option value="1">silence for 1 hour</option>'
             '<option value="8">silence for 8 hours</option>'
