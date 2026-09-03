@@ -60,6 +60,11 @@
       "mute_until": null
     },
     {
+      "match": "HI 356-2",
+      "note": "",
+      "mute_until": null
+    },
+    {
       "match": "NAS 308-1",
       "note": ""
     },
