@@ -9032,10 +9032,18 @@
       "opened": [],
       "recovered": false,
       "n": 17
+    },
+    {
+      "t": "2026-09-03T01:00:36.238608-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-03T00:59:30.549039-04:00",
-  "checked_at_display": "12:59 AM ET",
+  "checked_at": "2026-09-03T01:00:36.238608-04:00",
+  "checked_at_display": "1:00 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -9079,30 +9087,6 @@
       "code": "CS 305-12",
       "name": "Business Processes and Systems",
       "instructor": "Jeffrey Proudfoot",
-      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
-      "mode": "Online",
-      "status": "Closed",
-      "seats": 0,
-      "open": false,
-      "mute_until": null,
-      "muted": false
-    },
-    {
-      "code": "EMS 222-1",
-      "name": "Intro to Comm Studies",
-      "instructor": "Stephanie Medden",
-      "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
-      "mode": "Online",
-      "status": "Closed",
-      "seats": 0,
-      "open": false,
-      "mute_until": null,
-      "muted": false
-    },
-    {
-      "code": "EMS 312-1",
-      "name": "Horror/Sci-Fi in Film and TV",
-      "instructor": "Elizabeth LeDoux",
       "meeting": "Sun | 12:00 AM - 12:01 AM 08/31/2026 - 11/22/2026",
       "mode": "Online",
       "status": "Closed",

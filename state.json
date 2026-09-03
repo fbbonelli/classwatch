@@ -1,7 +1,7 @@
 {
   "_health": {
     "fails": 0,
-    "last_ok": "2026-09-03T00:59:30.549039-04:00"
+    "last_ok": "2026-09-03T01:00:36.238608-04:00"
   },
   "CS 305-9": {
     "open": false,
@@ -98,8 +98,6 @@
     "CS 305-9": false,
     "CS 305-11": false,
     "CS 305-12": false,
-    "EMS 222-1": false,
-    "EMS 312-1": false,
     "EMS 400-1": false,
     "FI 351-4": false,
     "FI 351-5": false,
