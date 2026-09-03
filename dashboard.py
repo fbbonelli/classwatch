@@ -168,6 +168,11 @@ CSS = """
   text-transform:uppercase;color:var(--muted);}
 .cw-ro b{color:var(--ink);font-weight:400;}
 .cw-ro[hidden]{display:none;}
+.cw-saveerr{margin:0;padding:10px 12px;border:1px solid var(--full-edge);
+  border-radius:var(--r);background:var(--full-field);color:var(--full);
+  font-family:var(--mono);font-size:12px;line-height:1.5;}
+.cw-saveerr[hidden]{display:none;}
+.cw-group[hidden],.cw-row2[hidden],.cw-hit[hidden]{display:none;}
 .cw-sechead b#cwConn{font-family:var(--mono);}
 
 /* --- spacing + radius scale ------------------------------------------- */
@@ -252,7 +257,9 @@ CSS = """
    does not. */
 .cw-bell{position:relative;}
 .cw-bell::after{content:"";position:absolute;inset:-9px;}
-.cw-bell[disabled]{cursor:default;opacity:.45;}
+.cw-bell.locked{opacity:.4;border-style:dashed;}
+.cw-res.locked{opacity:.55;}
+.cw-nudge{outline:2px solid var(--gold);outline-offset:2px;}
 .cw-bell:not([disabled]):hover{color:var(--ink);border-color:var(--muted);}
 .cw-bell:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 /* Silenced is a deliberately quiet state: it must not compete with the
@@ -1086,7 +1093,7 @@ MANAGE_JS = '''
   // The published feed lags by up to one publish cycle. Without an overlay the
   // 60-second poll would keep reverting a toggle the user just made.
   var oMute={}, oAdd={}, oRem={}, oPause;
-  var pending=[], timer=null, inflight=false;
+  var pending=[], timer=null, inflight=false, failures=0;
 
   function sortKey(m){ var p=String(m).split(' '), r=String(p[1]||'').split('-');
     return [p[0]||'', parseInt(r[0],10)||0, parseInt(r[1],10)||0]; }
@@ -1135,8 +1142,24 @@ MANAGE_JS = '''
   }
 
   function status(msg,warn){
-    var el=document.getElementById('cwConn'); if(!el) return;
-    el.textContent=msg||''; el.style.color = warn ? 'var(--full)' : '';
+    var el=document.getElementById('cwConn');
+    if(el){ el.textContent=msg||''; el.style.color = warn ? 'var(--full)' : ''; }
+    // The status line lives in the Manage tab's header. A failure that happens
+    // while the user is looking at Status would otherwise be invisible, and the
+    // queue silently retries forever. Surface it where they actually are.
+    var b=document.getElementById('cwSaveErr');
+    if(b){ b.textContent = warn ? msg : ''; b.hidden = !warn; }
+  }
+  // Says the one thing the user needs, where they are looking, and points at
+  // the control that fixes it.
+  function needToken(msg){
+    var b=document.getElementById('cwSaveErr');
+    if(b){ b.textContent=msg+' Open the Manage tab and press Connect to edit.';
+           b.hidden=false; }
+    var t=document.getElementById('tab-manage');
+    if(t) t.classList.add('cw-nudge');
+    var c=document.getElementById('cwConnect');
+    if(c) c.classList.add('cw-nudge');
   }
   function connLabel(){
     var on=!!tok();
@@ -1145,8 +1168,15 @@ MANAGE_JS = '''
            b.classList.toggle('done', on); }
     var ro=document.getElementById('cwReadonly');
     if(ro) ro.hidden = on;
+    if(on){
+      var b=document.getElementById('cwSaveErr'); if(b){ b.hidden=true; b.textContent=''; }
+      Array.prototype.forEach.call(document.querySelectorAll('.cw-nudge'),
+        function(e){ e.classList.remove('cw-nudge'); });
+    }
     Array.prototype.forEach.call(document.querySelectorAll('.cw-bell'),
-      function(x){ x.disabled=!on; });
+      function(x){ x.classList.toggle('locked', !on);
+                   if(on) x.removeAttribute('aria-disabled');
+                   else x.setAttribute('aria-disabled','true'); });
     var pb=document.getElementById('cwPause'); if(pb) pb.disabled=!on;
   }
 
@@ -1170,9 +1200,26 @@ MANAGE_JS = '''
         status('Saved \\u00b7 watcher picks it up within a minute');
       });
     }
-    go().catch(function(e){
-      pending=mine.concat(pending);       // put them back; nothing is dropped
-      status('Save failed \\u2014 '+e.message,true);
+    go().then(function(){ failures=0; }).catch(function(e){
+      failures++;
+      if(failures < 3){
+        pending=mine.concat(pending);     // transient: put them back and retry
+        status('Save failed \\u2014 retrying \\u2014 '+e.message, true);
+      } else {
+        // Giving up beats retrying forever. Roll the optimistic changes back so
+        // the page stops claiming a removal that never happened, and say so.
+        failures=0;
+        mine.forEach(function(o){
+          if(o.k==='remove') delete oRem[o.c];
+          else if(o.k==='add') delete oAdd[o.c];
+          else if(o.k==='mute') delete oMute[o.c];
+          else if(o.k==='pause') oPause=undefined;
+        });
+        applyOverlayToDOM();
+        if(window.cwRerender) window.cwRerender();
+        renderResults();
+        status('Could not save \\u2014 '+e.message+'. Nothing was changed.', true);
+      }
     }).then(function(){ inflight=false; if(pending.length) schedule(); });
   }
   function schedule(){ if(timer) clearTimeout(timer);
@@ -1233,22 +1280,52 @@ MANAGE_JS = '''
   function watched(){
     var d=window.cwFeed||{};
     var from=(d.sections||[]).map(function(s){ return s.code; });
-    if(from.length) return from;
-    // The feed may not have arrived yet (first paint, a slow or failed fetch).
-    // The server-rendered list is already on the page and is authoritative for
-    // WHICH classes are watched, so read that instead of showing an empty
-    // manage panel and implying he watches nothing.
-    return Array.prototype.slice.call(
-      document.querySelectorAll('#cwList [data-code]')
-    ).map(function(el){ return el.getAttribute('data-code'); });
+    if(!from.length){
+      // No feed yet (first paint, a slow fetch, or a tab that was backgrounded
+      // so the poller never ran). The server-rendered list is authoritative for
+      // WHICH classes are watched, so read that.
+      from = Array.prototype.slice.call(
+        document.querySelectorAll('#cwList [data-code]')
+      ).map(function(el){ return el.getAttribute('data-code'); });
+    }
+    // Apply anything queued but not yet round-tripped. Without this the row a
+    // user just tapped stays exactly where it was, which reads as "the button
+    // does nothing" — the write had in fact already been sent.
+    from = from.filter(function(c){ return !oRem[c]; });
+    Object.keys(oAdd).forEach(function(c){ if(from.indexOf(c)<0) from.push(c); });
+    return from;
+  }
+  // Hide rows queued for removal and grey in rows queued for addition, straight
+  // on the server-rendered Status list. Purely visual; the queue is the source
+  // of truth and the next publish makes it real.
+  function applyOverlayToDOM(){
+    var box=document.getElementById('cwList'); if(!box) return;
+    Array.prototype.slice.call(box.querySelectorAll('[data-code]')).forEach(function(el){
+      var c=el.getAttribute('data-code');
+      if(oRem[c]) el.setAttribute('hidden','');
+      else el.removeAttribute('hidden');
+    });
+    // A group whose every row is queued for removal should go too.
+    Array.prototype.slice.call(box.querySelectorAll('.cw-group')).forEach(function(g){
+      var rows=g.querySelectorAll('[data-code]');
+      var gone=0;
+      Array.prototype.slice.call(rows).forEach(function(r){
+        if(r.hasAttribute('hidden')) gone++; });
+      if(rows.length && gone===rows.length) g.setAttribute('hidden','');
+      else g.removeAttribute('hidden');
+    });
   }
   function head(t){ var e=document.createElement('p'); e.className='cw-mhead';
     e.textContent=t; return e; }
   function row(x,isWatched){
     var b=document.createElement('button');
-    b.type='button'; b.className='cw-res'+(isWatched?' watched':'');
+    b.type='button'; b.className='cw-res'+(isWatched?' watched':'')+(tok()?'':' locked');
     b.setAttribute('data-code',x.c);
-    b.disabled=!tok();
+    // NOT disabled. A disabled button is completely inert: no click, no cursor
+    // change, no explanation — indistinguishable from a broken one. That is
+    // exactly what "I click on them and nothing happens" was. It stays
+    // clickable and says why instead.
+    if(!tok()) b.setAttribute('aria-disabled','true');
     var c=document.createElement('span'); c.className='cw-rescode'; c.textContent=x.c;
     var n=document.createElement('span'); n.className='cw-resname'; n.textContent=x.n||'';
     var o=document.createElement('span'); o.className='cw-resopen';
@@ -1291,7 +1368,11 @@ MANAGE_JS = '''
   // ---------------------------------------------------------------- events
   document.addEventListener('click', function(ev){
     var bell=ev.target.closest && ev.target.closest('.cw-bell');
-      if(bell && !bell.disabled){
+      if(bell && !tok()){
+        needToken('Connect to edit before silencing a class.');
+        return;
+      }
+      if(bell){
       var code=bell.getAttribute('data-bell');
       var nowOff=bell.classList.contains('off');
       oMute[code] = nowOff ? null : muteVal();
@@ -1303,10 +1384,18 @@ MANAGE_JS = '''
       return;
     }
     var res=ev.target.closest && ev.target.closest('.cw-res');
-    if(res && !res.disabled){
+    if(res && !tok()){
+      needToken('Connect to edit before adding or removing classes.');
+      return;
+    }
+    if(res){
       var c=res.getAttribute('data-code');
       if(res.classList.contains('watched')){ oRem[c]=1; delete oAdd[c]; queue({k:'remove',c:c}); }
       else { oAdd[c]=1; delete oRem[c]; queue({k:'add',c:c}); }
+      // cwRerender() only does anything once a feed has arrived, so drive the
+      // Status list directly as well. This is what makes the tap feel like it
+      // did something on a page that has not polled yet.
+      applyOverlayToDOM();
       if(window.cwRerender) window.cwRerender();
       renderResults();
       return;
@@ -1556,6 +1645,7 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
         f'<div class="cw-verdictfoot">{bar}</div>'
         f'</section>'
         f'{ro}'
+        f'<p class="cw-saveerr" id="cwSaveErr" role="alert" hidden></p>'
         f'<div class="cw-listwrap" id="cwList">{body}</div>'
     )
     global_bar = ""
