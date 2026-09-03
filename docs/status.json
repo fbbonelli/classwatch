@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-27T08:26:07.590790-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-27T08:36:08.541013-04:00",
       "ok": true,
       "open": [],
@@ -9405,10 +9397,36 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-03T08:28:13.335946-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "NAS 308-1",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
+    },
+    {
+      "t": "2026-09-03T08:33:14.679762-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "NAS 308-1",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-03T08:23:10.098364-04:00",
-  "checked_at_display": "8:23 AM ET",
+  "checked_at": "2026-09-03T08:33:14.679762-04:00",
+  "checked_at_display": "8:33 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
