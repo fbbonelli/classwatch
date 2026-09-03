@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-27T07:47:10.597858-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-27T07:57:12.988146-04:00",
       "ok": true,
       "open": [],
@@ -9336,10 +9328,33 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-03T07:47:51.453264-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 15
+    },
+    {
+      "t": "2026-09-03T07:52:52.963989-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "NAS 308-1",
+          "seats": 1
+        }
+      ],
+      "opened": [
+        "NAS 308-1"
+      ],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-03T07:42:48.581908-04:00",
-  "checked_at_display": "7:42 AM ET",
+  "checked_at": "2026-09-03T07:52:52.963989-04:00",
+  "checked_at_display": "7:52 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -9493,9 +9508,9 @@
       "instructor": "Tony Kiszewski",
       "meeting": "M/W | 3:30 PM - 4:50 PM 08/31/2026 - 12/15/2026",
       "mode": "In-Person",
-      "status": "Closed",
-      "seats": 0,
-      "open": false,
+      "status": "Open",
+      "seats": 1,
+      "open": true,
       "mute_until": null,
       "muted": false
     },
