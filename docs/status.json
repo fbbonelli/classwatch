@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-26T23:36:26.672304-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-26T23:46:29.597916-04:00",
       "ok": true,
       "open": [],
@@ -8946,10 +8938,33 @@
       "opened": [],
       "recovered": false,
       "n": 16
+    },
+    {
+      "t": "2026-09-02T23:38:42.933796-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 16
+    },
+    {
+      "t": "2026-09-02T23:43:44.646075-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "GLS 114-3",
+          "seats": 1
+        }
+      ],
+      "opened": [
+        "GLS 114-3"
+      ],
+      "recovered": false,
+      "n": 16
     }
   ],
-  "checked_at": "2026-09-02T23:33:39.027095-04:00",
-  "checked_at_display": "11:33 PM ET",
+  "checked_at": "2026-09-02T23:43:44.646075-04:00",
+  "checked_at_display": "11:43 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -9079,9 +9094,9 @@
       "instructor": "Daniel Everett",
       "meeting": "W | 11:00 AM - 1:50 PM 08/31/2026 - 12/15/2026",
       "mode": "In-Person",
-      "status": "Closed",
-      "seats": 0,
-      "open": false,
+      "status": "Open",
+      "seats": 1,
+      "open": true,
       "mute_until": null,
       "muted": false
     },
