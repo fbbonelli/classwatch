@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-27T00:56:50.893558-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-27T01:06:54.036199-04:00",
       "ok": true,
       "open": [],
@@ -9024,10 +9016,18 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-03T00:57:41.204198-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 16
     }
   ],
-  "checked_at": "2026-09-03T00:53:40.790551-04:00",
-  "checked_at_display": "12:53 AM ET",
+  "checked_at": "2026-09-03T00:57:41.204198-04:00",
+  "checked_at_display": "12:57 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -9192,6 +9192,18 @@
       "name": "Health of Nations",
       "instructor": "Tony Kiszewski",
       "meeting": "M/W | 3:30 PM - 4:50 PM 08/31/2026 - 12/15/2026",
+      "mode": "In-Person",
+      "status": "Closed",
+      "seats": 0,
+      "open": false,
+      "mute_until": null,
+      "muted": false
+    },
+    {
+      "code": "PH 319-2",
+      "name": "Race, Ethnicity, Nationality",
+      "instructor": "Ranjoo Herr",
+      "meeting": "M/Th | 2:00 PM - 3:20 PM 08/31/2026 - 12/15/2026",
       "mode": "In-Person",
       "status": "Closed",
       "seats": 0,
