@@ -1,7 +1,7 @@
 {
   "_health": {
     "fails": 0,
-    "last_ok": "2026-09-03T00:03:56.305688-04:00"
+    "last_ok": "2026-09-03T00:14:18.526910-04:00"
   },
   "CS 305-9": {
     "open": false,
@@ -94,7 +94,6 @@
     "last_alert": null
   },
   "_mutes": {
-    "AC 115-3": false,
     "CS 305-2": false,
     "CS 305-9": false,
     "CS 305-11": false,

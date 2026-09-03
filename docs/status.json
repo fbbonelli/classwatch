@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-27T00:06:35.688544-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-27T00:16:38.682124-04:00",
       "ok": true,
       "open": [],
@@ -8992,25 +8984,21 @@
       "opened": [],
       "recovered": false,
       "n": 16
+    },
+    {
+      "t": "2026-09-03T00:14:18.526910-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-03T00:03:56.305688-04:00",
-  "checked_at_display": "12:03 AM ET",
+  "checked_at": "2026-09-03T00:14:18.526910-04:00",
+  "checked_at_display": "12:14 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
-    {
-      "code": "AC 115-3",
-      "name": "Introduction to Financial Reporting and Analysis",
-      "instructor": "Lynn Wolf",
-      "meeting": "M/Th | 2:00 PM - 3:20 PM 08/31/2026 - 12/15/2026",
-      "mode": "In-Person",
-      "status": "Closed",
-      "seats": 0,
-      "open": false,
-      "mute_until": null,
-      "muted": false
-    },
     {
       "code": "CS 305-2",
       "name": "Business Processes and Systems",
