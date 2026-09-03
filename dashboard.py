@@ -115,6 +115,8 @@ CSS = """
 .cw-mark{font-family:var(--mono);font-size:15px;font-weight:700;
   letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:0;}
 .cw-term{font-family:var(--mono);font-size:13px;color:var(--muted);letter-spacing:.04em;}
+.cw-term i{font-style:normal;opacity:.72;}
+.cw-term i::before{content:" \00b7 ";}
 .cw-stamp{margin-left:auto;font-family:var(--mono);font-size:12px;
   color:var(--muted);font-variant-numeric:tabular-nums;text-align:right;}
 
@@ -151,21 +153,12 @@ CSS = """
 .cw-cta:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
 
 /* section label */
-.cw-lab{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--muted);margin:0 0 -8px;}
 
 /* cards */
-.cw-code{grid-column:1;font-family:var(--mono);font-size:19px;font-weight:700;
-  letter-spacing:-.01em;margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:9px;}
 
 /* delivery mode. Deliberately outside the green/crimson status axis and off the
    gold brand mark — it's an attribute of the class, not a state to react to.
    Fill vs outline carries the scan; the word carries the meaning. */
-.cw-mode{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.13em;
-  text-transform:uppercase;padding:4px 8px;border-radius:3px;white-space:nowrap;
-  border:1px solid var(--line);color:var(--muted);background:none;}
-.cw-mode.online{background:var(--sunken);color:var(--ink);border-color:var(--muted);}
-.cw-mode.hybrid{border-style:dashed;color:var(--ink);}
 
 /* --- verdict foot + read-only notice ---------------------------------- */
 .cw-verdictfoot{margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid var(--line);}
@@ -292,9 +285,6 @@ CSS = """
   box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 22%,transparent);}
 .cw-ctl.cw-primary.done{color:var(--muted);border-color:var(--line);
   border-width:1px;box-shadow:none;}
-.cw-hint{font-size:12.5px;line-height:1.55;color:var(--muted);
-  margin:-6px 0 18px;max-width:70ch;}
-.cw-conn{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:auto;}
 .cw-conn b{color:var(--ink);font-weight:600;}
 
 /* --- add/remove panel -------------------------------------------------- */
@@ -327,9 +317,6 @@ CSS = """
 .cw-mhead{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--muted);padding:10px 4px 4px;}
 .cw-mhint{font-size:12px;color:var(--muted);margin:10px 0 0;line-height:1.5;}
-.cw-tok{width:100%;box-sizing:border-box;font-family:var(--mono);font-size:12px;
-  padding:8px 10px;border:1px solid var(--line);border-radius:3px;
-  background:var(--paper);color:var(--ink);margin:8px 0;}
 /* One breakpoint, not two. Everything that collapses, collapses here. */
 @media (max-width:560px){
   /* The six-column row cannot survive 375px, so it reflows to two lines and
@@ -356,21 +343,6 @@ CSS = """
   .cw-manage{position:relative;}
   .cw-resname{display:none;}
 }
-.cw-name{grid-column:1;margin:0;font-size:15px;color:var(--ink);line-height:1.35;}
-.cw-meta{grid-column:1;margin:6px 0 0;font-family:var(--mono);font-size:12.5px;
-  color:var(--muted);line-height:1.7;}
-.cw-note{grid-column:1;margin:8px 0 0;font-size:12.5px;color:var(--muted);
-  font-style:italic;line-height:1.45;}
-.cw-right{grid-column:2;grid-row:1 / span 2;display:flex;flex-direction:column;
-  align-items:flex-end;gap:8px;}
-.cw-chip{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.13em;
-  text-transform:uppercase;padding:5px 10px;border-radius:3px;white-space:nowrap;
-  border:1px solid;}
-.cw-chip.open{background:var(--open);color:var(--on-open);border-color:var(--open);}
-.cw-chip.full{background:var(--full-field);color:var(--full);border-color:var(--full-edge);}
-.cw-chip.gone{background:var(--stale-field);color:var(--stale);border-color:var(--stale);}
-.cw-seats{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;
-  line-height:1;}
 .cw-seats b{display:block;font-size:30px;font-weight:700;letter-spacing:-.03em;}
 .cw-seats span{display:block;margin-top:3px;font-size:10px;letter-spacing:.13em;
   text-transform:uppercase;color:var(--muted);}
@@ -388,7 +360,7 @@ CSS = """
 .cw-btn:disabled{opacity:.55;cursor:progress;}
 .cw-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 .cw-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none;}
-.cw-btn.busy .cw-dot{animation:cwpulse 1s ease-in-out infinite;}
+.busy .cw-dot{animation:cwpulse 1s ease-in-out infinite;}
 @keyframes cwpulse{0%,100%{opacity:1}50%{opacity:.25}}
 .cw-age{font-family:var(--mono);font-size:12px;color:var(--muted);
   font-variant-numeric:tabular-nums;}
@@ -412,18 +384,23 @@ CSS = """
 .cw-dayhead{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--muted);margin:0 0 8px;
   padding-bottom:6px;border-bottom:1px solid var(--line);}
-.cw-row{display:flex;align-items:baseline;gap:14px;padding:5px 2px;
+/* The log's one strong feature is a ruled time column, so the timestamp must
+   land in the same place on a routine check and on an event. The event box
+   carries 14px of padding plus a 1px border, so the plain rows take a matching
+   15px inset rather than the event boxes losing their padding. */
+.cw-row{display:flex;align-items:baseline;gap:14px;padding:5px 15px;
   font-family:var(--mono);font-size:12.5px;line-height:1.5;}
 .cw-row time{color:var(--muted);flex:none;width:74px;
   font-variant-numeric:tabular-nums;text-align:right;}
 .cw-row .cw-what{color:var(--muted);}
 /* events break out of the quiet rhythm so they cannot be scrolled past */
-.cw-ev{border-radius:5px;padding:12px 14px;margin:10px 0;
-  display:flex;flex-direction:column;gap:3px;border:1px solid;}
-.cw-ev time{font-family:var(--mono);font-size:11.5px;opacity:.8;}
-.cw-ev b{font-family:var(--mono);font-size:12px;letter-spacing:.12em;
+.cw-ev{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+  border-radius:var(--r);padding:11px 14px;margin:8px 0;border:1px solid;}
+.cw-ev time{font-family:var(--mono);font-size:12.5px;opacity:.8;flex:none;width:74px;
+  font-variant-numeric:tabular-nums;text-align:right;}
+.cw-ev b{flex:none;font-family:var(--mono);font-size:12px;letter-spacing:.12em;
   text-transform:uppercase;}
-.cw-ev span{font-size:13.5px;}
+.cw-ev span{flex:1 1 auto;min-width:0;font-size:13.5px;}
 .cw-ev.open{background:var(--open-field);border-color:var(--open-edge);color:var(--open);}
 .cw-ev.fail{background:var(--full-field);border-color:var(--full-edge);color:var(--full);}
 .cw-ev.rec{background:var(--stale-field);border-color:var(--stale);color:var(--stale);}
@@ -435,6 +412,11 @@ CSS = """
   text-transform:uppercase;cursor:pointer;padding:7px 12px;border-radius:3px;
   background:none;color:var(--muted);border:1px solid var(--line);line-height:1;}
 .cw-filter:hover{color:var(--ink);border-color:var(--muted);}
+.cw-recheck{display:inline-flex;align-items:center;gap:7px;}
+.cw-recheck .cw-dot{width:6px;height:6px;}
+.cw-recheck:disabled{opacity:.55;cursor:progress;}
+/* the recheck is a twin of the filter, but must never look toggled-on */
+.cw-recheck[aria-pressed]{background:none;}
 .cw-filter[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink);}
 .cw-filter:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 /* hide routine rows, then hide any day that has nothing left in it */
@@ -537,15 +519,6 @@ def sections_from(wl, found):
                         "meeting": "", "mode": "", "status": "not_found",
                         "seats": None, "open": False, **flags})
     return out
-
-
-def mode_chip(mode):
-    """Online / In-Person / Hybrid badge. Bentley writes these three exactly."""
-    if not mode:
-        return ""
-    key = mode.strip().lower()
-    cls = "online" if "online" in key else "hybrid" if "hybrid" in key else "person"
-    return f'<span class="cw-mode {cls}">{E(mode.strip())}</span>'
 
 
 def bell(code, muted, until):
@@ -699,9 +672,9 @@ def render_log(history):
             clock = t.strftime("%-I:%M %p")
             if not h.get("ok", True):
                 parts.append(
-                    f'<div class="cw-ev fail"><b>Check failed</b>'
+                    f'<div class="cw-ev fail"><time>{clock} ET</time><b>Check failed</b>'
                     f'<span>{E(h.get("error", "unknown error"))}</span>'
-                    f'<time>{clock} ET</time></div>')
+                    f'</div>')
                 continue
             if h.get("opened"):
                 seats = {o["code"]: o.get("seats") for o in h.get("open", [])}
@@ -709,14 +682,14 @@ def render_log(history):
                     f'{c} — {seats.get(c, "?")} seat'
                     f'{"" if seats.get(c) == 1 else "s"}' for c in h["opened"])
                 parts.append(
-                    f'<div class="cw-ev open"><b>Seat open</b>'
-                    f'<span>{E(detail)}</span><time>{clock} ET</time></div>')
+                    f'<div class="cw-ev open"><time>{clock} ET</time><b>Seat open</b>'
+                    f'<span>{E(detail)}</span></div>')
                 continue
             if h.get("recovered"):
                 parts.append(
-                    f'<div class="cw-ev rec"><b>Recovered</b>'
+                    f'<div class="cw-ev rec"><time>{clock} ET</time><b>Recovered</b>'
                     f'<span>Checks are working again</span>'
-                    f'<time>{clock} ET</time></div>')
+                    f'</div>')
                 continue
             openv = h.get("open") or []
             if openv:
@@ -768,9 +741,9 @@ CHECK_JS = """
   var URL_=%(url)s, WORKDAY_=%(workday)s,
       STALE_=%(stale)d, ACTIVE_=%(active)s, POLL_MS_=%(poll_ms)d,
       pollMin=%(poll_min)d,
-      btn=document.getElementById('cwCheck'),
+      btns=[].slice.call(document.querySelectorAll('[data-check]')),
       age=document.getElementById('cwAge'), stamp=document.getElementById('cwStamp');
-  if(!btn) return;
+  if(!btns.length) return;
 
   function minsAgo(iso){
     var d=(Date.now()-new Date(iso).getTime())/60000;
@@ -946,17 +919,17 @@ CHECK_JS = """
       return '<section class="cw-day"><p class="cw-dayhead">'+esc(head)+'</p>'+
         rows.map(function(p){
           var d=p[0], h=p[1], c=etClock(d);
-          if(h.ok===false) return '<div class="cw-ev fail"><b>Check failed</b><span>'+
-            esc(h.error||'unknown error')+'</span><time>'+c+' ET</time></div>';
+          if(h.ok===false) return '<div class="cw-ev fail"><time>'+c+' ET</time><b>Check failed</b><span>'+
+            esc(h.error||'unknown error')+'</span></div>';
           if(h.opened && h.opened.length){
             var seats={}; (h.open||[]).forEach(function(o){seats[o.code]=o.seats;});
             var det=h.opened.map(function(x){
               var s=seats[x]; return x+' — '+(s==null?'?':s)+' seat'+(s===1?'':'s'); }).join(', ');
-            return '<div class="cw-ev open"><b>Seat open</b><span>'+esc(det)+
-              '</span><time>'+c+' ET</time></div>';
+            return '<div class="cw-ev open"><time>'+c+' ET</time><b>Seat open</b><span>'+esc(det)+
+              '</span></div>';
           }
-          if(h.recovered) return '<div class="cw-ev rec"><b>Recovered</b>'+
-            '<span>Checks are working again</span><time>'+c+' ET</time></div>';
+          if(h.recovered) return '<div class="cw-ev rec"><time>'+c+' ET</time><b>Recovered</b>'+
+            '<span>Checks are working again</span></div>';
           var op=h.open||[];
           var what = op.length ? op.map(function(o){return o.code+' open ('+o.seats+')';}).join(', ')
                                : (h.n===1?'full':'all full');
@@ -993,9 +966,19 @@ CHECK_JS = """
       .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); });
   }
 
-  btn.addEventListener('click', function(){
-    btn.disabled=true; btn.classList.add('busy');
-    btn.querySelector('.cw-label').textContent='Checking\\u2026';
+  // There is a Check-now on the Status tab and a quieter one on the Log tab.
+  // Both drive the same fetch, and both show the busy state, so it never looks
+  // like only one of them did anything.
+  function setBusy(on){
+    btns.forEach(function(b){
+      b.disabled=on;
+      b.classList.toggle('busy',on);
+      var l=b.querySelector('.cw-label');
+      if(l) l.textContent = on ? 'Checking\\u2026' : 'Check now';
+    });
+  }
+  function runCheck(){
+    setBusy(true);
     age.className='cw-age'; age.textContent='';
     pull()
       .then(function(d){ apply(d, false); })
@@ -1003,11 +986,9 @@ CHECK_JS = """
         age.className='cw-age err';
         age.textContent='Could not reach GitHub ('+e.message+')';
       })
-      .finally(function(){
-        btn.disabled=false; btn.classList.remove('busy');
-        btn.querySelector('.cw-label').textContent='Check now';
-      });
-  });
+      .finally(function(){ setBusy(false); });
+  }
+  btns.forEach(function(b){ b.addEventListener('click', runCheck); });
 
   // Keep an open tab honest. The old page never updated itself once loaded —
   // a full meta-refresh was ruled out because it throws you out of the Log tab
@@ -1441,6 +1422,7 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
     # 60-second rebuild. Two renderers over one contract instead of two
     # renderers over two hand-kept-identical sets of markup.
     secs = sections_from(wl, found)
+    dates = term_dates(secs)
     open_rows = [x for x in secs if x.get("open")]
     n = len(wl["courses"])
     if open_rows:
@@ -1503,7 +1485,7 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
         # chrome. Folded into its foot so the answer and its provenance are one
         # object, and so the top of the page is no longer three rows of controls.
         bar = ('<div class="cw-bar">'
-               '<button type="button" class="cw-btn" id="cwCheck">'
+               '<button type="button" class="cw-btn" id="cwCheck" data-check>'
                '<span class="cw-dot"></span><span class="cw-label">Check now</span></button>'
                '<span class="cw-age" id="cwAge" role="status" aria-live="polite"></span></div>')
         script = "<script>" + (CHECK_JS % {
@@ -1547,6 +1529,12 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
             f'<div class="cw-logbar">'
             f'<button type="button" class="cw-filter" id="cwFilter" '
             f'aria-pressed="false">Events only</button>'
+            # Deliberately the quiet .cw-filter treatment, not the Status tab's
+            # solid button: on the Log tab this is a utility for pulling fresh
+            # entries, not the page's primary action.
+            f'<button type="button" class="cw-filter cw-recheck" id="cwCheckLog" '
+            f'data-check><span class="cw-dot"></span>'
+            f'<span class="cw-label">Check now</span></button>'
             f'<span class="cw-age">{n_ev} event{"" if n_ev == 1 else "s"} '
             f'in {len(history)} check{"" if len(history) == 1 else "s"}</span></div>'
             f'<p class="cw-nothing" id="cwNoEvents" hidden>No openings, failures or '
@@ -1647,7 +1635,8 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
         f'<div class="cw"><div class="cw-wrap">'
         f'<header class="cw-top">'
         f'<h1 class="cw-mark">ClassWatch</h1>'
-        f'<span class="cw-term">{E(term_label)}</span>'
+        f'<span class="cw-term">{E(term_label)}'
+        f'{f"<i>{E(dates)}</i>" if dates else ""}</span>'
         f'<span class="cw-stamp" id="cwStamp">{stamp}</span>'
         f'{theme_btn}'
         f'</header>'

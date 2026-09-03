@@ -418,19 +418,10 @@ def main():
         pub_min = max(1, round(int(os.environ.get("DASHBOARD_PUSH_SECONDS", "600")) / 60))
     except ValueError:
         pub_min = 10
-    sections = []
-    for entry in wl["courses"]:
-        mu = entry.get("mute_until")
-        flags = {"mute_until": mu, "muted": dashboard.mute_active(mu, now)}
-        for r in sorted(found.get(entry["match"], []), key=lambda x: x["code"]):
-            sections.append({**{k: r[k] for k in
-                                ("code", "name", "instructor", "meeting", "mode",
-                                 "status", "seats")},
-                             "open": is_open(r), **flags})
-        if not found.get(entry["match"]):
-            sections.append({"code": entry["match"], "name": "", "instructor": "",
-                             "meeting": "", "mode": "", "status": "not_found",
-                             "seats": None, "open": False, **flags})
+    # Built by dashboard.sections_from so the PUBLISHED feed and the RENDERED
+    # page come from one function. They used to be two near-identical loops,
+    # which is exactly the kind of pair that drifts silently.
+    sections = dashboard.sections_from(wl, found)
     open_now = [{"code": s["code"], "seats": s["seats"]} for s in sections if s["open"]]
     history = append_history({
         "t": now.isoformat(),
