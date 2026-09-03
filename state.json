@@ -1,7 +1,7 @@
 {
   "_health": {
     "fails": 0,
-    "last_ok": "2026-09-03T14:12:19.871829-04:00"
+    "last_ok": "2026-09-03T14:21:26.843469-04:00"
   },
   "CS 305-9": {
     "open": false,
@@ -86,7 +86,8 @@
   "PSY 230-2": {
     "open": true,
     "seats": 1,
-    "last_alert": "2026-09-03T13:31:57.651217-04:00"
+    "last_alert": "2026-09-03T14:21:26.843469-04:00",
+    "muted": true
   },
   "EMS 400-1": {
     "open": false,
@@ -108,7 +109,7 @@
     "HI 356-2": false,
     "NAS 308-1": false,
     "PH 319-2": false,
-    "PSY 230-2": false
+    "PSY 230-2": true
   },
   "_paused": false,
   "GLS 114-3": {
