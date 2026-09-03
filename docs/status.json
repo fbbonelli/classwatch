@@ -9024,10 +9024,18 @@
       "opened": [],
       "recovered": false,
       "n": 16
+    },
+    {
+      "t": "2026-09-03T00:59:30.549039-04:00",
+      "ok": true,
+      "open": [],
+      "opened": [],
+      "recovered": false,
+      "n": 17
     }
   ],
-  "checked_at": "2026-09-03T00:57:41.204198-04:00",
-  "checked_at_display": "12:57 AM ET",
+  "checked_at": "2026-09-03T00:59:30.549039-04:00",
+  "checked_at_display": "12:59 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -9180,6 +9188,18 @@
       "name": "The Soviet Union and After",
       "instructor": "Leonid Trofimov",
       "meeting": "W | 11:00 AM - 1:50 PM 08/31/2026 - 12/15/2026",
+      "mode": "In-Person",
+      "status": "Closed",
+      "seats": 0,
+      "open": false,
+      "mute_until": null,
+      "muted": false
+    },
+    {
+      "code": "HI 356-2",
+      "name": "The United States: From Nation to Empire (1865-1920)",
+      "instructor": "Cliff Putney",
+      "meeting": "M/Th | 2:00 PM - 3:20 PM 08/31/2026 - 12/15/2026",
       "mode": "In-Person",
       "status": "Closed",
       "seats": 0,

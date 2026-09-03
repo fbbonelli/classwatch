@@ -1,7 +1,7 @@
 {
   "_health": {
     "fails": 0,
-    "last_ok": "2026-09-03T00:57:41.204198-04:00"
+    "last_ok": "2026-09-03T00:59:30.549039-04:00"
   },
   "CS 305-9": {
     "open": false,
@@ -107,6 +107,7 @@
     "GLS 116-4": false,
     "HI 323-2": false,
     "HI 334-1": false,
+    "HI 356-2": false,
     "NAS 308-1": false,
     "PH 319-2": false,
     "PSY 230-2": false
@@ -128,6 +129,11 @@
     "last_alert": null
   },
   "PH 319-2": {
+    "open": false,
+    "seats": 0,
+    "last_alert": null
+  },
+  "HI 356-2": {
     "open": false,
     "seats": 0,
     "last_alert": null
