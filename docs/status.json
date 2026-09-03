@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-26T23:46:29.597916-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-26T23:56:32.693725-04:00",
       "ok": true,
       "open": [],
@@ -8961,10 +8953,36 @@
       ],
       "recovered": false,
       "n": 16
+    },
+    {
+      "t": "2026-09-02T23:48:50.105416-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "GLS 114-3",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 16
+    },
+    {
+      "t": "2026-09-02T23:53:51.726608-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "GLS 114-3",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 16
     }
   ],
-  "checked_at": "2026-09-02T23:43:44.646075-04:00",
-  "checked_at_display": "11:43 PM ET",
+  "checked_at": "2026-09-02T23:53:51.726608-04:00",
+  "checked_at_display": "11:53 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
