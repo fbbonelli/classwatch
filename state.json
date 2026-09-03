@@ -1,7 +1,7 @@
 {
   "_health": {
     "fails": 0,
-    "last_ok": "2026-09-02T23:53:51.726608-04:00"
+    "last_ok": "2026-09-03T00:03:56.305688-04:00"
   },
   "CS 305-9": {
     "open": false,
@@ -113,9 +113,9 @@
   },
   "_paused": false,
   "GLS 114-3": {
-    "open": true,
-    "seats": 1,
-    "last_alert": "2026-09-02T23:43:44.646075-04:00"
+    "open": false,
+    "seats": 0,
+    "last_alert": null
   },
   "GLS 116-4": {
     "open": false,
