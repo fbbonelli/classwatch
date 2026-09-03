@@ -67,7 +67,8 @@
     },
     {
       "match": "PSY 230-2",
-      "note": ""
+      "note": "",
+      "mute_until": "forever"
     }
   ],
   "paused_until": null
