@@ -68,7 +68,7 @@
     {
       "match": "PSY 230-2",
       "note": "",
-      "mute_until": "forever"
+      "mute_until": null
     }
   ],
   "paused_until": null
