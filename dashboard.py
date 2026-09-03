@@ -5,7 +5,7 @@ published artifact, so the two always look identical).
 render_page()  -> a full standalone HTML document for the local dashboard.
 """
 
-import html, json
+import html, json, re
 from datetime import datetime, timedelta
 
 # Where you actually register. bentley.edu/mybentley is only the portal landing
@@ -155,10 +155,6 @@ CSS = """
   text-transform:uppercase;color:var(--muted);margin:0 0 -8px;}
 
 /* cards */
-.cw-list{display:flex;flex-direction:column;gap:12px;list-style:none;margin:0;padding:0;}
-.cw-card{background:var(--surface);border:1px solid var(--line);border-radius:5px;
-  padding:18px 20px;display:grid;grid-template-columns:1fr auto;gap:4px 20px;align-items:start;}
-.cw-card.open{background:var(--open-field);border-color:var(--open-edge);}
 .cw-code{grid-column:1;font-family:var(--mono);font-size:19px;font-weight:700;
   letter-spacing:-.01em;margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:9px;}
 
@@ -171,22 +167,104 @@ CSS = """
 .cw-mode.online{background:var(--sunken);color:var(--ink);border-color:var(--muted);}
 .cw-mode.hybrid{border-style:dashed;color:var(--ink);}
 
+/* --- verdict foot + read-only notice ---------------------------------- */
+.cw-verdictfoot{margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid var(--line);}
+.cw-verdict.is-open .cw-verdictfoot{border-top-color:var(--open-edge);}
+.cw-verdictfoot .cw-bar{margin:0;}
+.cw-ro{margin:0;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);}
+.cw-ro b{color:var(--ink);font-weight:400;}
+.cw-ro[hidden]{display:none;}
+.cw-sechead b#cwConn{font-family:var(--mono);}
+
+/* --- spacing + radius scale ------------------------------------------- */
+/* Replaces an ad-hoc mix of 4/6/8/10/12/14/16/18/20/22/26 plus three negative
+   margins that were fighting the wrapper's gap. */
+.cw{overflow-x:hidden;--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:34px;--r:2px;}
+
+/* --- sections ---------------------------------------------------------- */
+.cw-sec{display:flex;flex-direction:column;gap:var(--s3);}
+.cw-listwrap{display:flex;flex-direction:column;gap:var(--s5);}
+.cw-sechead{display:flex;align-items:baseline;justify-content:space-between;
+  gap:var(--s3);margin:0;padding-bottom:var(--s2);
+  border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
+.cw-sechead b{font-weight:400;font-variant-numeric:tabular-nums;text-align:right;}
+.cw-sec[data-sec="open"] .cw-sechead{color:var(--open);border-bottom-color:var(--open-edge);}
+
+/* --- a course group: one bordered block, hairlines between its rows ----- */
+.cw-group{border:1px solid var(--line);border-radius:var(--r);
+  background:var(--surface);overflow:hidden;}
+.cw-grouphead{display:flex;align-items:baseline;gap:var(--s2);
+  padding:9px var(--s3);background:var(--sunken);
+  border-bottom:1px solid var(--line);}
+.cw-gcode{font-family:var(--mono);font-size:12.5px;font-weight:700;flex:none;
+  letter-spacing:.02em;}
+.cw-gname{font-size:12.5px;color:var(--muted);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;}
+.cw-gcount{margin-left:auto;flex:none;font-family:var(--mono);font-size:10px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  font-variant-numeric:tabular-nums;}
+
+.cw-row2{display:grid;align-items:center;gap:0 var(--s3);
+  grid-template-areas:"sec who when mode seat bell";
+  grid-template-columns:46px minmax(0,1.05fr) minmax(0,1fr) 74px 30px 34px;
+  padding:7px var(--s3);border-top:1px solid var(--line);font-size:13px;
+  min-height:44px;box-sizing:border-box;}
+.cw-group .cw-row2:first-of-type{border-top:0;}
+.cw-secn{grid-area:sec;font-family:var(--mono);font-weight:700;
+  font-variant-numeric:tabular-nums;}
+.cw-who{grid-area:who;color:var(--muted);overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;}
+.cw-when{grid-area:when;font-family:var(--mono);font-size:12px;color:var(--muted);
+  font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;}
+.cw-modecell{grid-area:mode;font-family:var(--mono);font-size:10px;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cw-seatcell{grid-area:seat;font-family:var(--mono);color:var(--muted);
+  text-align:right;font-variant-numeric:tabular-nums;}
+.cw-row2 .cw-bell{grid-area:bell;justify-self:end;margin:0;}
+.cw-row2.is-missing .cw-secn{color:var(--muted);}
+
+/* --- an open section: a different component, not a tinted row ---------- */
+.cw-hits{display:flex;flex-direction:column;gap:var(--s3);}
+.cw-hit{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s4);
+  align-items:center;padding:var(--s4);border:1px solid var(--open-edge);
+  border-left:3px solid var(--open);border-radius:var(--r);
+  background:var(--open-field);}
+.cw-hitmain{min-width:0;}
+.cw-hitcode{display:flex;align-items:center;gap:var(--s2);margin:0;
+  font-family:var(--mono);font-size:17px;font-weight:700;color:var(--open);}
+.cw-hitname{margin:var(--s1) 0 0;font-size:14px;color:var(--ink);}
+.cw-hitmeta{margin:var(--s1) 0 0;font-family:var(--mono);font-size:12px;
+  color:var(--muted);}
+.cw-hitseats{margin:0;text-align:right;flex:none;}
+.cw-hitseats b{display:block;font-family:var(--mono);font-size:32px;
+  font-weight:700;line-height:1;color:var(--open);letter-spacing:-.02em;}
+.cw-hitseats span{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);}
+.cw-sil{font-family:var(--mono);font-size:9px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);border:1px solid var(--line);
+  border-radius:var(--r);padding:2px 5px;}
+
 /* --- per-class notification switch ------------------------------------ */
 .cw-bell{margin-left:10px;width:26px;height:26px;padding:0;flex:none;cursor:pointer;
   border:1.5px solid var(--muted);border-radius:50%;background:var(--surface);
   color:var(--ink);line-height:0;display:inline-flex;
   align-items:center;justify-content:center;vertical-align:middle;transition:none;}
 .cw-bell svg{display:block;}
+/* Apple's minimum touch target is 44px, but the bell reads better at 26. Grow
+   the hit area with a pseudo-element so the target gets bigger and the glyph
+   does not. */
+.cw-bell{position:relative;}
+.cw-bell::after{content:"";position:absolute;inset:-9px;}
 .cw-bell[disabled]{cursor:default;opacity:.45;}
 .cw-bell:not([disabled]):hover{color:var(--ink);border-color:var(--muted);}
 .cw-bell:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 /* Silenced is a deliberately quiet state: it must not compete with the
    green/crimson that mean "seats" and "no seats". */
 .cw-bell.off{background:var(--sunken);color:var(--ink);border-color:var(--muted);}
-.cw-card.muted{opacity:.62;}
-.cw-card.muted .cw-code{text-decoration:line-through;
-  text-decoration-color:var(--muted);text-decoration-thickness:1px;}
-.cw-card.muted .cw-bell{opacity:1;}
 
 /* --- control strip ---------------------------------------------------- */
 .cw-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 18px;}
@@ -223,15 +301,18 @@ CSS = """
 .cw-manage{border:1px solid var(--line);border-radius:4px;padding:14px;
   margin:0 0 18px;background:var(--sunken);}
 .cw-manage[hidden]{display:none;}
-.cw-search{width:100%;box-sizing:border-box;font:inherit;font-size:15px;padding:9px 11px;
+/* 16px is not a style choice: iOS Safari force-zooms the viewport when a
+   focused input is any smaller, and the page never zooms back out. */
+.cw-search{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:11px 12px;
   border:1px solid var(--line);border-radius:3px;background:var(--paper);
   color:var(--ink);margin-bottom:10px;}
 .cw-search:focus-visible{outline:2px solid var(--gold);outline-offset:1px;}
 .cw-results{max-height:340px;overflow-y:auto;overflow-x:hidden;
   border-top:1px solid var(--line);}
-.cw-res{display:flex;align-items:baseline;gap:10px;width:100%;text-align:left;
-  font:inherit;padding:8px 4px;background:none;border:0;
-  border-bottom:1px solid var(--line);cursor:pointer;color:var(--ink);}
+.cw-res{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  font:inherit;padding:10px 4px;background:none;border:0;min-height:44px;
+  box-sizing:border-box;border-bottom:1px solid var(--line);cursor:pointer;
+  color:var(--ink);}
 .cw-res:hover{background:var(--paper);}
 .cw-res:focus-visible{outline:2px solid var(--gold);outline-offset:-2px;}
 .cw-res[disabled]{cursor:default;}
@@ -249,9 +330,31 @@ CSS = """
 .cw-tok{width:100%;box-sizing:border-box;font-family:var(--mono);font-size:12px;
   padding:8px 10px;border:1px solid var(--line);border-radius:3px;
   background:var(--paper);color:var(--ink);margin:8px 0;}
+/* One breakpoint, not two. Everything that collapses, collapses here. */
 @media (max-width:560px){
-  .cw-resname{display:none;}
+  /* The six-column row cannot survive 375px, so it reflows to two lines and
+     keeps the section number and the bell pinned to the outer edges. */
+  .cw-row2{grid-template-areas:"sec who  seat bell"
+                               "sec when mode bell";
+    grid-template-columns:38px minmax(0,1fr) auto 34px;
+    gap:2px var(--s2);padding:9px var(--s3);align-items:center;}
+  .cw-when,.cw-modecell{font-size:11px;}
+  .cw-modecell{text-align:left;}
+  .cw-seatcell{text-align:right;}
+  .cw-row2 .cw-bell{align-self:center;}
+  .cw-gname{font-size:12px;}
+  .cw-hit{grid-template-columns:minmax(0,1fr) auto;gap:var(--s3);padding:var(--s3);}
+  .cw-hitseats b{font-size:26px;}
   .cw-conn{margin-left:0;width:100%;}
+  .cw-stamp{margin-left:0;text-align:left;width:100%;}
+  .cw-controls{gap:var(--s2);}
+  .cw-ctl,.cw-sel{flex:1 1 auto;justify-content:center;}
+  /* The results list stops being a nested scroller on a phone. Scroll chaining
+     and momentum inside a short box is the single worst thing to operate with a
+     thumb; letting the page itself scroll is both simpler and correct. */
+  .cw-results{max-height:none;overflow:visible;}
+  .cw-manage{position:relative;}
+  .cw-resname{display:none;}
 }
 .cw-name{grid-column:1;margin:0;font-size:15px;color:var(--ink);line-height:1.35;}
 .cw-meta{grid-column:1;margin:6px 0 0;font-family:var(--mono);font-size:12.5px;
@@ -271,8 +374,6 @@ CSS = """
 .cw-seats b{display:block;font-size:30px;font-weight:700;letter-spacing:-.03em;}
 .cw-seats span{display:block;margin-top:3px;font-size:10px;letter-spacing:.13em;
   text-transform:uppercase;color:var(--muted);}
-.cw-card.open .cw-seats b{color:var(--open);}
-.cw-card.full .cw-seats b{color:var(--muted);}
 
 .cw-empty{background:var(--sunken);border:1px dashed var(--line);border-radius:5px;
   padding:26px;text-align:center;color:var(--muted);font-size:14px;}
@@ -351,17 +452,91 @@ CSS = """
 .cw-snap{background:var(--stale-field);border:1px solid var(--stale);color:var(--stale);
   border-radius:4px;padding:11px 14px;font-size:12.5px;line-height:1.5;}
 
-@media (max-width:520px){
-  .cw-card{grid-template-columns:1fr;}
-  .cw-right{grid-column:1;grid-row:auto;flex-direction:row;align-items:center;
-    justify-content:space-between;width:100%;margin-top:12px;}
-  .cw-seats{text-align:left;}
-  .cw-stamp{margin-left:0;text-align:left;width:100%;}
-}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
 """
 
 E = lambda s: html.escape(str(s or ""), quote=True)
+
+
+def course_of(code):
+    """'CS 305-2' -> 'CS 305'. Sections of one course group under one header."""
+    return code.rsplit("-", 1)[0].strip() if "-" in code else code.strip()
+
+
+def section_of(code):
+    """'CS 305-2' -> '-2'."""
+    return "-" + code.rsplit("-", 1)[1].strip() if "-" in code else ""
+
+
+_TERM_RANGE = re.compile(r"\s*(\d{2}/\d{2}/\d{4})\s*-\s*(\d{2}/\d{2}/\d{4})\s*$")
+_TIMES = re.compile(r"^(.*?)(\d{1,2}:\d{2})\s*(AM|PM)\s*-\s*(\d{1,2}:\d{2})\s*(AM|PM)$")
+
+
+def term_dates(sections):
+    """The term's date range, which is identical on every single row. Shown once
+    in the masthead instead of ~40 characters repeated down the whole page."""
+    for s in sections:
+        m = _TERM_RANGE.search(s.get("meeting") or "")
+        if m:
+            a, b = m.group(1), m.group(2)
+            fmt = lambda d: f"{MONTHS[int(d[0:2])]} {int(d[3:5])}"
+            return f"{fmt(a)} \u2013 {fmt(b)}"
+    return ""
+
+
+MONTHS = {1:"Jan",2:"Feb",3:"Mar",4:"Apr",5:"May",6:"Jun",
+          7:"Jul",8:"Aug",9:"Sep",10:"Oct",11:"Nov",12:"Dec"}
+
+
+def fmt_meeting(meeting):
+    """'M/W | 3:30 PM - 4:50 PM 08/31/2026 - 12/15/2026' -> 'M/W 3:30-4:50 PM'.
+
+    Three jobs were crammed into one string: days, times, and a term range that
+    never varies. Stripping the range and the duplicated meridiem is what lets
+    the row become a fixed-width column instead of a wrapping paragraph.
+    Bentley encodes asynchronous online sections as a Sunday 12:00-12:01 AM
+    placeholder, which is noise pretending to be a meeting time.
+    """
+    m = (meeting or "").strip()
+    if not m:
+        return ""
+    m = _TERM_RANGE.sub("", m).strip()
+    if re.search(r"12:00\s*AM\s*-\s*12:01\s*AM", m):
+        return "async"
+    m = m.replace(" | ", " ").strip()
+    hit = _TIMES.match(m)
+    if hit:
+        days, t1, ap1, t2, ap2 = hit.groups()
+        days = days.strip()
+        days = (days + " ") if days else ""
+        if ap1 == ap2:
+            return f"{days}{t1}\u2013{t2} {ap2}"
+        return f"{days}{t1} {ap1}\u2013{t2} {ap2}"
+    return m
+
+
+def sections_from(wl, found):
+    """Normalise the watchlist + a fetch into EXACTLY the shape docs/status.json
+    publishes. Both renderers consume this one shape, so the server's first paint
+    and the browser's 60-second rebuild cannot drift apart."""
+    out = []
+    for entry in wl.get("courses", []):
+        mu = entry.get("mute_until")
+        flags = {"mute_until": mu, "muted": mute_active(mu)}
+        rows = sorted(found.get(entry["match"], []), key=lambda x: x["code"])
+        for r in rows:
+            out.append({**{k: r.get(k) for k in
+                           ("code", "name", "instructor", "meeting", "mode",
+                            "status", "seats")},
+                        "open": (r.get("status", "").lower() == "open"
+                                 and (r.get("seats") or 0) > 0),
+                        **flags})
+        if not rows:
+            out.append({"code": entry["match"], "name": "", "instructor": "",
+                        "meeting": "", "mode": "", "status": "not_found",
+                        "seats": None, "open": False, **flags})
+    return out
 
 
 def mode_chip(mode):
@@ -387,43 +562,114 @@ def bell(code, muted, until):
             f'{BELL_OFF if muted else BELL_ON}</button>')
 
 
-def _card(entry, row):
-    """One watched section. `row` is None when the code matched nothing."""
-    mu = entry.get("mute_until")
-    is_muted = mute_active(mu)
-    mcls = " muted" if is_muted else ""
-    if row is None:
-        return (
-            f'<li class="cw-card full{mcls}" data-code="{E(entry["match"])}">'
-            f'<p class="cw-code">{E(entry["match"])}{bell(entry["match"], is_muted, mu)}</p>'
-            f'<p class="cw-name">Not found in this term\'s listing</p>'
-            f'<p class="cw-meta">Check the course code, or the class may not be offered.</p>'
-            f'<div class="cw-right"><span class="cw-chip gone">No match</span></div>'
-            f'</li>'
-        )
-    is_open = row["status"].lower() == "open" and (row["seats"] or 0) > 0
-    cls = "open" if is_open else "full"
-    chip = "Open" if is_open else "Full"
-    bits = []
-    if row.get("instructor"):
-        bits.append(E(row["instructor"]))
-    if row.get("meeting"):
-        bits.append(E(row["meeting"]))
-    note = (f'<p class="cw-note">{E(entry.get("note"))}</p>'
-            if entry.get("note") else "")
+def _plural(n, word):
+    return f"{n} {word}" + ("" if n == 1 else "s")
+
+
+def _hit(sec):
+    """An open section. Deliberately a different COMPONENT from a full row, not a
+    tinted variant of one — different form outranks different colour, and it means
+    the page physically changes shape when something opens."""
+    seats = sec.get("seats")
+    sil = ('<span class="cw-sil">silenced</span>' if sec.get("muted") else "")
+    meet = fmt_meeting(sec.get("meeting"))
+    bits = [b for b in (E(sec.get("instructor") or ""), E(meet)) if b]
     return (
-        f'<li class="cw-card {cls}{mcls}" data-code="{E(row["code"])}">'
-        f'<p class="cw-code">{E(row["code"])}{mode_chip(row.get("mode"))}'
-        f'{bell(row["code"], is_muted, mu)}</p>'
-        f'<p class="cw-name">{E(row["name"])}</p>'
-        f'<p class="cw-meta">{"<br>".join(bits)}</p>'
-        f'{note}'
-        f'<div class="cw-right">'
-        f'<span class="cw-chip {cls}">{chip}</span>'
-        f'<p class="cw-seats"><b>{row["seats"] if row["seats"] is not None else "?"}</b>'
-        f'<span>seat{"" if row["seats"] == 1 else "s"}</span></p>'
-        f'</div></li>'
+        f'<div class="cw-hit" data-code="{E(sec["code"])}">'
+        f'<div class="cw-hitmain">'
+        f'<p class="cw-hitcode">{E(sec["code"])}{sil}'
+        f'{bell(sec["code"], sec.get("muted"), sec.get("mute_until"))}</p>'
+        f'<p class="cw-hitname">{E(sec.get("name") or "")}</p>'
+        f'<p class="cw-hitmeta">{" &middot; ".join(bits)}</p>'
+        f'</div>'
+        f'<p class="cw-hitseats"><b>{seats if seats is not None else "?"}</b>'
+        f'<span>{"seat" if seats == 1 else "seats"}</span></p>'
+        f'</div>'
     )
+
+
+def _row(sec):
+    """One full section as a table row. Fixed columns so fifteen of them align
+    into something scannable instead of fifteen paragraphs."""
+    meet = fmt_meeting(sec.get("meeting"))
+    mode = (sec.get("mode") or "").strip()
+    cls = " is-missing" if sec.get("status") == "not_found" else ""
+    seat = "\u2014" if sec.get("status") != "not_found" else "?"
+    return (
+        f'<div class="cw-row2{cls}" data-code="{E(sec["code"])}">'
+        f'<span class="cw-secn">{E(section_of(sec["code"]) or sec["code"])}</span>'
+        f'<span class="cw-who">{E(sec.get("instructor") or "")}</span>'
+        f'<span class="cw-when">{E(meet)}</span>'
+        f'<span class="cw-modecell">{E(mode)}</span>'
+        f'<span class="cw-seatcell">{seat}</span>'
+        f'{bell(sec["code"], sec.get("muted"), sec.get("mute_until"))}'
+        f'</div>'
+    )
+
+
+def _groups(rows):
+    """Group sections under their course. 'Business Processes and Systems' was
+    printed four times and 'International Finance' twice; the header carries the
+    identity once and the rows carry only what differs."""
+    order, by = [], {}
+    for sec in rows:
+        k = course_of(sec["code"])
+        if k not in by:
+            by[k] = []
+            order.append(k)
+        by[k].append(sec)
+    out = []
+    for k in order:
+        members = by[k]
+        name = next((m.get("name") for m in members if m.get("name")), "")
+        out.append(
+            f'<div class="cw-group">'
+            f'<div class="cw-grouphead">'
+            f'<span class="cw-gcode">{E(k)}</span>'
+            f'<span class="cw-gname">{E(name)}</span>'
+            f'<span class="cw-gcount">{_plural(len(members), "section")}</span>'
+            f'</div>'
+            + "".join(_row(m) for m in members) +
+            f'</div>'
+        )
+    return "".join(out)
+
+
+def _sec(key, title, note, body):
+    return (f'<section class="cw-sec" data-sec="{key}">'
+            f'<p class="cw-sechead">{E(title)}<b>{E(note)}</b></p>'
+            f'{body}</section>')
+
+
+def render_list(sections):
+    """The whole Status list. Conditional sections: a heading only exists when it
+    has something under it, so an empty page never advertises its own emptiness."""
+    if not sections:
+        return '<p class="cw-empty">No classes are being watched right now.</p>'
+    hits    = [s for s in sections if s.get("open")]
+    missing = [s for s in sections if not s.get("open") and s.get("status") == "not_found"]
+    silent  = [s for s in sections if not s.get("open") and s.get("status") != "not_found"
+               and s.get("muted")]
+    normal  = [s for s in sections if not s.get("open") and s.get("status") != "not_found"
+               and not s.get("muted")]
+    out = []
+    if hits:
+        out.append(_sec("open", "Open now", _plural(len(hits), "section"),
+                        '<div class="cw-hits">' + "".join(_hit(h) for h in hits) + "</div>"))
+    if normal:
+        ncourses = len({course_of(x["code"]) for x in normal})
+        out.append(_sec("watching", "Watching",
+                        f'{_plural(len(normal), "section")} \u00b7 '
+                        f'{_plural(ncourses, "course")} \u00b7 all full',
+                        _groups(normal)))
+    if silent:
+        out.append(_sec("silenced", "Silenced",
+                        f'{_plural(len(silent), "section")} \u00b7 no phone alerts',
+                        _groups(silent)))
+    if missing:
+        out.append(_sec("missing", "Not in this term\u2019s listing",
+                        _plural(len(missing), "section"), _groups(missing)))
+    return "".join(out)
 
 
 def render_log(history):
@@ -502,7 +748,7 @@ TABS_JS = """
     });
     try{ history.replaceState(null,'', on_hash(name)); }catch(e){}
   }
-  function on_hash(name){ return name==='status' ? location.pathname+location.search : '#log'; }
+  function on_hash(name){ return name==='status' ? location.pathname+location.search : '#'+name; }
   tabs.forEach(function(t){
     t.addEventListener('click', function(){ show(t.dataset.tab); });
     t.addEventListener('keydown', function(e){
@@ -510,7 +756,8 @@ TABS_JS = """
       if(j>=0 && j<tabs.length){ e.preventDefault(); tabs[j].focus(); show(tabs[j].dataset.tab); }
     });
   });
-  if(location.hash==='#log') show('log');
+  var want=(location.hash||'').replace('#','');
+  if(want && tabs.some(function(t){ return t.dataset.tab===want; })) show(want);
 })();
 """
 
@@ -564,108 +811,125 @@ CHECK_JS = """
   // class it had never rendered — adding one to the watchlist left the stale
   // list sitting there until Pages rebuilt, which just looks like the edit
   // failed. So the page builds missing cards itself and drops unwatched ones.
-  function modeChip(mode){
-    if(!mode) return '';
-    var k=String(mode).toLowerCase();
-    var c = k.indexOf('online')>=0 ? 'online' : (k.indexOf('hybrid')>=0 ? 'hybrid' : 'person');
-    return '<span class="cw-mode '+c+'">'+esc(mode)+'</span>';
-  }
+  // ---- the list, rebuilt from the feed --------------------------------
+  // This mirrors render_list()/_row()/_hit() in dashboard.py. Both consume the
+  // same `sections` shape that status.json publishes, so the server's first
+  // paint and this rebuild agree by construction rather than by being kept
+  // identical by hand — which is what went wrong the last time there were two
+  // copies of the card markup.
   function bellHTML(s){
     var off=!!s.muted;
     return '<button type="button" class="cw-bell'+(off?' off':'')+'" data-bell="'+
       esc(s.code)+'" aria-pressed="'+(off?'true':'false')+'" aria-label="'+
       (off?'Notifications off':'Notifications on')+'" title="'+
-      (off?'Silenced \u2014 click to turn notifications back on'
-          :'Notifications on \u2014 click to silence this class')+'">'+
+      (off?'Silenced — click to turn notifications back on'
+          :'Notifications on — click to silence this class')+'">'+
       (off?BELL_OFF_:BELL_ON_)+'</button>';
   }
-  function buildCard(s){
-    var li=document.createElement('li');
-    li.setAttribute('data-code', s.code);
-    if(s.status==='not_found'){
-      li.className='cw-card full'+(s.muted?' muted':'');
-      li.innerHTML='<p class="cw-code">'+esc(s.code)+bellHTML(s)+'</p>'+
-        '<p class="cw-name">Not found in this term\\'s listing</p>'+
-        '<p class="cw-meta">Check the course code, or the class may not be offered.</p>'+
-        '<div class="cw-right"><span class="cw-chip gone">No match</span></div>';
-      return li;
-    }
-    var open=!!s.open, cls=open?'open':'full', meta=[];
-    if(s.instructor) meta.push(esc(s.instructor));
-    if(s.meeting) meta.push(esc(s.meeting));
-    li.className='cw-card '+cls+(s.muted?' muted':'');
-    li.innerHTML='<p class="cw-code">'+esc(s.code)+modeChip(s.mode)+bellHTML(s)+'</p>'+
-      '<p class="cw-name">'+esc(s.name)+'</p>'+
-      '<p class="cw-meta">'+meta.join('<br>')+'</p>'+
-      '<div class="cw-right"><span class="cw-chip '+cls+'">'+(open?'Open':'Full')+'</span>'+
-      '<p class="cw-seats"><b>'+((s.seats===null||s.seats===undefined)?'?':s.seats)+'</b>'+
-      '<span>seat'+(s.seats===1?'':'s')+'</span></p></div>';
-    return li;
+  function courseOf(c){ var k=String(c||''); var i=k.lastIndexOf('-');
+    return i>0 ? k.slice(0,i).trim() : k.trim(); }
+  function sectionOf(c){ var k=String(c||''); var i=k.lastIndexOf('-');
+    return i>0 ? '-'+k.slice(i+1).trim() : ''; }
+  function plural(n,w){ return n+' '+w+(n===1?'':'s'); }
+  function fmtMeeting(m){
+    m=String(m||'').trim(); if(!m) return '';
+    m=m.replace(/\\s*\\d{2}\\/\\d{2}\\/\\d{4}\\s*-\\s*\\d{2}\\/\\d{2}\\/\\d{4}\\s*$/,'').trim();
+    if(/12:00\\s*AM\\s*-\\s*12:01\\s*AM/.test(m)) return 'async';
+    m=m.replace(' | ',' ').trim();
+    var t=m.match(/^(.*?)(\\d{1,2}:\\d{2})\\s*(AM|PM)\\s*-\\s*(\\d{1,2}:\\d{2})\\s*(AM|PM)$/);
+    if(t){ var d=(t[1]||'').trim(); d=d?d+' ':'';
+      return t[3]===t[5] ? d+t[2]+'–'+t[4]+' '+t[5]
+                         : d+t[2]+' '+t[3]+'–'+t[4]+' '+t[5]; }
+    return m;
   }
-  // Number of cards added, or -1 when there is no list element (an empty
-  // watchlist renders a placeholder) so the caller can fall back to the hint.
-  function syncCards(secs){
-    var list=document.querySelector('.cw-list');
-    if(!list) return -1;
-    var want={}, added=0;
-    secs.forEach(function(s){
-      want[s.code]=1;
-      if(!list.querySelector('.cw-card[data-code="'+CSS.escape(s.code)+'"]')){
-        list.appendChild(buildCard(s)); added++;
-      }
-    });
-    Array.prototype.slice.call(list.querySelectorAll('.cw-card')).forEach(function(c){
-      if(!want[c.getAttribute('data-code')]) c.parentNode.removeChild(c);
-    });
-    // Re-append in feed order so the page matches the watchlist's ordering.
-    secs.forEach(function(s){
-      var c=list.querySelector('.cw-card[data-code="'+CSS.escape(s.code)+'"]');
-      if(c) list.appendChild(c);
-    });
-    return added;
+  function hitHTML(s){
+    var bits=[]; if(s.instructor) bits.push(esc(s.instructor));
+    var mt=fmtMeeting(s.meeting); if(mt) bits.push(esc(mt));
+    return '<div class="cw-hit" data-code="'+esc(s.code)+'">'+
+      '<div class="cw-hitmain">'+
+      '<p class="cw-hitcode">'+esc(s.code)+
+        (s.muted?'<span class="cw-sil">silenced</span>':'')+bellHTML(s)+'</p>'+
+      '<p class="cw-hitname">'+esc(s.name||'')+'</p>'+
+      '<p class="cw-hitmeta">'+bits.join(' &middot; ')+'</p></div>'+
+      '<p class="cw-hitseats"><b>'+((s.seats==null)?'?':s.seats)+'</b><span>'+
+      (s.seats===1?'seat':'seats')+'</span></p></div>';
   }
-  function setCard(s){
-    var card=document.querySelector('.cw-card[data-code="'+CSS.escape(s.code)+'"]');
-    if(!card) return false;
-    var open=!!s.open, chip=card.querySelector('.cw-chip'),
-        num=card.querySelector('.cw-seats b'), unit=card.querySelector('.cw-seats span');
-    card.classList.toggle('open',open); card.classList.toggle('full',!open);
-    card.classList.toggle('muted', !!s.muted);
-    var bl=card.querySelector('.cw-bell');
-    if(bl){
-      bl.classList.toggle('off', !!s.muted);
-      bl.setAttribute('aria-pressed', s.muted?'true':'false');
-      bl.setAttribute('aria-label', s.muted?'Notifications off':'Notifications on');
-      bl.innerHTML = s.muted ? BELL_OFF_ : BELL_ON_;
-      bl.setAttribute('title', s.muted
-        ? 'Silenced \u2014 click to turn notifications back on'
-        : 'Notifications on \u2014 click to silence this class');
+  function rowHTML(s){
+    var miss = s.status==='not_found';
+    return '<div class="cw-row2'+(miss?' is-missing':'')+'" data-code="'+esc(s.code)+'">'+
+      '<span class="cw-secn">'+esc(sectionOf(s.code)||s.code)+'</span>'+
+      '<span class="cw-who">'+esc(s.instructor||'')+'</span>'+
+      '<span class="cw-when">'+esc(fmtMeeting(s.meeting))+'</span>'+
+      '<span class="cw-modecell">'+esc(s.mode||'')+'</span>'+
+      '<span class="cw-seatcell">'+(miss?'?':'—')+'</span>'+
+      bellHTML(s)+'</div>';
+  }
+  function groupsHTML(rows){
+    var order=[], by={};
+    rows.forEach(function(s){ var k=courseOf(s.code);
+      if(!by[k]){ by[k]=[]; order.push(k); } by[k].push(s); });
+    return order.map(function(k){
+      var m=by[k], nm='';
+      for(var i=0;i<m.length;i++){ if(m[i].name){ nm=m[i].name; break; } }
+      return '<div class="cw-group"><div class="cw-grouphead">'+
+        '<span class="cw-gcode">'+esc(k)+'</span>'+
+        '<span class="cw-gname">'+esc(nm)+'</span>'+
+        '<span class="cw-gcount">'+plural(m.length,'section')+'</span></div>'+
+        m.map(rowHTML).join('')+'</div>';
+    }).join('');
+  }
+  function secHTML(key,title,note,body){
+    return '<section class="cw-sec" data-sec="'+key+'">'+
+      '<p class="cw-sechead">'+esc(title)+'<b>'+esc(note)+'</b></p>'+body+'</section>';
+  }
+  function renderList(secs){
+    var box=document.getElementById('cwList'); if(!box) return;
+    if(!secs.length){
+      box.innerHTML='<p class="cw-empty">No classes are being watched right now.</p>';
+      return;
     }
-    if(chip){ chip.classList.toggle('open',open); chip.classList.toggle('full',!open);
-              chip.textContent = s.status==='not_found' ? 'No match' : (open?'Open':'Full'); }
-    if(num) num.textContent = (s.seats===null||s.seats===undefined)?'?':s.seats;
-    if(unit) unit.textContent = s.seats===1?'seat':'seats';
-    return true;
+    var hits=[],missing=[],silent=[],normal=[];
+    secs.forEach(function(s){
+      if(s.open) hits.push(s);
+      else if(s.status==='not_found') missing.push(s);
+      else if(s.muted) silent.push(s);
+      else normal.push(s);
+    });
+    var out='';
+    if(hits.length) out+=secHTML('open','Open now',plural(hits.length,'section'),
+      '<div class="cw-hits">'+hits.map(hitHTML).join('')+'</div>');
+    if(normal.length){
+      var cs={}; normal.forEach(function(s){ cs[courseOf(s.code)]=1; });
+      out+=secHTML('watching','Watching',
+        plural(normal.length,'section')+' · '+plural(Object.keys(cs).length,'course')+
+        ' · all full', groupsHTML(normal));
+    }
+    if(silent.length) out+=secHTML('silenced','Silenced',
+      plural(silent.length,'section')+' · no phone alerts', groupsHTML(silent));
+    if(missing.length) out+=secHTML('missing','Not in this term’s listing',
+      plural(missing.length,'section'), groupsHTML(missing));
+    box.innerHTML=out;
   }
   function setVerdict(secs){
     var v=document.getElementById('cwVerdict'); if(!v) return;
+    // Write into a dedicated body div. Replacing the whole section's innerHTML
+    // also deleted the foot (Check now + freshness), which the server had
+    // rendered correctly — it just vanished on the first poll.
+    var b=document.getElementById('cwVerdictBody') || v;
     var open=secs.filter(function(s){return s.open;});
     if(open.length){
       var total=open.reduce(function(a,s){return a+(s.seats||0);},0);
       v.className='cw-verdict is-open';
-      v.innerHTML='<h2>'+open.map(function(s){return esc(s.code);}).join(', ')+
+      b.innerHTML='<h2>'+open.map(function(s){return esc(s.code);}).join(', ')+
         (open.length===1?' has ':' have ')+total+' open seat'+(total===1?'':'s')+'</h2>'+
-        '<p>Register now — seats are first come, first served.</p>'+
+        '<p>Register now \u2014 seats are first come, first served.</p>'+
         '<a class="cw-cta" target="_blank" rel="noopener" href="'+WORKDAY_+'">Register in Workday</a>';
     } else {
       v.className='cw-verdict is-quiet';
-      v.innerHTML='<h2>Still full</h2><p>'+(secs.length===1?'Your class is':'All '+secs.length+' watched classes are')+
+      b.innerHTML='<h2>Still full</h2><p>'+(secs.length===1?'Your class is':'All '+secs.length+' watched classes are')+
         ' at zero seats. You\\'ll get a push the moment that changes.</p>';
     }
   }
-
-  // Mirrors render_log() in dashboard.py — without this, tapping Check now
-  // while the Log tab is open would appear to do nothing.
   function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':s; return d.innerHTML; }
   function redrawLog(hist){
     var panel=document.getElementById('cwLogBody'); if(!panel||!hist) return;
@@ -708,11 +972,12 @@ CHECK_JS = """
 
   // Shared by the button and the background poller.
   function apply(d, quiet){
-    var secs=d.sections||[], missed=0;
     window.cwFeed = d;
+    // The overlay may rewrite d.sections (optimistic toggles, pending adds),
+    // so read them back AFTER the hook rather than before.
     if(window.cwOnFeed){ try{ window.cwOnFeed(d); }catch(e){} }
-    var added=syncCards(secs);
-    secs.forEach(function(s){ if(!setCard(s)) missed++; });
+    var secs=d.sections||[];
+    renderList(secs);
     setVerdict(secs);
     redrawLog(d.history);
     setStale(d.checked_at);
@@ -720,10 +985,7 @@ CHECK_JS = """
     if(stamp) stamp.innerHTML='Checked '+esc(d.checked_at_display)+
       '<br>Every '+esc(String(d.poll_minutes))+' min';
     age.className='cw-age'+(quiet?'':' ok');
-    age.textContent = missed
-      ? 'Watchlist changed — reload the page'
-      : (added>0 ? 'Watchlist updated \\u00b7 data from '+minsAgo(d.checked_at)
-                 : (quiet?'Data from ':'Updated \\u00b7 data from ')+minsAgo(d.checked_at));
+    age.textContent = (quiet?'Data from ':'Updated \\u00b7 data from ')+minsAgo(d.checked_at);
   }
 
   function pull(){
@@ -900,10 +1162,8 @@ MANAGE_JS = '''
     var b=document.getElementById('cwConnect');
     if(b){ b.textContent = on ? 'Connected' : 'Connect to edit';
            b.classList.toggle('done', on); }
-    var h=document.getElementById('cwHint');
-    if(h && on) h.textContent='The bell beside each course code is that '+
-      'class\u2019s notification switch. Silencing one keeps it watched and its '+
-      'seat count live here \u2014 it just stops the phone alert.';
+    var ro=document.getElementById('cwReadonly');
+    if(ro) ro.hidden = on;
     Array.prototype.forEach.call(document.querySelectorAll('.cw-bell'),
       function(x){ x.disabled=!on; });
     var pb=document.getElementById('cwPause'); if(pb) pb.disabled=!on;
@@ -991,7 +1251,15 @@ MANAGE_JS = '''
   }
   function watched(){
     var d=window.cwFeed||{};
-    return (d.sections||[]).map(function(s){ return s.code; });
+    var from=(d.sections||[]).map(function(s){ return s.code; });
+    if(from.length) return from;
+    // The feed may not have arrived yet (first paint, a slow or failed fetch).
+    // The server-rendered list is already on the page and is authoritative for
+    // WHICH classes are watched, so read that instead of showing an empty
+    // manage panel and implying he watches nothing.
+    return Array.prototype.slice.call(
+      document.querySelectorAll('#cwList [data-code]')
+    ).map(function(el){ return el.getAttribute('data-code'); });
   }
   function head(t){ var e=document.createElement('p'); e.className='cw-mhead';
     e.textContent=t; return e; }
@@ -1042,17 +1310,15 @@ MANAGE_JS = '''
   // ---------------------------------------------------------------- events
   document.addEventListener('click', function(ev){
     var bell=ev.target.closest && ev.target.closest('.cw-bell');
-    if(bell && !bell.disabled){
+      if(bell && !bell.disabled){
       var code=bell.getAttribute('data-bell');
       var nowOff=bell.classList.contains('off');
-      var val = nowOff ? null : muteVal();
-      oMute[code]=val;
-      var card=document.querySelector('.cw-card[data-code="'+CSS.escape(code)+'"]');
-      if(card) card.classList.toggle('muted', !nowOff);
-      bell.classList.toggle('off', !nowOff);
-      bell.setAttribute('aria-pressed', nowOff?'false':'true');
-      bell.innerHTML = nowOff ? BELL_ON_ : BELL_OFF_;
-      queue({k:'mute',c:code,v:val});
+      oMute[code] = nowOff ? null : muteVal();
+      queue({k:'mute',c:code,v:oMute[code]});
+      // Silencing moves a class between sections, so nudging the one button is
+      // not enough — re-render from the overlaid feed and let it land where it
+      // now belongs.
+      if(window.cwRerender) window.cwRerender();
       return;
     }
     var res=ev.target.closest && ev.target.closest('.cw-res');
@@ -1066,21 +1332,23 @@ MANAGE_JS = '''
     }
   });
 
-  function boot(){
-    var mb=document.getElementById('cwManageBtn'),
-        panel=document.getElementById('cwManage'),
-        search=document.getElementById('cwSearch'),
+function boot(){
+    var search=document.getElementById('cwSearch'),
         pause=document.getElementById('cwPause'),
-        conn=document.getElementById('cwConnect');
-    if(mb) mb.addEventListener('click', function(){
-      panel.hidden=!panel.hidden;
-      mb.classList.toggle('on', !panel.hidden);
-      if(!panel.hidden){
-        renderResults();
-        loadCatalog().then(renderResults).catch(function(e){ status('Catalog: '+e.message,true); });
-        if(search) search.focus();
-      }
-    });
+        conn=document.getElementById('cwConnect'),
+        tab=document.getElementById('tab-manage');
+    // The catalog is a quarter-megabyte of JSON. Fetch it the first time the
+    // Manage tab is actually opened, not on every page load — most visits
+    // never touch it.
+    var primed=false;
+    function prime(){
+      if(primed) return; primed=true;
+      renderResults();
+      loadCatalog().then(renderResults)
+        .catch(function(e){ primed=false; status('Catalog: '+e.message,true); });
+    }
+    if(tab) tab.addEventListener('click', prime);
+    if((location.hash||'')==='#manage') prime();
     if(search){
       var st=null;
       search.addEventListener('input', function(){
@@ -1169,21 +1437,15 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
                  snapshot_note=False, listing_url="", live=True, status_url="",
                  history=None, publish_minutes=None):
     """`found` maps watchlist match -> list of section dicts."""
-    cards, open_rows = [], []
-    for entry in wl["courses"]:
-        rows = found.get(entry["match"]) or []
-        if not rows:
-            cards.append(_card(entry, None))
-            continue
-        for r in sorted(rows, key=lambda x: x["code"]):
-            cards.append(_card(entry, r))
-            if r["status"].lower() == "open" and (r["seats"] or 0) > 0:
-                open_rows.append(r)
-
+    # One normalised shape, rendered by this function AND by the browser's
+    # 60-second rebuild. Two renderers over one contract instead of two
+    # renderers over two hand-kept-identical sets of markup.
+    secs = sections_from(wl, found)
+    open_rows = [x for x in secs if x.get("open")]
     n = len(wl["courses"])
     if open_rows:
         codes = ", ".join(r["code"] for r in open_rows)
-        total = sum(r["seats"] or 0 for r in open_rows)
+        total = sum(r.get("seats") or 0 for r in open_rows)
         verdict_inner = (
             f'<h2>{E(codes)} {"has" if len(open_rows) == 1 else "have"} '
             f'{total} open seat{"" if total == 1 else "s"}</h2>'
@@ -1201,8 +1463,7 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
             f'You\'ll get a push the moment that changes.</p>'
         )
 
-    body = ('<ul class="cw-list">' + "".join(cards) + "</ul>") if cards else \
-           '<p class="cw-empty">No classes are being watched right now.</p>'
+    body = render_list(secs)
 
     if live:
         nxt = (checked_at + timedelta(minutes=poll_minutes)).strftime("%-I:%M %p")
@@ -1238,6 +1499,9 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
            f'— real-time seat counts, no login required.</p>') if listing_url else ""
 
     if status_url:
+        # Freshness and "check again" are properties of the verdict, not admin
+        # chrome. Folded into its foot so the answer and its provenance are one
+        # object, and so the top of the page is no longer three rows of controls.
         bar = ('<div class="cw-bar">'
                '<button type="button" class="cw-btn" id="cwCheck">'
                '<span class="cw-dot"></span><span class="cw-label">Check now</span></button>'
@@ -1269,7 +1533,12 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
                 'id="tab-status" aria-controls="panel-status" aria-selected="true">Status</button>'
                 '<button class="cw-tab" role="tab" data-tab="log" '
                 'id="tab-log" aria-controls="panel-log" aria-selected="false" '
-                'tabindex="-1">Log</button></div>')
+                'tabindex="-1">Log</button>'
+                + ('<button class="cw-tab" role="tab" data-tab="manage" '
+                   'id="tab-manage" aria-controls="panel-manage" '
+                   'aria-selected="false" tabindex="-1">Manage</button>'
+                   if status_url else '')
+                + '</div>')
         n_ev = sum(1 for h in history
                    if not h.get("ok", True) or h.get("opened") or h.get("recovered"))
         log_panel = (
@@ -1289,16 +1558,19 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
     else:
         tabs, log_panel = "", ""
 
+    # Shown only while there is no credential: the bells render for everyone but
+    # only work for him, and silence about that is worse than one quiet line.
+    ro = ('<p class="cw-ro" id="cwReadonly">Bells are read-only \u2014 '
+          'connect in <b>Manage</b> to use them.</p>') if status_url else ""
     status_panel = (
         f'<section class="cw-verdict {"is-open" if open_rows else "is-quiet"}" id="cwVerdict">'
-        f'{verdict_inner}</section>'
-        f'{"" if show_tabs else bar}'
-        f'<p class="cw-lab">Watching {n} class{"" if n == 1 else "es"}</p>'
-        f'{body}'
+        f'<div id="cwVerdictBody">{verdict_inner}</div>'
+        f'<div class="cw-verdictfoot">{bar}</div>'
+        f'</section>'
+        f'{ro}'
+        f'<div class="cw-listwrap" id="cwList">{body}</div>'
     )
-    # With tabs, the button lives outside the panels — otherwise it vanishes on
-    # the Log tab, which is exactly where you'd want to pull fresh entries.
-    global_bar = bar if show_tabs else ""
+    global_bar = ""
     if show_tabs:
         status_panel = (f'<div class="cw-panel" role="tabpanel" id="panel-status" '
                         f'aria-labelledby="tab-status">{status_panel}</div>')
@@ -1325,16 +1597,17 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
     # local snapshot render they would be dead buttons, so they are omitted.
     if live and status_url:
         paused_now = mute_active(wl.get("paused_until"))
+        # Its own tab, not a strip above the list. Everything here is touched
+        # about weekly; the verdict is why the page gets opened at all, and it
+        # was sitting under three rows of admin chrome.
         controls = (
+            '<div class="cw-panel" role="tabpanel" id="panel-manage" '
+            'aria-labelledby="tab-manage" hidden>'
+            '<section class="cw-sec">'
+            '<p class="cw-sechead">Notifications<b id="cwConn"></b></p>'
             '<div class="cw-controls">'
-            # First and accented on purpose: nothing else in this row does
-            # anything until it is done, and it was getting lost as the fourth
-            # identical grey button — it wrapped onto its own row and read as
-            # decoration.
             '<button type="button" class="cw-ctl cw-primary" id="cwConnect">'
             'Connect to edit</button>'
-            '<button type="button" class="cw-ctl" id="cwManageBtn">'
-            '\u002b Add or remove classes</button>'
             f'<button type="button" class="cw-ctl{" on" if paused_now else ""}" '
             f'id="cwPause" aria-pressed="{"true" if paused_now else "false"}">'
             f'{"All notifications: OFF" if paused_now else "All notifications: on"}'
@@ -1345,20 +1618,24 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
             '<option value="8">silence for 8 hours</option>'
             '<option value="24">silence for 24 hours</option>'
             '</select>'
-            '<span class="cw-conn" id="cwConn"></span>'
             '</div>'
-            '<p class="cw-hint" id="cwHint">The bell beside each course code is '
-            'that class\u2019s notification switch \u2014 silencing one keeps it '
-            'watched and its seat count live here, it just stops the phone alert. '
-            'Connect once to enable the bells.</p>'
-            '<div class="cw-manage" id="cwManage" hidden>'
+            '<p class="cw-mhint">Connecting stores a GitHub token in this browser '
+            'only \u2014 it is never part of the page, so anyone else opening this '
+            'link gets a read-only view. The bell beside each course code silences '
+            'that class: it stays watched and its seat count stays live here, it '
+            'just stops the phone alert.</p>'
+            '</section>'
+            '<section class="cw-sec">'
+            '<p class="cw-sechead">Add or remove<b>searches the whole term</b></p>'
+            '<div class="cw-manage" id="cwManage">'
             '<input type="search" class="cw-search" id="cwSearch" autocomplete="off" '
-            'placeholder="Search every class in the term \u2014 code, name or instructor">'
+            'placeholder="Search by code, name or instructor">'
             '<div class="cw-results" id="cwResults"></div>'
-            '<p class="cw-mhint">Changes commit to your watchlist on GitHub and the '
-            'watcher picks them up within a minute. The dot beside each class is its '
-            'notification switch \u2014 silencing keeps the class watched and its seat '
-            'count live here, it just stops the phone alert.</p>'
+            '<p class="cw-mhint">Watched classes are listed first \u2014 tap one to '
+            'stop watching it. Changes commit to your watchlist on GitHub and the '
+            'watcher picks them up within a minute.</p>'
+            '</div>'
+            '</section>'
             '</div>'
         )
     else:
@@ -1377,10 +1654,10 @@ def render_inner(wl, found, checked_at, term_label, poll_minutes=10,
         f'{snap}'
         f'{stale_box}'
         f'{tabs}'
-        f'{controls}'
         f'{global_bar}'
         f'{status_panel}'
         f'{log_panel}'
+        f'{controls}'
         f'<footer class="cw-foot">{foot_live}{src}</footer>'
         f'</div></div>{script}'
     )
