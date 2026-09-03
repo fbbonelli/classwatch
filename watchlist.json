@@ -72,5 +72,6 @@
       "match": "PSY 230-2",
       "note": ""
     }
-  ]
+  ],
+  "paused_until": null
 }
