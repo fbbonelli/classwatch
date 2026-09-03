@@ -116,7 +116,7 @@ CSS = """
   letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:0;}
 .cw-term{font-family:var(--mono);font-size:13px;color:var(--muted);letter-spacing:.04em;}
 .cw-term i{font-style:normal;opacity:.72;}
-.cw-term i::before{content:" \00b7 ";}
+.cw-term i::before{content:" · ";}
 .cw-stamp{margin-left:auto;font-family:var(--mono);font-size:12px;
   color:var(--muted);font-variant-numeric:tabular-nums;text-align:right;}
 
@@ -390,13 +390,13 @@ CSS = """
    15px inset rather than the event boxes losing their padding. */
 .cw-row{display:flex;align-items:baseline;gap:14px;padding:5px 15px;
   font-family:var(--mono);font-size:12.5px;line-height:1.5;}
-.cw-row time{color:var(--muted);flex:none;width:74px;
+.cw-row time{color:var(--muted);flex:none;width:74px;white-space:nowrap;
   font-variant-numeric:tabular-nums;text-align:right;}
 .cw-row .cw-what{color:var(--muted);}
 /* events break out of the quiet rhythm so they cannot be scrolled past */
 .cw-ev{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
   border-radius:var(--r);padding:11px 14px;margin:8px 0;border:1px solid;}
-.cw-ev time{font-family:var(--mono);font-size:12.5px;opacity:.8;flex:none;width:74px;
+.cw-ev time{font-family:var(--mono);font-size:12.5px;opacity:.8;flex:none;width:74px;white-space:nowrap;
   font-variant-numeric:tabular-nums;text-align:right;}
 .cw-ev b{flex:none;font-family:var(--mono);font-size:12px;letter-spacing:.12em;
   text-transform:uppercase;}
@@ -672,7 +672,7 @@ def render_log(history):
             clock = t.strftime("%-I:%M %p")
             if not h.get("ok", True):
                 parts.append(
-                    f'<div class="cw-ev fail"><time>{clock} ET</time><b>Check failed</b>'
+                    f'<div class="cw-ev fail"><time>{clock}</time><b>Check failed</b>'
                     f'<span>{E(h.get("error", "unknown error"))}</span>'
                     f'</div>')
                 continue
@@ -682,12 +682,12 @@ def render_log(history):
                     f'{c} — {seats.get(c, "?")} seat'
                     f'{"" if seats.get(c) == 1 else "s"}' for c in h["opened"])
                 parts.append(
-                    f'<div class="cw-ev open"><time>{clock} ET</time><b>Seat open</b>'
+                    f'<div class="cw-ev open"><time>{clock}</time><b>Seat open</b>'
                     f'<span>{E(detail)}</span></div>')
                 continue
             if h.get("recovered"):
                 parts.append(
-                    f'<div class="cw-ev rec"><time>{clock} ET</time><b>Recovered</b>'
+                    f'<div class="cw-ev rec"><time>{clock}</time><b>Recovered</b>'
                     f'<span>Checks are working again</span>'
                     f'</div>')
                 continue
@@ -919,16 +919,16 @@ CHECK_JS = """
       return '<section class="cw-day"><p class="cw-dayhead">'+esc(head)+'</p>'+
         rows.map(function(p){
           var d=p[0], h=p[1], c=etClock(d);
-          if(h.ok===false) return '<div class="cw-ev fail"><time>'+c+' ET</time><b>Check failed</b><span>'+
+          if(h.ok===false) return '<div class="cw-ev fail"><time>'+c+'</time><b>Check failed</b><span>'+
             esc(h.error||'unknown error')+'</span></div>';
           if(h.opened && h.opened.length){
             var seats={}; (h.open||[]).forEach(function(o){seats[o.code]=o.seats;});
             var det=h.opened.map(function(x){
               var s=seats[x]; return x+' — '+(s==null?'?':s)+' seat'+(s===1?'':'s'); }).join(', ');
-            return '<div class="cw-ev open"><time>'+c+' ET</time><b>Seat open</b><span>'+esc(det)+
+            return '<div class="cw-ev open"><time>'+c+'</time><b>Seat open</b><span>'+esc(det)+
               '</span></div>';
           }
-          if(h.recovered) return '<div class="cw-ev rec"><time>'+c+' ET</time><b>Recovered</b>'+
+          if(h.recovered) return '<div class="cw-ev rec"><time>'+c+'</time><b>Recovered</b>'+
             '<span>Checks are working again</span></div>';
           var op=h.open||[];
           var what = op.length ? op.map(function(o){return o.code+' open ('+o.seats+')';}).join(', ')
