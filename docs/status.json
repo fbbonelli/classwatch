@@ -12189,10 +12189,29 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-04T12:41:37.920549-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "PH 319-2",
+          "seats": 1
+        },
+        {
+          "code": "PSY 230-2",
+          "seats": 1
+        }
+      ],
+      "opened": [
+        "PSY 230-2"
+      ],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-04T12:36:34.058126-04:00",
-  "checked_at_display": "12:36 PM ET",
+  "checked_at": "2026-09-04T12:41:37.920549-04:00",
+  "checked_at_display": "12:41 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -12370,9 +12389,9 @@
       "instructor": "Helen Meldrum",
       "meeting": "W | 11:00 AM - 1:50 PM 08/31/2026 - 12/15/2026",
       "mode": "In-Person",
-      "status": "Closed",
-      "seats": 0,
-      "open": false,
+      "status": "Open",
+      "seats": 1,
+      "open": true,
       "mute_until": null,
       "muted": false
     }
