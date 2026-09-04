@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-09-03T19:54:26.700239-04:00",
+  "built_at": "2026-09-03T20:24:42.737475-04:00",
   "term": "202609",
   "departments": [
     {
@@ -1245,7 +1245,7 @@
       "d": "CDI",
       "dn": "Career Development",
       "o": 1,
-      "s": 978
+      "s": 977
     },
     {
       "c": "CS 100-1",
@@ -2048,7 +2048,7 @@
       "d": "CS",
       "dn": "Computer Information Systems",
       "o": 1,
-      "s": 11
+      "s": 10
     },
     {
       "c": "CS 602-1",
@@ -2125,7 +2125,7 @@
       "d": "CS",
       "dn": "Computer Information Systems",
       "o": 1,
-      "s": 14
+      "s": 15
     },
     {
       "c": "CS 747-1",
@@ -2257,7 +2257,7 @@
       "d": "EC",
       "dn": "Economics",
       "o": 1,
-      "s": 7
+      "s": 8
     },
     {
       "c": "EC 111-2",
@@ -6877,7 +6877,7 @@
       "d": "ID",
       "dn": "Interdisciplinary Studies",
       "o": 1,
-      "s": 9
+      "s": 10
     },
     {
       "c": "ID 260-1",
@@ -6910,7 +6910,7 @@
       "d": "ID",
       "dn": "Interdisciplinary Studies",
       "o": 1,
-      "s": 1
+      "s": 2
     },
     {
       "c": "LA 100-1-H",
@@ -7372,7 +7372,7 @@
       "d": "MA",
       "dn": "Mathematical Sciences",
       "o": 1,
-      "s": 6
+      "s": 5
     },
     {
       "c": "MA 105L-1",
@@ -7779,7 +7779,7 @@
       "d": "MA",
       "dn": "Mathematical Sciences",
       "o": 1,
-      "s": 9
+      "s": 8
     },
     {
       "c": "MA 610-2",
@@ -8262,8 +8262,8 @@
       "t": "T/Th | 5:00 PM - 6:20 PM 08/31/2026 - 12/15/2026",
       "d": "MG",
       "dn": "Management",
-      "o": 1,
-      "s": 1
+      "o": 0,
+      "s": 0
     },
     {
       "c": "MG 300-15",
@@ -9296,8 +9296,8 @@
       "t": "M/W | 9:30 AM - 10:50 AM 08/31/2026 - 12/15/2026",
       "d": "NAS",
       "dn": "Natural & Applied Science",
-      "o": 0,
-      "s": 0
+      "o": 1,
+      "s": 1
     },
     {
       "c": "NAS 304-1",
@@ -10705,7 +10705,7 @@
       "d": "XD",
       "dn": "Experience Design",
       "o": 1,
-      "s": 4
+      "s": 3
     },
     {
       "c": "XD 320-2",
