@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-28T15:12:59.141634-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-28T15:23:02.345787-04:00",
       "ok": true,
       "open": [],
@@ -12546,10 +12538,36 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-04T15:15:15.887532-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "PH 319-2",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
+    },
+    {
+      "t": "2026-09-04T15:20:17.157627-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "PH 319-2",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-04T15:10:12.671220-04:00",
-  "checked_at_display": "3:10 PM ET",
+  "checked_at": "2026-09-04T15:20:17.157627-04:00",
+  "checked_at_display": "3:20 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
