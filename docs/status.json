@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-29T15:28:42.796875-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-29T15:38:46.080448-04:00",
       "ok": true,
       "open": [],
@@ -14087,10 +14079,25 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-05T15:33:41.210732-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "PH 319-2",
+          "seats": 1
+        }
+      ],
+      "opened": [
+        "PH 319-2"
+      ],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-05T15:26:08.198750-04:00",
-  "checked_at_display": "3:26 PM ET",
+  "checked_at": "2026-09-05T15:33:41.210732-04:00",
+  "checked_at_display": "3:33 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -14256,9 +14263,9 @@
       "instructor": "Ranjoo Herr",
       "meeting": "M/Th | 2:00 PM - 3:20 PM 08/31/2026 - 12/15/2026",
       "mode": "In-Person",
-      "status": "Closed",
-      "seats": 0,
-      "open": false,
+      "status": "Open",
+      "seats": 1,
+      "open": true,
       "mute_until": null,
       "muted": false
     },
