@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-09-04T21:59:05.573359-04:00",
+  "built_at": "2026-09-04T22:29:19.472909-04:00",
   "term": "202609",
   "departments": [
     {
@@ -640,7 +640,7 @@
       "d": "AC",
       "dn": "Accountancy",
       "o": 1,
-      "s": 5
+      "s": 4
     },
     {
       "c": "AC 311-3",
@@ -662,7 +662,7 @@
       "d": "AC",
       "dn": "Accountancy",
       "o": 1,
-      "s": 4
+      "s": 5
     },
     {
       "c": "AC 312-1",
@@ -1740,7 +1740,7 @@
       "d": "CS",
       "dn": "Computer Information Systems",
       "o": 1,
-      "s": 1
+      "s": 2
     },
     {
       "c": "CS 250-2",
@@ -6888,7 +6888,7 @@
       "d": "ID",
       "dn": "Interdisciplinary Studies",
       "o": 1,
-      "s": 3
+      "s": 2
     },
     {
       "c": "ID 320-1",
@@ -7900,7 +7900,7 @@
       "d": "MG",
       "dn": "Management",
       "o": 1,
-      "s": 1
+      "s": 2
     },
     {
       "c": "MG 116-15",
@@ -9385,7 +9385,7 @@
       "d": "NAS",
       "dn": "Natural & Applied Science",
       "o": 1,
-      "s": 8
+      "s": 9
     },
     {
       "c": "NAS 334-1",
@@ -10782,7 +10782,7 @@
       "d": "XD",
       "dn": "Experience Design",
       "o": 1,
-      "s": 9
+      "s": 10
     }
   ]
 }
