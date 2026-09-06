@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-30T10:49:02.763443-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-30T10:58:40.277667-04:00",
       "ok": true,
       "open": [],
@@ -16132,10 +16124,25 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-06T10:49:02.059443-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "PH 319-2",
+          "seats": 1
+        }
+      ],
+      "opened": [
+        "PH 319-2"
+      ],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-06T10:43:56.021439-04:00",
-  "checked_at_display": "10:43 AM ET",
+  "checked_at": "2026-09-06T10:49:02.059443-04:00",
+  "checked_at_display": "10:49 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
