@@ -1,14 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-08-30T22:50:23.645814-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 12
-    },
-    {
       "t": "2026-08-30T23:00:26.898283-04:00",
       "ok": true,
       "open": [],
@@ -17556,10 +17548,38 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-06T22:52:34.112314-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
+    },
+    {
+      "t": "2026-09-06T22:57:36.068002-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        }
+      ],
+      "opened": [
+        "CS 305-11"
+      ],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-06T22:47:30.446096-04:00",
-  "checked_at_display": "10:47 PM ET",
+  "checked_at": "2026-09-06T22:57:36.068002-04:00",
+  "checked_at_display": "10:57 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -17725,9 +17745,9 @@
       "instructor": "Ranjoo Herr",
       "meeting": "M/Th | 2:00 PM - 3:20 PM 08/31/2026 - 12/15/2026",
       "mode": "In-Person",
-      "status": "Open",
-      "seats": 1,
-      "open": true,
+      "status": "Closed",
+      "seats": 0,
+      "open": false,
       "mute_until": null,
       "muted": false
     },
