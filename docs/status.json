@@ -1,32 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-09-02T16:45:22.698054-04:00",
-      "ok": true,
-      "open": [
-        {
-          "code": "PSY 230-2",
-          "seats": 1
-        }
-      ],
-      "opened": [],
-      "recovered": false,
-      "n": 16
-    },
-    {
-      "t": "2026-09-02T16:50:26.466682-04:00",
-      "ok": true,
-      "open": [
-        {
-          "code": "PSY 230-2",
-          "seats": 1
-        }
-      ],
-      "opened": [],
-      "recovered": false,
-      "n": 16
-    },
-    {
       "t": "2026-09-02T16:55:28.387146-04:00",
       "ok": true,
       "open": [
@@ -22292,10 +22266,36 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-09T16:45:43.628756-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
+    },
+    {
+      "t": "2026-09-09T16:50:45.293651-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-09T16:40:40.050824-04:00",
-  "checked_at_display": "4:40 PM ET",
+  "checked_at": "2026-09-09T16:50:45.293651-04:00",
+  "checked_at_display": "4:50 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
