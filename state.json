@@ -1,7 +1,7 @@
 {
   "_health": {
     "fails": 0,
-    "last_ok": "2026-09-10T14:48:44.872478-04:00"
+    "last_ok": "2026-09-10T14:58:49.349179-04:00"
   },
   "CS 305-9": {
     "open": false,
@@ -21,7 +21,7 @@
   "CS 305-11": {
     "open": true,
     "seats": 1,
-    "last_alert": "2026-09-10T14:48:44.872478-04:00",
+    "last_alert": "2026-09-10T14:58:49.349179-04:00",
     "muted": true
   },
   "CS 305-12": {
@@ -128,9 +128,10 @@
     "last_alert": null
   },
   "PH 319-2": {
-    "open": false,
-    "seats": 0,
-    "last_alert": null
+    "open": true,
+    "seats": 1,
+    "last_alert": "2026-09-10T14:58:49.349179-04:00",
+    "muted": true
   },
   "HI 356-2": {
     "open": false,

@@ -1,32 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-09-03T14:52:29.931819-04:00",
-      "ok": true,
-      "open": [
-        {
-          "code": "PSY 230-2",
-          "seats": 1
-        }
-      ],
-      "opened": [],
-      "recovered": false,
-      "n": 15
-    },
-    {
-      "t": "2026-09-03T14:57:32.881398-04:00",
-      "ok": true,
-      "open": [
-        {
-          "code": "PSY 230-2",
-          "seats": 1
-        }
-      ],
-      "opened": [],
-      "recovered": false,
-      "n": 15
-    },
-    {
       "t": "2026-09-03T15:02:34.465824-04:00",
       "ok": true,
       "open": [
@@ -23440,10 +23414,40 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-10T14:53:48.113129-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
+    },
+    {
+      "t": "2026-09-10T14:58:49.349179-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        },
+        {
+          "code": "PH 319-2",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-10T14:48:44.872478-04:00",
-  "checked_at_display": "2:48 PM ET",
+  "checked_at": "2026-09-10T14:58:49.349179-04:00",
+  "checked_at_display": "2:58 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
@@ -23609,9 +23613,9 @@
       "instructor": "Ranjoo Herr",
       "meeting": "M/Th | 2:00 PM - 3:20 PM 08/31/2026 - 12/15/2026",
       "mode": "In-Person",
-      "status": "Closed",
-      "seats": 0,
-      "open": false,
+      "status": "Open",
+      "seats": 1,
+      "open": true,
       "mute_until": null,
       "muted": false
     },
