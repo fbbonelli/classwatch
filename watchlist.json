@@ -71,5 +71,5 @@
       "mute_until": null
     }
   ],
-  "paused_until": null
+  "paused_until": "forever"
 }
