@@ -1,7 +1,7 @@
 {
   "_health": {
     "fails": 0,
-    "last_ok": "2026-09-10T11:12:24.503328-04:00"
+    "last_ok": "2026-09-10T11:15:11.590595-04:00"
   },
   "CS 305-9": {
     "open": false,
@@ -21,7 +21,8 @@
   "CS 305-11": {
     "open": true,
     "seats": 1,
-    "last_alert": "2026-09-10T10:52:13.271842-04:00"
+    "last_alert": "2026-09-10T11:15:11.590595-04:00",
+    "muted": true
   },
   "CS 305-12": {
     "open": false,
@@ -110,7 +111,7 @@
     "PH 319-2": false,
     "PSY 230-2": false
   },
-  "_paused": false,
+  "_paused": true,
   "GLS 114-3": {
     "open": false,
     "seats": 0,
