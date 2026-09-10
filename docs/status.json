@@ -1,32 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-09-03T10:03:59.034796-04:00",
-      "ok": true,
-      "open": [
-        {
-          "code": "NAS 308-1",
-          "seats": 1
-        }
-      ],
-      "opened": [],
-      "recovered": false,
-      "n": 15
-    },
-    {
-      "t": "2026-09-03T10:09:02.209970-04:00",
-      "ok": true,
-      "open": [
-        {
-          "code": "NAS 308-1",
-          "seats": 1
-        }
-      ],
-      "opened": [],
-      "recovered": false,
-      "n": 15
-    },
-    {
       "t": "2026-09-03T10:14:05.576728-04:00",
       "ok": true,
       "open": [],
@@ -23219,10 +23193,36 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-10T10:06:51.968462-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
+    },
+    {
+      "t": "2026-09-10T10:11:53.217560-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-10T10:01:48.947048-04:00",
-  "checked_at_display": "10:01 AM ET",
+  "checked_at": "2026-09-10T10:11:53.217560-04:00",
+  "checked_at_display": "10:11 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
