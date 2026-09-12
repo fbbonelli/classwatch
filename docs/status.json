@@ -1,22 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-09-05T02:24:40.800794-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 15
-    },
-    {
-      "t": "2026-09-05T02:29:43.954519-04:00",
-      "ok": true,
-      "open": [],
-      "opened": [],
-      "recovered": false,
-      "n": 15
-    },
-    {
       "t": "2026-09-05T02:34:45.278433-04:00",
       "ok": true,
       "open": [],
@@ -23172,10 +23156,36 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-12T02:27:20.292627-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
+    },
+    {
+      "t": "2026-09-12T02:32:21.983241-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-12T02:22:16.590318-04:00",
-  "checked_at_display": "2:22 AM ET",
+  "checked_at": "2026-09-12T02:32:21.983241-04:00",
+  "checked_at_display": "2:32 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
