@@ -1,32 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-09-06T16:00:33.474656-04:00",
-      "ok": true,
-      "open": [
-        {
-          "code": "PH 319-2",
-          "seats": 1
-        }
-      ],
-      "opened": [],
-      "recovered": false,
-      "n": 15
-    },
-    {
-      "t": "2026-09-06T16:05:35.008028-04:00",
-      "ok": true,
-      "open": [
-        {
-          "code": "PH 319-2",
-          "seats": 1
-        }
-      ],
-      "opened": [],
-      "recovered": false,
-      "n": 15
-    },
-    {
       "t": "2026-09-06T16:10:38.044529-04:00",
       "ok": true,
       "open": [
@@ -23642,10 +23616,36 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-09-13T16:03:42.822068-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
+    },
+    {
+      "t": "2026-09-13T16:08:44.697330-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-09-13T15:58:39.267494-04:00",
-  "checked_at_display": "3:58 PM ET",
+  "checked_at": "2026-09-13T16:08:44.697330-04:00",
+  "checked_at_display": "4:08 PM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
