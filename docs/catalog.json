@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-09-15T09:59:36.172362-04:00",
+  "built_at": "2026-09-15T10:29:55.950510-04:00",
   "term": "202609",
   "departments": [
     {
@@ -6151,7 +6151,7 @@
       "d": "HF",
       "dn": "Human Factors in Info Design",
       "o": 1,
-      "s": 5
+      "s": 6
     },
     {
       "c": "HF 710-1",
@@ -6162,7 +6162,7 @@
       "d": "HF",
       "dn": "Human Factors in Info Design",
       "o": 1,
-      "s": 5
+      "s": 6
     },
     {
       "c": "HF 720-1",
@@ -6173,7 +6173,7 @@
       "d": "HF",
       "dn": "Human Factors in Info Design",
       "o": 1,
-      "s": 1
+      "s": 2
     },
     {
       "c": "HF 750-2",
@@ -6184,7 +6184,7 @@
       "d": "HF",
       "dn": "Human Factors in Info Design",
       "o": 1,
-      "s": 13
+      "s": 14
     },
     {
       "c": "HF 764-1",
