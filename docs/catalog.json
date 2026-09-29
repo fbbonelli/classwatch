@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-09-29T14:56:07.312331-04:00",
+  "built_at": "2026-09-29T15:30:05.348161-04:00",
   "term": "202609",
   "departments": [
     {
@@ -1707,7 +1707,7 @@
       "d": "CS",
       "dn": "Computer Information Systems",
       "o": 1,
-      "s": 2
+      "s": 3
     },
     {
       "c": "CS 240-1",
@@ -7834,7 +7834,7 @@
       "d": "MA",
       "dn": "Mathematical Sciences",
       "o": 1,
-      "s": 19
+      "s": 20
     },
     {
       "c": "MG 116-1",
