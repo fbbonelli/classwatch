@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-09-30T04:13:01.805043-04:00",
+  "built_at": "2026-09-30T10:04:34.579226-04:00",
   "term": "202609",
   "departments": [
     {
@@ -6019,7 +6019,7 @@
       "d": "GR",
       "dn": "Graduate Interdisciplinary",
       "o": 1,
-      "s": 13
+      "s": 12
     },
     {
       "c": "GR 603-3",
@@ -7307,6 +7307,17 @@
       "dn": "Law",
       "o": 0,
       "s": 0
+    },
+    {
+      "c": "MA 026-1",
+      "n": "Math Readiness & Success",
+      "m": "Online",
+      "i": "Zsuzsanna Maar",
+      "t": "10/14/2026 - 11/24/2026",
+      "d": "MA",
+      "dn": "Mathematical Sciences",
+      "o": 1,
+      "s": 30
     },
     {
       "c": "MA 105-1",
@@ -8703,7 +8714,7 @@
       "d": "MG",
       "dn": "Management",
       "o": 1,
-      "s": 13
+      "s": 12
     },
     {
       "c": "MK 250-1",
