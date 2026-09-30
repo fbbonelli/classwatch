@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-09-30T13:40:20.631591-04:00",
+  "built_at": "2026-09-30T14:10:39.984442-04:00",
   "term": "202609",
   "departments": [
     {
@@ -10067,18 +10067,7 @@
       "d": "SL",
       "dn": "Service Learning",
       "o": 1,
-      "s": 5
-    },
-    {
-      "c": "SL 121-2",
-      "n": "Service-Learning-Business (AC 215-6H)",
-      "m": "In-Person",
-      "i": "Eric Gaynor",
-      "t": "08/31/2026 - 12/15/2026",
-      "d": "SL",
-      "dn": "Service Learning",
-      "o": 1,
-      "s": 10
+      "s": 3
     },
     {
       "c": "SO 132-1",
