@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-10-01T10:07:55.350076-04:00",
+  "built_at": "2026-10-01T10:38:15.058316-04:00",
   "term": "202609",
   "departments": [
     {
@@ -10079,6 +10079,28 @@
       "dn": "Service Learning",
       "o": 1,
       "s": 3
+    },
+    {
+      "c": "SL 121-11",
+      "n": "Service-Learning-Business (CS 100-16)",
+      "m": "In-Person",
+      "i": "Donald Aucoin",
+      "t": "08/31/2026 - 12/15/2026",
+      "d": "SL",
+      "dn": "Service Learning",
+      "o": 1,
+      "s": 5
+    },
+    {
+      "c": "SL 121-12",
+      "n": "Service-Learning-Business (CS 100-17)",
+      "m": "In-Person",
+      "i": "Nicole Zouharis",
+      "t": "08/31/2026 - 12/15/2026",
+      "d": "SL",
+      "dn": "Service Learning",
+      "o": 1,
+      "s": 5
     },
     {
       "c": "SO 132-1",
