@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-10-05T13:10:00.532782-04:00",
+  "built_at": "2026-10-05T13:40:20.708823-04:00",
   "term": "202609",
   "departments": [
     {
@@ -10068,6 +10068,17 @@
       "dn": "Service Learning",
       "o": 1,
       "s": 4
+    },
+    {
+      "c": "SL 120-29",
+      "n": "Service-Learning (PSY 215-1)",
+      "m": "In-Person",
+      "i": "Barbara Nash",
+      "t": "08/31/2026 - 12/15/2026",
+      "d": "SL",
+      "dn": "Service Learning",
+      "o": 1,
+      "s": 5
     },
     {
       "c": "SL 121-1",
