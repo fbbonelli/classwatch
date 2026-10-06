@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-10-06T11:55:59.844308-04:00",
+  "built_at": "2026-10-06T12:26:16.803809-04:00",
   "term": "202609",
   "departments": [
     {
@@ -10090,6 +10090,17 @@
       "dn": "Service Learning",
       "o": 1,
       "s": 3
+    },
+    {
+      "c": "SL 121-31",
+      "n": "Service-Learning-Business (FI 118-2H)",
+      "m": "In-Person",
+      "i": "Steven Wasserman",
+      "t": "08/31/2026 - 12/15/2026",
+      "d": "SL",
+      "dn": "Service Learning",
+      "o": 1,
+      "s": 5
     },
     {
       "c": "SO 132-1",
