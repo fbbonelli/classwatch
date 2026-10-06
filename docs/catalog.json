@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-10-06T12:56:33.861328-04:00",
+  "built_at": "2026-10-06T13:26:51.418091-04:00",
   "term": "202609",
   "departments": [
     {
@@ -10079,17 +10079,6 @@
       "dn": "Service Learning",
       "o": 1,
       "s": 1
-    },
-    {
-      "c": "SL 120-34",
-      "n": "Service-Learning (GLS 101-3)",
-      "m": "In-Person",
-      "i": "Kristin Sorensen",
-      "t": "08/31/2026 - 12/15/2026",
-      "d": "SL",
-      "dn": "Service Learning",
-      "o": 1,
-      "s": 6
     },
     {
       "c": "SL 121-1",
