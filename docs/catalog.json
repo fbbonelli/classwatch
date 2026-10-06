@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-10-06T13:26:51.418091-04:00",
+  "built_at": "2026-10-06T13:57:12.704507-04:00",
   "term": "202609",
   "departments": [
     {
@@ -9638,7 +9638,7 @@
       "d": "PH",
       "dn": "Philosophy",
       "o": 1,
-      "s": 2
+      "s": 3
     },
     {
       "c": "PH 110-1",
@@ -10079,6 +10079,28 @@
       "dn": "Service Learning",
       "o": 1,
       "s": 1
+    },
+    {
+      "c": "SL 120-39",
+      "n": "Service-Learning (GLS 315-1)",
+      "m": "In-Person",
+      "i": "Kristin Sorensen",
+      "t": "08/31/2026 - 12/15/2026",
+      "d": "SL",
+      "dn": "Service Learning",
+      "o": 1,
+      "s": 5
+    },
+    {
+      "c": "SL 120-40",
+      "n": "Service-Learning (HI 351-1)",
+      "m": "In-Person",
+      "i": "Adam Reynolds",
+      "t": "08/31/2026 - 12/15/2026",
+      "d": "SL",
+      "dn": "Service Learning",
+      "o": 1,
+      "s": 5
     },
     {
       "c": "SL 121-1",
