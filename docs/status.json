@@ -1,18 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-10-17T04:39:47.477664-04:00",
-      "ok": false,
-      "error": "parsed 0 sections \u2014 Bentley likely changed their page format",
-      "fails": 30
-    },
-    {
-      "t": "2026-10-17T04:44:47.949002-04:00",
-      "ok": false,
-      "error": "parsed 0 sections \u2014 Bentley likely changed their page format",
-      "fails": 31
-    },
-    {
       "t": "2026-10-17T04:49:50.076580-04:00",
       "ok": false,
       "error": "parsed 0 sections \u2014 Bentley likely changed their page format",
@@ -32083,10 +32071,44 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-10-24T04:42:01.723754-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        },
+        {
+          "code": "HI 356-2",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
+    },
+    {
+      "t": "2026-10-24T04:47:03.473708-04:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        },
+        {
+          "code": "HI 356-2",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-10-24T04:36:58.208135-04:00",
-  "checked_at_display": "4:36 AM ET",
+  "checked_at": "2026-10-24T04:47:03.473708-04:00",
+  "checked_at_display": "4:47 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
