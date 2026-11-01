@@ -33013,10 +33013,44 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-11-01T01:37:34.020177-05:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        },
+        {
+          "code": "HI 356-2",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
+    },
+    {
+      "t": "2026-11-01T01:42:35.608778-05:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 1
+        },
+        {
+          "code": "HI 356-2",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-11-01T01:32:28.544350-05:00",
-  "checked_at_display": "1:32 AM ET",
+  "checked_at": "2026-11-01T01:42:35.608778-05:00",
+  "checked_at_display": "1:42 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
