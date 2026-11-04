@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-11-04T11:05:04.115693-05:00",
+  "built_at": "2026-11-04T11:35:21.050930-05:00",
   "term": "202609",
   "departments": [
     {
@@ -1157,7 +1157,7 @@
       "d": "CDI",
       "dn": "Career Development",
       "o": 1,
-      "s": 923
+      "s": 920
     },
     {
       "c": "CDI 301-2",
@@ -1168,7 +1168,7 @@
       "d": "CDI",
       "dn": "Career Development",
       "o": 1,
-      "s": 995
+      "s": 994
     },
     {
       "c": "CDI 301-3",
@@ -1179,7 +1179,7 @@
       "d": "CDI",
       "dn": "Career Development",
       "o": 1,
-      "s": 977
+      "s": 975
     },
     {
       "c": "CDI 301-4",
@@ -1201,7 +1201,7 @@
       "d": "CDI",
       "dn": "Career Development",
       "o": 1,
-      "s": 990
+      "s": 989
     },
     {
       "c": "CDI 301-6",
@@ -1223,7 +1223,7 @@
       "d": "CDI",
       "dn": "Career Development",
       "o": 1,
-      "s": 964
+      "s": 963
     },
     {
       "c": "CDI 301-8",
@@ -1234,7 +1234,7 @@
       "d": "CDI",
       "dn": "Career Development",
       "o": 1,
-      "s": 937
+      "s": 934
     },
     {
       "c": "CDI 301-9",
@@ -1619,7 +1619,7 @@
       "d": "CS",
       "dn": "Computer Information Systems",
       "o": 1,
-      "s": 1
+      "s": 2
     },
     {
       "c": "CS 213-5",
@@ -2367,7 +2367,7 @@
       "d": "EC",
       "dn": "Economics",
       "o": 1,
-      "s": 20
+      "s": 21
     },
     {
       "c": "EC 112-10",
