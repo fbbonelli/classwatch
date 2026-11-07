@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-11-06T23:26:43.953400-05:00",
+  "built_at": "2026-11-06T23:57:00.610729-05:00",
   "term": "202609",
   "departments": [
     {
@@ -1542,7 +1542,7 @@
       "d": "CS",
       "dn": "Computer Information Systems",
       "o": 1,
-      "s": 3
+      "s": 4
     },
     {
       "c": "CS 160-1",
@@ -1728,8 +1728,8 @@
       "t": "M/Th | 12:30 PM - 1:50 PM 08/31/2026 - 12/15/2026",
       "d": "CS",
       "dn": "Computer Information Systems",
-      "o": 0,
-      "s": 0
+      "o": 1,
+      "s": 1
     },
     {
       "c": "CS 250-1",
@@ -1762,7 +1762,7 @@
       "d": "CS",
       "dn": "Computer Information Systems",
       "o": 1,
-      "s": 8
+      "s": 9
     },
     {
       "c": "CS 305-1",
