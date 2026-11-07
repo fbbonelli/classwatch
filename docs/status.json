@@ -1,40 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-10-31T00:33:54.841163-04:00",
-      "ok": true,
-      "open": [
-        {
-          "code": "CS 305-11",
-          "seats": 1
-        },
-        {
-          "code": "HI 356-2",
-          "seats": 1
-        }
-      ],
-      "opened": [],
-      "recovered": false,
-      "n": 15
-    },
-    {
-      "t": "2026-10-31T00:39:12.320352-04:00",
-      "ok": true,
-      "open": [
-        {
-          "code": "CS 305-11",
-          "seats": 1
-        },
-        {
-          "code": "HI 356-2",
-          "seats": 1
-        }
-      ],
-      "opened": [],
-      "recovered": false,
-      "n": 15
-    },
-    {
       "t": "2026-10-31T00:44:14.188180-04:00",
       "ok": true,
       "open": [
@@ -39186,10 +39152,60 @@
       "ok": false,
       "error": "parsed 0 sections \u2014 Bentley likely changed their page format",
       "fails": 1
+    },
+    {
+      "t": "2026-11-07T00:37:35.504154-05:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 2
+        },
+        {
+          "code": "GLS 114-3",
+          "seats": 1
+        },
+        {
+          "code": "HI 334-1",
+          "seats": 2
+        },
+        {
+          "code": "HI 356-2",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
+    },
+    {
+      "t": "2026-11-07T00:42:38.395148-05:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 2
+        },
+        {
+          "code": "GLS 114-3",
+          "seats": 1
+        },
+        {
+          "code": "HI 334-1",
+          "seats": 2
+        },
+        {
+          "code": "HI 356-2",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-11-07T00:27:13.883227-05:00",
-  "checked_at_display": "12:27 AM ET",
+  "checked_at": "2026-11-07T00:42:38.395148-05:00",
+  "checked_at_display": "12:42 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
