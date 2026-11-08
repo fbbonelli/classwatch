@@ -1,40 +1,6 @@
 {
   "history": [
     {
-      "t": "2026-11-01T09:49:37.736786-05:00",
-      "ok": true,
-      "open": [
-        {
-          "code": "CS 305-11",
-          "seats": 1
-        },
-        {
-          "code": "HI 356-2",
-          "seats": 1
-        }
-      ],
-      "opened": [],
-      "recovered": false,
-      "n": 15
-    },
-    {
-      "t": "2026-11-01T09:54:40.610794-05:00",
-      "ok": true,
-      "open": [
-        {
-          "code": "CS 305-11",
-          "seats": 1
-        },
-        {
-          "code": "HI 356-2",
-          "seats": 1
-        }
-      ],
-      "opened": [],
-      "recovered": false,
-      "n": 15
-    },
-    {
       "t": "2026-11-01T09:59:42.139387-05:00",
       "ok": true,
       "open": [
@@ -42083,10 +42049,60 @@
       "opened": [],
       "recovered": false,
       "n": 15
+    },
+    {
+      "t": "2026-11-08T09:53:37.383241-05:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 2
+        },
+        {
+          "code": "GLS 114-3",
+          "seats": 1
+        },
+        {
+          "code": "HI 334-1",
+          "seats": 2
+        },
+        {
+          "code": "HI 356-2",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
+    },
+    {
+      "t": "2026-11-08T09:58:38.913988-05:00",
+      "ok": true,
+      "open": [
+        {
+          "code": "CS 305-11",
+          "seats": 2
+        },
+        {
+          "code": "GLS 114-3",
+          "seats": 1
+        },
+        {
+          "code": "HI 334-1",
+          "seats": 2
+        },
+        {
+          "code": "HI 356-2",
+          "seats": 1
+        }
+      ],
+      "opened": [],
+      "recovered": false,
+      "n": 15
     }
   ],
-  "checked_at": "2026-11-08T09:48:34.271640-05:00",
-  "checked_at_display": "9:48 AM ET",
+  "checked_at": "2026-11-08T09:58:38.913988-05:00",
+  "checked_at_display": "9:58 AM ET",
   "term": "Fall 2026",
   "poll_minutes": 5,
   "sections": [
